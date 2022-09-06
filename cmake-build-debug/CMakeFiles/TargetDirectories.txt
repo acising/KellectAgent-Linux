@@ -1,0 +1,3 @@
+/home/zhuzhiling/CLionProjects/kellect/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/zhuzhiling/CLionProjects/kellect/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/zhuzhiling/CLionProjects/kellect/cmake-build-debug/CMakeFiles/kellect.dir
