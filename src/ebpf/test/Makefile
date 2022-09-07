@@ -58,7 +58,7 @@ $(call allow-override,CC,$(CROSS_COMPILE)cc)
 $(call allow-override,LD,$(CROSS_COMPILE)ld)
 
 .PHONY: all
-all: title $(OUTPUT)/$(APPS).o
+all: title $(patsubst %, $(OUTPUT)/%.o, $(APPS))
 
 .PHONY: title
 title:
@@ -66,7 +66,7 @@ title:
 
 .PHONY: test
 test:
-	@echo $(APPS)
+	@echo TEST
 
 .PHONY: clean
 clean:
