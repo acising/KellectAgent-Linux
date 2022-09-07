@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
 OUTPUT := release
-EBPF_SRC := ebpf
-MODULES := $(notdir $(wildcard $(EBPF_SRC)/*))
+TRACE_SRC := trace
+BASIC_SRC := basic
+MODULES := $(notdir $(wildcard $(TRACE_SRC)/*))
 HEADER := $(abspath include/)
 
 CLANG ?= clang
@@ -22,10 +23,6 @@ VMLINUX := vmlinux.h
 INCLUDES := -I$(OUTPUT) -Ilibbpf/include/uapi -I$(dir $(VMLINUX))
 CFLAGS := -g -Wall
 ALL_LDFLAGS := $(LDFLAGS) $(EXTRA_LDFLAGS)
-
-
-# APPS = minimal minimal_legacy bootstrap uprobe kprobe fentry usdt sockfilter
-APPS =
 
 
 CARGO ?= $(shell which cargo)
@@ -86,8 +83,9 @@ test:
 	@echo $(filter-out %.bpf.o , $(wildcard $(OUTPUT)/*.o))
 
 modules:
+	$(MAKE) -C $(BASIC_SRC)/ ;
 	@for n in $(MODULES) ; do \
-	    $(MAKE) -C $(EBPF_SRC)/$$n ;\
+	    $(MAKE) -C $(TRACE_SRC)/$$n ;\
 	done
 
 $(OUTPUT) $(OUTPUT)/libbpf $(BPFTOOL_OUTPUT):
@@ -131,7 +129,7 @@ $(BZS_APPS): $(LIBBLAZESYM_OBJ)
 
 kellect: $(LIBBPF_OBJ) $(BPFTOOL) modules $(OUTPUT)/main.o | $(OUTPUT)
 	$(call msg,FINAL,$@)
-	$(Q)$(CXX) $(CFLAGS) $(filter-out %.bpf.o,$(wildcard $(OUTPUT)/*.o)) $(LIBBPF_OBJ) $(ALL_LDFLAGS) -lelf -lz -o $(OUTPUT)/$@
+	$(CXX) $(CFLAGS) $(filter-out %.bpf.o,$(wildcard $(OUTPUT)/*.o)) $(LIBBPF_OBJ) $(ALL_LDFLAGS) -lelf -lz -o $(OUTPUT)/$@
 
 $(OUTPUT)/main.o: main.cpp | $(OUTPUT)
 	$(call msg,MAIN,$@)
