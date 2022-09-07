@@ -6,5 +6,3 @@
 #define KELLECT_MINIMAL_H
 
 #endif //KELLECT_MINIMAL_H
-
-int test_minimal();

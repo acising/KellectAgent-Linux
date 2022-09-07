@@ -6,7 +6,7 @@
 #include <sys/utsname.h>
 #include <vector>
 extern "C"{
-#include "include/minimal.h"
+#include "include/main.h"
 }
 
 namespace kellect{
@@ -97,7 +97,7 @@ bool is_root()
 {
     if (geteuid() != 0)
     {
-        std::cerr << "kellect currently only supports running as the root user.";
+        std::cerr << "kellect currently only supports running as the root user." << std::endl;
         return false;
     }
     else
@@ -331,7 +331,7 @@ int main(int argc, char* argv[]) {
         std::cout << "please run as root" << std::endl;
     }
     std::cout << "hello!" << std::endl;
-    test_minimal();
+    test_demo();
     return 0;
 
 }
