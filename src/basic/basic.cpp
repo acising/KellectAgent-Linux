@@ -2,12 +2,9 @@
 // Created by zhuzhiling on 9/7/22.
 //
 #include <array>
-#include <cstring>
 #include <iostream>
-#include <getopt.h>
 #include <unistd.h>
 #include <sys/utsname.h>
-#include <vector>
 #include "../include/basic.h"
 
 void info() {

@@ -2,10 +2,8 @@
 // Created by zhuzhiling on 9/7/22.
 //
 #include <array>
-#include <cstring>
 #include <iostream>
 #include <getopt.h>
-#include <unistd.h>
 #include "../include/arg_parser.h"
 #include "../include/basic.h"
 
@@ -28,7 +26,7 @@ Args parse_args(int argc, char* argv[])
         switch (c){
             case 'V':
             case Options::VERSION:
-                std::cout << "kellect " << " v0.0.1" << std::endl;
+                std::cout << "kellect " << " v1.0" << std::endl;
                 exit(0);
             case Options::INFO:
                 info();
@@ -55,6 +53,7 @@ Args parse_args(int argc, char* argv[])
                 exit(1);
         }
     }
+    std::cerr << "Kellect is starting..." << std::endl << std::endl;
 
     if (argc == 1) {
         usage();
@@ -67,9 +66,9 @@ Args parse_args(int argc, char* argv[])
     }
 
     if (args.choose_event_type) {
-        std::cerr << "you want to trace " << args.event_type << " events" << std::endl;
+        std::cerr << "you want to trace " << args.event_type << " events" << std::endl << std::endl;
     } else {
-        std::cerr << "you want to trace all events" << std::endl;
+        std::cerr << "you want to trace all events" << std::endl << std::endl;
     }
 
     return args;

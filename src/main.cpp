@@ -13,11 +13,17 @@ int main(int argc, char* argv[]) {
 
     if(is_root()){
         const Args args = parse_args(argc, argv);
+        if(args.choose_event_type){
+            if(args.event_type == "all" || args.event_type == "process"){
+                test_demo();
+            }else{
+                std::cerr << "this type of event is still under development" << std::endl;
+            }
+        }
+
     }else {
         std::cout << "please run as root" << std::endl;
     }
-    std::cout << "hello!" << std::endl;
-    //test_demo();
     return 0;
 
 }
