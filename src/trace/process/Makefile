@@ -92,8 +92,8 @@ $(patsubst %,$(OUTPUT)/%.o,$(APPS)): %.o: %.skel.h
 
 
 $(OUTPUT)/%.o: %.c $(wildcard %.h)
-	$(call msg,CC,$@)
-	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c $(filter %.c,$^) -o $@
+	$(call msg,CXX,$@)
+	$(Q)$(CXX) $(CFLAGS) $(INCLUDES) -c $(filter %.c,$^) -o $@
 
 # delete failed targets
 .DELETE_ON_ERROR:

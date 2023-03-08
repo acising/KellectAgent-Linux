@@ -4,6 +4,8 @@
 #include <array>
 #include <iostream>
 #include <getopt.h>
+#include <string.h>
+#include <fstream>
 #include "../include/arg_parser.h"
 #include "../include/basic.h"
 
@@ -26,7 +28,7 @@ Args parse_args(int argc, char* argv[])
         switch (c){
             case 'V':
             case Options::VERSION:
-                std::cout << "kellect " << " v1.0" << std::endl;
+                std::cout << "kellect for Linux" << " v1.0" << std::endl;
                 exit(0);
             case Options::INFO:
                 info();
@@ -35,15 +37,37 @@ Args parse_args(int argc, char* argv[])
             case Options::HELP:
                 usage();
                 exit(0);
-            case 'o':
+            case 'o':{
+                std::ofstream ofstream;
+                ofstream.open(optarg, std::ios::out);
+                if(!ofstream){
+                    std::cerr << "please enter a valid file name/path" << std::endl;
+                    exit(1);
+                }
+                ofstream.close();
                 args.output_file = optarg;
+                args.if_output_to_file = true;
                 break;
+            }
             case 'f':
-                args.output_format = optarg;
+                if (strcmp(optarg,"text") != 0 && strcmp(optarg, "json") != 0){
+                    std::cerr << "please input valid output format('text' or 'json')" << std::endl;
+                    exit(1);
+                }else if(strcmp(optarg, "json") == 0){
+                    args.if_output_as_json = true;
+                }
                 break;
             case 'e':
-                args.choose_event_type = true;
-                args.event_type = optarg;
+                if (strcmp(optarg, "all") != 0
+                    && strcmp(optarg, "process") != 0
+                    && strcmp(optarg, "file") != 0
+                    && strcmp(optarg, "network") != 0
+                    && strcmp(optarg, "memory") != 0) {
+                    std::cerr << "please enter a valid event type('all' or 'process' or 'file' or 'network' or 'memory')" << std::endl;
+                    exit(1);
+                }else {
+                    args.event_type = optarg;
+                }
                 break;
             case 'l':
                 args.listing = true;
@@ -53,7 +77,6 @@ Args parse_args(int argc, char* argv[])
                 exit(1);
         }
     }
-    std::cerr << "Kellect is starting..." << std::endl << std::endl;
 
     if (argc == 1) {
         usage();
@@ -63,12 +86,7 @@ Args parse_args(int argc, char* argv[])
     if (args.listing)
     {
         std::cerr << "this function is under development." << std::endl;
-    }
-
-    if (args.choose_event_type) {
-        std::cerr << "you want to trace " << args.event_type << " events" << std::endl << std::endl;
-    } else {
-        std::cerr << "you want to trace all events" << std::endl << std::endl;
+        exit(1);
     }
 
     return args;

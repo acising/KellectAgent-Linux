@@ -9,11 +9,11 @@ void usage()
     // clang-format off
     std::cerr << "USAGE:" << std::endl;
     std::cerr << "    kellect [options] " << std::endl;
-    std::cerr << "    kellect [options] filename" << std::endl;
+    std::cerr << "    kellect [options] -o filename" << std::endl;
     std::cerr << std::endl;
     std::cerr << "OPTIONS:" << std::endl;
-    std::cerr << "    -f FORMAT          Output format ('text', 'json')" << std::endl;
-    std::cerr << "    -o file            Redirect kellect output to file" << std::endl;
+    std::cerr << "    -f [format]        Output format ('text', 'json')" << std::endl;
+    std::cerr << "    -o file            Redirect kellect's output to file" << std::endl;
     std::cerr << "    -e [event_type]    Choose the type of event which you want to trace" << std::endl;
     std::cerr << "        all            (default)" << std::endl;
     std::cerr << "        process        " << std::endl;

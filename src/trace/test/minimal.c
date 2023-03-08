@@ -8,15 +8,14 @@
 
 static int libbpf_print_fn(enum libbpf_print_level level, const char *format, va_list args)
 {
-	return vfprintf(stderr, format, args);
+	return 0;
+    //return vfprintf(stderr, format, args);
 }
 
 int test_minimal()
 {
 	struct minimal_bpf *skel;
 	int err;
-
-    printf("Wow=============================================\n");
 
 	libbpf_set_strict_mode(LIBBPF_STRICT_ALL);
 	/* Set up libbpf errors and debug info callback */

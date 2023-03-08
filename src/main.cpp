@@ -1,26 +1,29 @@
 #include <array>
 #include <iostream>
+#include <fstream>
 #include "include/arg_parser.h"
 #include "include/basic.h"
-extern "C" {
 #include "include/main.h"
-}
 
 
 int main(int argc, char* argv[]) {
 
     int err;
-
     if(is_root()){
         const Args args = parse_args(argc, argv);
-        if(args.choose_event_type){
-            if(args.event_type == "all" || args.event_type == "process"){
-                test_demo();
-            }else{
-                std::cerr << "this type of event is still under development" << std::endl;
-            }
+        std::cerr << "Kellect is starting..." << std::endl << std::endl;
+        if(args.event_type.empty() || args.event_type == "all"){
+            std::cerr << "Kellect is listening events of file/process/network..." << std::endl << std::endl;
+            test_demo(args);
+        }else if(args.event_type == "process"){
+            std::cerr << "Kellect is listening events of process..." << std::endl << std::endl;
+            test_process(args);
+        }else if(args.event_type == "file"){
+            std::cerr << "Kellect is listening events of file..." << std::endl << std::endl;
+            test_file(args);
+        }else if(args.event_type == "network"){
+            std::cerr << "This function is under developing..." << std::endl << std::endl;
         }
-
     }else {
         std::cout << "please run as root" << std::endl;
     }

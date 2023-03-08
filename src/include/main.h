@@ -6,6 +6,10 @@
 #define KELLECT_LINUX_MAIN_H
 
 int test_minimal();
-int test_demo();
+int test_demo(Args args);
+int test_fork();
+int test_file(Args args);
+int test_process(Args args);
+int test_network(Args args);
 
 #endif //KELLECT_LINUX_MAIN_H

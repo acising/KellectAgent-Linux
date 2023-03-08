@@ -33,7 +33,23 @@ enum Options
     HELP,
     VERSION,
 };
+
+enum TimestampType
+{
+    TIMESTAMP_MILLISECOND = 0,
+    TIMESTAMP_MICROSECOND = 1,
+};
+
 bool is_root();
 void info();
+/**
+ * Get current timestamp
+ * @param type 0 for millisecond class, 1 for microsecond class
+ * @return current timestamp
+ */
+long int getCurrentTimestamp(int type);
+
+std::string getFormatTime();
+
 
 #endif //KELLECT_LINUX_BASIC_H
