@@ -18,6 +18,7 @@ enum EventType
     EVENT_CLOSE = 5,
     EVENT_READ = 6,
     EVENT_WRITE = 7,
+    EVENT_CLONE = 8,
 };
 
 struct Event {
@@ -86,16 +87,31 @@ struct CloneArguments {
     unsigned long tls;
 };
 
-struct ForkArguments {
+struct CloneEvent
+{
+    struct Event event;
+    struct CloneArguments cloneArguments;
+};
 
+
+struct ForkArguments {
+    unsigned short common_type;
+    unsigned char common_flags;
+    unsigned char common_preempt_count;
+    int common_pid;
+    char parent_comm[16];
+	pid_t parent_pid;
+	char child_comm[16];
+	pid_t child_pid;
 };
 
 
 struct ForkEvent {
     struct Event event;
-    struct CloneArguments cloneArguments;
-    int a;
-    int b;
+    struct ForkArguments forkArguments;
+    // struct CloneArguments cloneArguments;
+    // int a;
+    // int b;
 };
 
 struct ExecArguments {
@@ -111,7 +127,9 @@ struct ExecEvent {
 };
 
 struct ExitArguments {
-
+    char comm[16];
+	pid_t pid;
+	int prio;
 };
 
 struct ExitEvent {
