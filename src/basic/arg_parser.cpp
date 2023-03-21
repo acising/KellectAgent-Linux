@@ -13,7 +13,7 @@ Args parse_args(int argc, char* argv[])
 {
     Args args;
 
-    const char* const short_options = "f:o:e:hlV";
+    const char* const short_options = "f:o:e:hlVd";
     option long_options[] = {
             option{ "help",    no_argument, nullptr, Options::HELP },
             option{ "version", no_argument, nullptr, Options::VERSION },
@@ -71,6 +71,9 @@ Args parse_args(int argc, char* argv[])
                 break;
             case 'l':
                 args.listing = true;
+                break;
+            case 'd':
+                args.if_debug_mode = true;
                 break;
             default:
                 usage();

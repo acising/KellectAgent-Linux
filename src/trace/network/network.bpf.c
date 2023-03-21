@@ -32,7 +32,7 @@ int handle_socket_connect(struct trace_event_raw_sys_enter *ctx)
 
     e->event.pid = BPF_CORE_READ(task, pid);
     e->event.ppid = BPF_CORE_READ(task, tgid);
-    e->event.event_type = EVENT_CONNECT;
+    e->event.event_type = EVENT_NETWORK_CONNECT;
     e->event.is_process = e->event.pid == e->event.ppid;
 
     e->event.user_mode_time = BPF_CORE_READ(task, utime);
@@ -49,8 +49,6 @@ int handle_socket_connect(struct trace_event_raw_sys_enter *ctx)
     struct sockaddr *sock = (struct sockaddr *)BPF_CORE_READ(ctx, args[1]);
     bpf_core_read_user(&e->connectArguments.sa_family, sizeof(e->connectArguments.sa_family), &sock->sa_family);
     bpf_core_read_user(&e->connectArguments.sa_data, sizeof(e->connectArguments.sa_data), &sock->sa_data);
-
-    // e->connectArguments.sa_family = BPF_CORE_READ(sock, sa_family);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -74,7 +72,7 @@ int handle_socket(struct trace_event_raw_sys_enter *ctx)
 
     e->event.pid = BPF_CORE_READ(task, pid);
     e->event.ppid = BPF_CORE_READ(task, tgid);
-    e->event.event_type = EVENT_SOCKET;
+    e->event.event_type = EVENT_NETWORK_SOCKET;
     e->event.is_process = e->event.pid == e->event.ppid;
 
     e->event.user_mode_time = BPF_CORE_READ(task, utime);
@@ -111,7 +109,7 @@ int BPF_KPROBE(tcp_v4_connect_entry, struct sock *sk, struct sockaddr *uaddr, in
 
     e->event.pid = BPF_CORE_READ(task, pid);
     e->event.ppid = BPF_CORE_READ(task, tgid);
-    e->event.event_type = EVENT_TCP_IPV4;
+    e->event.event_type = EVENT_NETWORK_TCP_IPV4;
     e->event.is_process = e->event.pid == e->event.ppid;
 
     e->event.user_mode_time = BPF_CORE_READ(task, utime);
@@ -121,7 +119,6 @@ int BPF_KPROBE(tcp_v4_connect_entry, struct sock *sk, struct sockaddr *uaddr, in
     e->event.start_time = BPF_CORE_READ(task, start_time);
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
-
 
     bpf_core_read(&e->tcpIpv4ConnectArguments.addr_len, sizeof(e->tcpIpv4ConnectArguments.addr_len), &addr_len);
     
@@ -152,7 +149,7 @@ int handle_send(struct trace_event_raw_net_dev_xmit *ctx)
 
     e->event.pid = BPF_CORE_READ(task, pid);
     e->event.ppid = BPF_CORE_READ(task, tgid);
-    e->event.event_type = EVENT_SEND;
+    e->event.event_type = EVENT_NETWORK_SEND;
     e->event.is_process = e->event.pid == e->event.ppid;
 
     e->event.user_mode_time = BPF_CORE_READ(task, utime);
@@ -175,37 +172,37 @@ int handle_send(struct trace_event_raw_net_dev_xmit *ctx)
     return 0;
 }
 
-SEC("kprobe/inet_rcv")
-// TODO: implement this
-int BPF_KPROBE(inet_rcv_entry, struct sk_buff *sk)
-{
-    struct TcpIpv4ConnectEvent *e;
-    struct task_struct *task;
-
-    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
-    if (!e)
-    {
-        bpf_printk("buffer is overflowed, event is losing\n");
-        return 0;
-    }
-
-    task = (struct task_struct *)bpf_get_current_task();
-
-    e->event.pid = BPF_CORE_READ(task, pid);
-    e->event.ppid = BPF_CORE_READ(task, tgid);
-    e->event.event_type = NULL;
-    e->event.is_process = e->event.pid == e->event.ppid;
-
-    e->event.user_mode_time = BPF_CORE_READ(task, utime);
-    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
-    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
-    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
-    e->event.start_time = BPF_CORE_READ(task, start_time);
-
-    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
-
-
-    /* send data to user-space for post-processing */
-    bpf_ringbuf_submit(e, 0);
-    return 0;
-}
+//SEC("kprobe/inet_rcv")
+//// TODO: implement this
+//int BPF_KPROBE(inet_rcv_entry, struct sk_buff *sk)
+//{
+//    struct TcpIpv4ConnectEvent *e;
+//    struct task_struct *task;
+//
+//    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+//    if (!e)
+//    {
+//        bpf_printk("buffer is overflowed, event is losing\n");
+//        return 0;
+//    }
+//
+//    task = (struct task_struct *)bpf_get_current_task();
+//
+//    e->event.pid = BPF_CORE_READ(task, pid);
+//    e->event.ppid = BPF_CORE_READ(task, tgid);
+//    e->event.event_type = NULL;
+//    e->event.is_process = e->event.pid == e->event.ppid;
+//
+//    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+//    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+//    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+//    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+//    e->event.start_time = BPF_CORE_READ(task, start_time);
+//
+//    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+//
+//
+//    /* send data to user-space for post-processing */
+//    bpf_ringbuf_submit(e, 0);
+//    return 0;
+//}

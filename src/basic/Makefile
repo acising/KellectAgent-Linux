@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
-OUTPUT := ../release
+OUTPUT := ../../release
 HEADER := $(abspath ../include/)
 
 CLANG ?= clang

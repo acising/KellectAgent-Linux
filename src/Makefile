@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
-OUTPUT := release
+OUTPUT := ../release
 TRACE_SRC := trace
 BASIC_SRC := basic
 MODULES := $(notdir $(wildcard $(TRACE_SRC)/*))
@@ -129,7 +129,7 @@ $(BZS_APPS): $(LIBBLAZESYM_OBJ)
 
 kellect: $(LIBBPF_OBJ) $(BPFTOOL) modules $(OUTPUT)/main.o | $(OUTPUT)
 	$(call msg,FINAL,$@)
-	$(CXX) $(CFLAGS) $(filter-out %.bpf.o,$(wildcard $(OUTPUT)/*.o)) $(LIBBPF_OBJ)  $(ALL_LDFLAGS) -lelf -lz -o $(OUTPUT)/$@
+	$(Q)$(CXX) $(CFLAGS) $(filter-out %.bpf.o,$(wildcard $(OUTPUT)/*.o)) $(LIBBPF_OBJ)  $(ALL_LDFLAGS) -lelf -lz -o $(OUTPUT)/$@
 
 $(OUTPUT)/main.o: main.cpp | $(OUTPUT)
 	$(call msg,MAIN,$@)

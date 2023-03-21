@@ -1,27 +1,38 @@
-//
-// Created by zhuzhiling on 9/27/22.
-//
-
 #ifndef KELLECT_LINUX_FILE_H
 #define KELLECT_LINUX_FILE_H
 
-
-#define TASK_COMM_LEN 64
+#define TASK_COMM_LEN 16
 #define MAX_FILENAME_LEN 127
 
-typedef unsigned int __u32;
-typedef __u32 u32;
+enum EventType {
+    EVENT_PROCESS_FORK = 1,
+    EVENT_PROCESS_EXEC = 2,
+    EVENT_PROCESS_EXIT = 3,
+    EVENT_PROCESS_OPEN = 4,
+    EVENT_PROCESS_CLOSE = 5,
+    EVENT_PROCESS_READ = 6,
+    EVENT_PROCESS_WRITE = 7,
+    EVENT_PROCESS_CLONE = 8,
 
-enum EventType
-{
-    EVENT_FORK = 1,
-    EVENT_EXEC = 2,
-    EVENT_EXIT = 3,
-    EVENT_OPEN = 4,
-    EVENT_CLOSE = 5,
-    EVENT_READ = 6,
-    EVENT_WRITE = 7,
+    EVENT_FILE_OPEN = 101,
+    EVENT_FILE_DELETE = 102,
+    EVENT_FILE_RENAME = 103,
+    EVENT_FILE_CHANGE_MODE = 104,
+    EVENT_FILE_GET_MODE = 105,
+    EVENT_FILE_CHANGE_DIR = 106,
+    EVENT_FILE_MAKE_DIR = 107,
+    EVENT_FILE_REMOVE_DIR = 108,
+    EVENT_FILE_READ_FILE = 109,
+    EVENT_FILE_WRITE_FILE = 110,
+
+    EVENT_NETWORK_CONNECT = 201,
+    EVENT_NETWORK_DISCONNECT = 202,
+    EVENT_NETWORK_SOCKET = 203,
+    EVENT_NETWORK_TCP_IPV4 = 204,
+    EVENT_NETWORK_SEND = 205,
+    EVENT_NETWORK_RECV = 206
 };
+
 
 struct Event {
 
@@ -76,115 +87,148 @@ struct Event {
 
 };
 
-struct CloneArguments {
-    unsigned short common_type;
-    unsigned char common_flags;
-    unsigned char common_preempt_count;
-    int common_pid;
-    int __syscall_nr;
-    unsigned long clone_flags;
-    unsigned long newsp;
-    int * parent_tidptr;
-    int * child_tidptr;
-    unsigned long tls;
+struct OpenFileArguments {
+    /* Open: duplicated */
+    int open_dfd;
+    char open_filename[MAX_FILENAME_LEN];
+    int open_flags;
+    short open_mode;
 };
 
-struct ForkArguments {
-
-};
-
-
-struct ForkEvent {
+struct OpenFileEvent {
     struct Event event;
-    struct CloneArguments cloneArguments;
-    int a;
-    int b;
+    struct OpenFileArguments openFileArguments;
 };
 
-struct ExecArguments {
-    u32 __data_loc_filename;
-    pid_t pid;
-    pid_t old_pid;
-    char __data[0];
+struct DeleteArguments {
+    int delete_dfd;
+    char delete_pathname[MAX_FILENAME_LEN];
+    int delete_flag;
 };
 
-struct ExecEvent {
+struct DeleteEvent {
     struct Event event;
-    struct ExecArguments execArguments;
+    struct DeleteArguments deleteArguments;
 };
 
-struct ExitArguments {
-
+struct RenameArguments {
+    int rename_olddfd;
+    char rename_oldname[MAX_FILENAME_LEN];
+    int rename_newdfd;
+    char rename_newname[MAX_FILENAME_LEN];
+    unsigned int rename_flags;
 };
 
-struct ExitEvent {
+struct RenameEvent {
     struct Event event;
-    struct ExitArguments exitArguments;
+    struct RenameArguments renameArguments;
 };
 
-struct ReadArguments {
-    unsigned short common_type;
-    unsigned char common_flags;
-    unsigned char common_preempt_count;
-    int common_pid;
-    int __syscall_nr;
-    unsigned int fd;
-    char * buf[8];
-    size_t count;
+struct ChangeModeArguments {
+    /* Change mode */
+    int chmod_dfd;
+    char chmod_filename[MAX_FILENAME_LEN];
+    short chmod_mode;
+    int chmod_uid;
+    int chmod_gid;
 };
 
-struct ReadEvent {
+struct ChangeModeEvent {
     struct Event event;
-    struct ReadArguments readArguments;
+    struct ChangeModeArguments changeModeArguments;
 };
 
-struct WriteArguments {
-    unsigned short common_type;
-    unsigned char common_flags;
-    unsigned char common_preempt_count;
-    int common_pid;
-    int __syscall_nr;
-    unsigned int fd;
-    const char * buf[8];
-    size_t count;
+struct GetModeArguments {
+    /* Stat: get mode */
+    char stat_filename[MAX_FILENAME_LEN];
+    int stat_mode;
+    int stat_uid;
+    int stat_gid;
 };
 
-struct WriteEvent {
+struct GetModeEvent {
     struct Event event;
-    struct WriteArguments writeArguments;
+    struct GetModeArguments getModeArguments;
 };
 
-struct OpenArguments {
-    short unsigned int common_type;
-    unsigned char common_flags;
-    unsigned char common_preempt_count;
-    int common_pid;
-    int __syscall_nr;
-    int dfd;
-    const char* filename;
+struct ChangeDirArguments {
+    /* Change dir */
+    char chdir_filename[MAX_FILENAME_LEN];
+    int chdir_fd;
+};
+
+struct ChangeDirEvent {
+    struct Event event;
+    struct ChangeDirArguments changeDirArguments;
+};
+
+struct MakeDirArguments {
+    /* Make dir */
+    char mkdir_filename[MAX_FILENAME_LEN];
+    short mkdir_mode;
+    int mkdir_dfd;
+};
+
+struct MakeDirEvent {
+    struct Event event;
+    struct MakeDirArguments makeDirArguments;
+};
+
+struct RemoveDirArguments {
+    /* Remove dir */
+    char rmdir_filename[MAX_FILENAME_LEN];
+};
+
+struct RemoveDirEvent {
+    struct Event event;
+    struct RemoveDirArguments removeDirArguments;
+};
+
+
+struct ReadFileArguments {
     int flags;
-    short unsigned int mode;
+    int res;
+    int ss;
+    int sp;
+    int r14;
+    /* TESTING */
+    __u64 inode;
+    __u32 dev;
+    __u32 rdev;
+    __u64 read_bytes;
+    long ret;
+    int fd;
+    char filepath[MAX_FILENAME_LEN];
+    unsigned short filemode;
+    unsigned int fileuser;
 };
 
-struct OpenEvent {
+struct ReadFileEvent {
     struct Event event;
-    struct OpenArguments openArguments;
+    struct ReadFileArguments readFileArguments;
 };
 
-struct CloseArguments {
-    unsigned short common_type;
-    unsigned char common_flags;
-    unsigned char common_preempt_count;
-    int common_pid;
-    int __syscall_nr;
-    unsigned int fd;
+struct WriteFileArguments {
+    int flags;
+    int res;
+    int ss;
+    int sp;
+    int r14;
+    /* TESTING */
+    __u64 inode;
+    __u32 dev;
+    __u32 rdev;
+    __u64 write_bytes;
+    long ret;
+    int fd;
+    char filepath[MAX_FILENAME_LEN];
+    unsigned short filemode;
+    unsigned int fileuser;
 };
 
-struct CloseEvent {
+struct WriteFileEvent {
     struct Event event;
-    struct CloseArguments closeArguments;
+    struct WriteFileArguments writeFileArguments;
 };
-
-
 
 #endif //KELLECT_LINUX_FILE_H

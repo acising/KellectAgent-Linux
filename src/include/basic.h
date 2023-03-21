@@ -52,4 +52,6 @@ long int getCurrentTimestamp(int type);
 std::string getFormatTime();
 
 
+
+
 #endif //KELLECT_LINUX_BASIC_H

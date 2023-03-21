@@ -1,11 +1,8 @@
-// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
-/* Copyright (c) 2020 Facebook */
 #include "vmlinux.h"
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
-#include "../../include/fork.h"
-
+#include "../../include/process.h"
 
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
 
@@ -30,7 +27,7 @@ int handle_fork(struct ForkArguments *ctx)
 
     e->event.pid = BPF_CORE_READ(task, pid);
     e->event.ppid = BPF_CORE_READ(task, tgid);
-    e->event.event_type = EVENT_FORK;
+    e->event.event_type = EVENT_PROCESS_FORK;
     e->event.is_process = e->event.pid == e->event.ppid;
 
     e->event.user_mode_time = BPF_CORE_READ(task, utime);
@@ -67,7 +64,7 @@ int handle_exec(struct trace_event_raw_sched_process_exec *ctx)
 
     e->event.pid = BPF_CORE_READ(task, pid);
     e->event.ppid = BPF_CORE_READ(task, tgid);
-    e->event.event_type = EVENT_EXEC;
+    e->event.event_type = EVENT_PROCESS_EXEC;
     e->event.is_process = e->event.pid == e->event.ppid;
 
     e->event.user_mode_time = BPF_CORE_READ(task, utime);
@@ -106,7 +103,7 @@ int handle_clone(struct trace_event_raw_sys_enter *ctx)
 
     e->event.pid = BPF_CORE_READ(task, pid);
     e->event.ppid = BPF_CORE_READ(task, tgid);
-    e->event.event_type = EVENT_CLONE;
+    e->event.event_type = EVENT_PROCESS_CLONE;
     e->event.is_process = e->event.pid == e->event.ppid;
 
     e->event.user_mode_time = BPF_CORE_READ(task, utime);
@@ -120,11 +117,6 @@ int handle_clone(struct trace_event_raw_sys_enter *ctx)
     bpf_core_read(&e->cloneArguments.parent_tidptr, sizeof(e->cloneArguments.parent_tidptr), &ctx->args[2]);
     bpf_core_read(&e->cloneArguments.child_tidptr, sizeof(e->cloneArguments.child_tidptr), &ctx->args[3]);
     bpf_core_read(&e->cloneArguments.tls, sizeof(e->cloneArguments.tls), &ctx->args[4]);
-    // bpf_core_read(&e->cloneArguments.clone_flags, sizeof(e->cloneArguments.clone_flags), &ctx->clone_flags);
-    // bpf_core_read(&e->cloneArguments.newsp, sizeof(e->cloneArguments.newsp), &ctx->newsp);
-    // bpf_core_read(&e->cloneArguments.parent_tidptr, sizeof(e->cloneArguments.parent_tidptr), &ctx->parent_tidptr);
-    // bpf_core_read(&e->cloneArguments.child_tidptr, sizeof(e->cloneArguments.child_tidptr), &ctx->child_tidptr);
-    // bpf_core_read(&e->cloneArguments.tls, sizeof(e->cloneArguments.tls), &ctx->tls);
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
 
@@ -132,49 +124,6 @@ int handle_clone(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
-
-// SEC("tp/syscalls/sys_enter_execve")
-// int handle_sys_enter_exec(struct trace_event_raw_sys_enter *ctx)
-// {
-
-// }
-
-
-// SEC("tp/sched/sched_process_exit")
-// int handle_exit(struct trace_event_raw_sched_process_template *ctx)
-// {
-//     struct ExitEvent *e;
-//     struct task_struct *task;
-
-//     e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
-//     if(!e){
-//         bpf_printk("buffer is overflowed, event is losing\n");
-//         return 0;
-//     }
-
-//     task = (struct task_struct *)bpf_get_current_task();
-
-//     e->event.pid = BPF_CORE_READ(task, pid);
-//     e->event.ppid = BPF_CORE_READ(task, tgid);
-//     e->event.event_type = EVENT_EXIT;
-//     e->event.is_process = e->event.pid == e->event.ppid;
-
-//     e->event.user_mode_time = BPF_CORE_READ(task, utime);
-//     e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
-//     e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
-//     e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
-//     e->event.start_time = BPF_CORE_READ(task, start_time);
-
-//     bpf_core_read(&e->exitArguments.comm, sizeof(e->exitArguments.comm), &ctx->comm);
-//     bpf_core_read(&e->exitArguments.pid, sizeof(e->exitArguments.pid), &ctx->pid);
-//     bpf_core_read(&e->exitArguments.prio, sizeof(e->exitArguments.prio), &ctx->prio);
-
-//     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
-
-//     /* send data to user-space for post-processing */
-//     bpf_ringbuf_submit(e, 0);
-//     return 0;
-// }
 
 SEC("tp/syscalls/sys_enter_exit")
 int handle_sys_exit(struct trace_event_raw_sys_enter *ctx)
@@ -192,7 +141,7 @@ int handle_sys_exit(struct trace_event_raw_sys_enter *ctx)
 
     e->event.pid = BPF_CORE_READ(task, pid);
     e->event.ppid = BPF_CORE_READ(task, tgid);
-    e->event.event_type = EVENT_EXIT;
+    e->event.event_type = EVENT_PROCESS_EXIT;
     e->event.is_process = e->event.pid == e->event.ppid;
 
     e->event.user_mode_time = BPF_CORE_READ(task, utime);
