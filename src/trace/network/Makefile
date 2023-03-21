@@ -62,7 +62,7 @@ all: title $(patsubst %, $(OUTPUT)/%.o, $(APPS))
 
 .PHONY: title
 title:
-	@echo ===============================PROCESS_MODULE===============================
+	@echo ===============================NETWORK_MODULE===============================
 
 .PHONY: test
 test:

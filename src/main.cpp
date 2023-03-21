@@ -22,7 +22,8 @@ int main(int argc, char* argv[]) {
             std::cerr << "Kellect is listening events of file..." << std::endl << std::endl;
             test_file(args);
         }else if(args.event_type == "network"){
-            std::cerr << "This function is under developing..." << std::endl << std::endl;
+            std::cerr << "Kellect is listening events of network..." << std::endl << std::endl;
+            test_network(args);
         }
     }else {
         std::cout << "please run as root" << std::endl;

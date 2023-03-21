@@ -16,6 +16,7 @@ struct Args {
     bool if_output_to_file = false;
     bool if_output_as_json = false;
     std::string output_file;
+    bool if_debug_mode = false;
 };
 
 Args parse_args(int argc, char* argv[]);

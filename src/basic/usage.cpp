@@ -14,6 +14,7 @@ void usage()
     std::cerr << "OPTIONS:" << std::endl;
     std::cerr << "    -f [format]        Output format ('text', 'json')" << std::endl;
     std::cerr << "    -o file            Redirect kellect's output to file" << std::endl;
+    std::cerr << "    -d                 Run Kellect in debug mode" << std::endl;
     std::cerr << "    -e [event_type]    Choose the type of event which you want to trace" << std::endl;
     std::cerr << "        all            (default)" << std::endl;
     std::cerr << "        process        " << std::endl;

@@ -9,16 +9,35 @@
 typedef unsigned int __u32;
 typedef __u32 u32;
 
+
 enum EventType
 {
-    EVENT_FORK = 1,
-    EVENT_EXEC = 2,
-    EVENT_EXIT = 3,
-    EVENT_OPEN = 4,
-    EVENT_CLOSE = 5,
-    EVENT_READ = 6,
-    EVENT_WRITE = 7,
+    EVENT_PROCESS_FORK = 1,
+    EVENT_PROCESS_EXEC = 2,
+    EVENT_PROCESS_EXIT = 3,
+    EVENT_PROCESS_OPEN = 4,
+    EVENT_PROCESS_CLOSE = 5,
+    EVENT_PROCESS_READ = 6,
+    EVENT_PROCESS_WRITE = 7,
+    EVENT_PROCESS_CLONE = 8,
+
+    EVENT_FILE_OPEN = 101,
+    EVENT_FILE_DELETE = 102,
+    EVENT_FILE_RENAME = 103,
+    EVENT_FILE_CHANGE_MODE = 104,
+    EVENT_FILE_GET_MODE = 105,
+    EVENT_FILE_CHANGE_DIR = 106,
+    EVENT_FILE_MAKE_DIR = 107,
+    EVENT_FILE_REMOVE_DIR = 108,
+
+    EVENT_NETWORK_CONNECT = 201,
+    EVENT_NETWORK_DISCONNECT = 202,
+    EVENT_NETWORK_SOCKET = 203,
+    EVENT_NETWORK_TCP_IPV4 = 204,
+    EVENT_NETWORK_SEND = 205,
+    EVENT_NETWORK_RECV = 206
 };
+
 
 struct Event {
 
@@ -86,16 +105,31 @@ struct CloneArguments {
     unsigned long tls;
 };
 
-struct ForkArguments {
+struct CloneEvent
+{
+    struct Event event;
+    struct CloneArguments cloneArguments;
+};
 
+
+struct ForkArguments {
+    unsigned short common_type;
+    unsigned char common_flags;
+    unsigned char common_preempt_count;
+    int common_pid;
+    char parent_comm[16];
+	pid_t parent_pid;
+	char child_comm[16];
+	pid_t child_pid;
 };
 
 
 struct ForkEvent {
     struct Event event;
-    struct CloneArguments cloneArguments;
-    int a;
-    int b;
+    struct ForkArguments forkArguments;
+    // struct CloneArguments cloneArguments;
+    // int a;
+    // int b;
 };
 
 struct ExecArguments {
@@ -111,7 +145,9 @@ struct ExecEvent {
 };
 
 struct ExitArguments {
-
+    char comm[16];
+	pid_t pid;
+	int prio;
 };
 
 struct ExitEvent {

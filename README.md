@@ -11,9 +11,18 @@ As a firstborn version, [Kellect](https://github.com/acising/kellect/) is a mult
 
 With the help of **eBPF**(**e**xtended **B**erkeley **P**acket **F**ilter) Kellect-Linux implements the kernel-level event tracing on Linux system.
 
+## Environment Preparation
+~~~
+sudo apt-get install libelf-dev
+sudo apt-get install clang
+sudo apt-get install llvm
+sudo apt-get install libc6-dev-i386
+~~~
+
+
 ## How to use it
 ~~~
 cd src
 make kellect
-./release/kellect
+./../release/kellect []
 ~~~

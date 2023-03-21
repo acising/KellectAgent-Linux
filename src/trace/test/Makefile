@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
 BASE_SRC := ../..
-OUTPUT := $(BASE_SRC)/release
+OUTPUT := $(BASE_SRC)/../release
 HEADER := $(abspath $(BASE_SRC)/include)
 
 CLANG ?= clang
