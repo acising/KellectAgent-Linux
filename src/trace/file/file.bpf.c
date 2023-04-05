@@ -420,38 +420,15 @@ int BPF_KPROBE(vfs_read_entry, struct file *file, char *buf, size_t count, loff_
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
 
-
-    e->readFileArguments.res = PT_REGS_RC(ctx);
-    bpf_core_read(&e->readFileArguments.ss, sizeof(e->readFileArguments.ss), &ctx->ss);
-    bpf_core_read(&e->readFileArguments.sp, sizeof(e->readFileArguments.sp), &ctx->sp);
-    bpf_core_read(&e->readFileArguments.r14, sizeof(e->readFileArguments.r14), &ctx->flags);
-
     e->readFileArguments.dev = BPF_CORE_READ(file, f_inode, i_sb, s_dev);
     e->readFileArguments.rdev = BPF_CORE_READ(file, f_inode, i_rdev);
     e->readFileArguments.inode = BPF_CORE_READ(file, f_inode, i_ino);
+    e->readFileArguments.read_bytes = count;
 
     // get filename
     char *filename_ptr;
     filename_ptr = (char *)BPF_CORE_READ(file, f_path.dentry, d_iname);
     bpf_probe_read_kernel_str(e->event.filename, sizeof(e->event.filename), filename_ptr);
-
-//    // get file path
-//    if (bpf_core_enum_value_exists(enum bpf_func_id, BPF_FUNC_d_path)) {
-//        /* get path only if 'bpf_d_path' is available */
-//        struct path cur_path = BPF_CORE_READ(file, f_path);
-//        char *file_path;
-//        int error = bpf_d_path(&cur_path, file_path, sizeof(file_path));
-//        if (error >= 0) {
-//            bpf_probe_read_kernel_str(e->readFileArguments.filepath, sizeof(e->readFileArguments.filepath), file_path);
-//        } else {
-//            char *error_msg = "Read path error.";
-//            bpf_probe_read_kernel_str(e->readFileArguments.filepath, sizeof(e->readFileArguments.filepath), error_msg);
-//        }
-//    }
-//    else {
-//        char *error_msg = "Read path error.";
-//        bpf_probe_read_kernel_str(e->readFileArguments.filepath, sizeof(e->readFileArguments.filepath), error_msg);
-//    }
 
     // get file auth
     short file_mode_raw = BPF_CORE_READ(file, f_inode, i_mode);
@@ -460,9 +437,6 @@ int BPF_KPROBE(vfs_read_entry, struct file *file, char *buf, size_t count, loff_
 
     // get file user
     e->readFileArguments.fileuser = BPF_CORE_READ(file, f_inode, i_uid.val);
-
-    e->readFileArguments.flags = 1;
-    e->readFileArguments.read_bytes = count;
 
     bpf_ringbuf_submit(e, 0);
     return 0;
@@ -495,39 +469,15 @@ int BPF_KPROBE(vfs_write_entry, struct file *file, const char *buf, size_t count
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
 
-    e->writeFileArguments.res = PT_REGS_RC(ctx);
-    bpf_core_read(&e->writeFileArguments.ss, sizeof(e->writeFileArguments.ss), &ctx->ss);
-    bpf_core_read(&e->writeFileArguments.sp, sizeof(e->writeFileArguments.sp), &ctx->sp);
-    bpf_core_read(&e->writeFileArguments.r14, sizeof(e->writeFileArguments.r14), &ctx->flags);
-
     e->writeFileArguments.dev = BPF_CORE_READ(file, f_inode, i_sb, s_dev);
     e->writeFileArguments.rdev = BPF_CORE_READ(file, f_inode, i_rdev);
     e->writeFileArguments.inode = BPF_CORE_READ(file, f_inode, i_ino);
+    e->writeFileArguments.write_bytes = count;
 
     // get filename
     char *filename_ptr;
     filename_ptr = (char *)BPF_CORE_READ(file, f_path.dentry, d_iname);
     bpf_probe_read_kernel_str(e->event.filename, sizeof(e->event.filename), filename_ptr);
-
-//    // get file path
-//    if (bpf_core_enum_value_exists(enum bpf_func_id, BPF_FUNC_d_path)) {
-//        /* get path only if 'bpf_d_path' is available */
-//        struct path cur_path = BPF_CORE_READ(file, f_path);
-//        char *file_path;
-//        int error = bpf_d_path(&cur_path, file_path, sizeof(file_path));
-//        if (error >= 0) {
-//            bpf_probe_read_kernel_str(e->writeFileArguments.filepath, sizeof(e->writeFileArguments.filepath),
-//                                      file_path);
-//        } else {
-//            char *error_msg = "Read path error.";
-//            bpf_probe_read_kernel_str(e->writeFileArguments.filepath, sizeof(e->writeFileArguments.filepath),
-//                                      error_msg);
-//        }
-//    }
-//    else {
-//        char *error_msg = "Read path error.";
-//        bpf_probe_read_kernel_str(e->writeFileArguments.filepath, sizeof(e->writeFileArguments.filepath), error_msg);
-//    }
 
     // get file auth
     short file_mode_raw = BPF_CORE_READ(file, f_inode, i_mode);
@@ -536,9 +486,6 @@ int BPF_KPROBE(vfs_write_entry, struct file *file, const char *buf, size_t count
 
     // get file user
     e->writeFileArguments.fileuser = BPF_CORE_READ(file, f_inode, i_uid.val);
-
-    e->writeFileArguments.flags = 2;
-    e->writeFileArguments.write_bytes = count;
 
     bpf_ringbuf_submit(e, 0);
     return 0;
