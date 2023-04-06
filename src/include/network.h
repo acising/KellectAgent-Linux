@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 #ifndef KELLECT_LINUX_NETWORK_H
 #define KELLECT_LINUX_NETWORK_H
 

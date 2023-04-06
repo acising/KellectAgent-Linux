@@ -1,5 +1,4 @@
-/* SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause) */
-/* Copyright (c) 2020 Facebook */
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 #ifndef __FORK_H
 #define __FORK_H
 
