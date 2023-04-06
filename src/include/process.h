@@ -148,6 +148,7 @@ struct ExitArguments {
     char comm[16];
 	pid_t pid;
 	int prio;
+    int exit_code;
 };
 
 struct ExitEvent {

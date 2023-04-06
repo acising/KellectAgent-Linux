@@ -287,17 +287,20 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                                             "\"ThreadID\":%d, "
                                             "\"ProcessType\":\"%s\", "
                                             "\"Arguments\":{"
+                                            "\"Exit_code\":%d, "
                                             "\"PID\":%d, "
                                             "\"ExitPName\":%s,"
                                             "\"Priority\":%d}"
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->exitArguments.exit_code,
                             e->exitArguments.pid,
                             e->exitArguments.comm,
                             e->exitArguments.prio);
                 } else {
-                    fprintf(output_process, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d \n",
+                    fprintf(output_process, "%-20ld %-10s %-32s %-7d %-7d %-10s %-5d %-7d %-20s %-7d \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->exitArguments.exit_code,
                             e->exitArguments.pid,
                             e->exitArguments.comm,
                             e->exitArguments.prio);
@@ -316,18 +319,21 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
+                           "\"Exit_code\":%d, "
                            "\"PID\":%d, "
                            "\"ExitPName\":%s,"
                            "\"Priority\":%d}"
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->exitArguments.exit_code,
                            e->exitArguments.pid,
                            e->exitArguments.comm,
                            e->exitArguments.prio);
                 }
                 else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d \n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-5d %-7d %-20s %-7d \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->exitArguments.exit_code,
                            e->exitArguments.pid,
                            e->exitArguments.comm,
                            e->exitArguments.prio);
