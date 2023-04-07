@@ -21,7 +21,7 @@ KellectAgent-Linux uses a number of third-party libraries, which are listed belo
 |   Module   | Version |                        URL                        |
 |:----------:|:-------:|:-------------------------------------------------:|
 | `bpftool`  |  v7.0   | [GitHub link](https://github.com/libbpf/bpftool)  |
-|  `libbpf`  | v1.0.0  |  [GitHub link](hKellect-Linuxttps://github.com/libbpf/libbpf)  |
+|  `libbpf`  | v1.0.0  |  [GitHub link](https://github.com/libbpf/libbpf)  |
 
 The system and kernel supported currently are listed below.
 
