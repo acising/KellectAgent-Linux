@@ -20,7 +20,6 @@ void usage()
     std::cerr << "        process        " << std::endl;
     std::cerr << "        file           " << std::endl;
     std::cerr << "        network        " << std::endl;
-    std::cerr << "        memory         " << std::endl;
     std::cerr << "    -h, --help         Show this help message" << std::endl;
     std::cerr << "    -l [search]        List probes" << std::endl;
     std::cerr << "    --info             Print information about kernel BPF support" << std::endl;
