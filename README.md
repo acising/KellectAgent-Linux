@@ -72,11 +72,11 @@ Kellect-Linux currently only supports running as the **root user**.
 ```bash
 cd src
 make kellect
-./../release/kellect []
+sudo ./../release/kellect [arguments]
 ```
 
 For example, if you want to trace file events, then using the following command would be useful:
 
 ```bash
-./../release/kellect -e file
+sudo ./../release/kellect -e file
 ```
