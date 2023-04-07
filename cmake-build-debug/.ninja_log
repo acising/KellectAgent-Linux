@@ -1,7 +1,0 @@
-# ninja log v5
-0	255	1659320154335006547	CMakeFiles/kellect.dir/main.cpp.o	31fc4bba5e0132c3
-0	472	1660035056703952713	CMakeFiles/kellect.dir/src/execsnoop.bpf.c.o	ad318d394bfceb83
-1	495	1661926501704378006	CMakeFiles/kellect.dir/src/main.cpp.o	45c68f4d373c12b3
-0	25	1661999935383841834	build.ninja	d92a21d46fb04432
-493	583	1661827002644206776	kellect	84db425397208ea4
-1	130	1661827002192872629	CMakeFiles/kellect.dir/src/bpf_program.c.o	fb7710b51ba9490f
