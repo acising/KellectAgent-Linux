@@ -12,9 +12,6 @@ BPFTOOL_SRC := $(abspath bpftool/src)
 LIBBPF_OBJ := $(abspath $(OUTPUT)/libbpf.a)
 BPFTOOL_OUTPUT ?= $(abspath $(OUTPUT)/bpftool)
 BPFTOOL ?= $(BPFTOOL_OUTPUT)/bootstrap/bpftool
-LIBBLAZESYM_SRC := $(abspath blazesym/)
-LIBBLAZESYM_OBJ := $(abspath $(OUTPUT)/libblazesym.a)
-LIBBLAZESYM_HEADER := $(abspath $(OUTPUT)/blazesym.h)
 ARCH := $(shell uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/')
 VMLINUX := vmlinux.h
 # Use our own libbpf API headers and Linux UAPI headers distributed with
@@ -23,26 +20,6 @@ VMLINUX := vmlinux.h
 INCLUDES := -I$(OUTPUT) -Ilibbpf/include/uapi -I$(dir $(VMLINUX))
 CFLAGS := -g -Wall
 ALL_LDFLAGS := $(LDFLAGS) $(EXTRA_LDFLAGS)
-
-
-CARGO ?= $(shell which cargo)
-ifeq ($(strip $(CARGO)),)
-BZS_APPS :=
-else
-BZS_APPS := profile
-APPS += $(BZS_APPS)
-# Required by libblazesym
-ALL_LDFLAGS += -lrt -ldl -lpthread -lm
-endif
-
-# Get Clang's default includes on this system. We'll explicitly add these dirs
-# to the includes list when compiling with `-target bpf` because otherwise some
-# architecture-specific dirs will be "missing" on some architectures/distros -
-# headers such as asm/types.h, asm/byteorder.h, asm/socket.h, asm/sockios.h,
-# sys/cdefs.h etc. might be missing.
-#
-# Use '-idirafter': Don't interfere with include mechanics except where the
-# build would have failed anyways.
 
 CLANG_BPF_SYS_INCLUDES = $(shell $(CLANG) -v -E - </dev/null 2>&1 \
 	| sed -n '/<...> search starts here:/,/End of search list./{ s| \(/.*\)|-idirafter \1|p }')
@@ -105,27 +82,9 @@ $(BPFTOOL): | $(BPFTOOL_OUTPUT)
 	$(call msg,BPFTOOL,$@)
 	$(Q)$(MAKE) ARCH= CROSS_COMPILE= OUTPUT=$(BPFTOOL_OUTPUT)/ -C $(BPFTOOL_SRC) bootstrap
 
-$(LIBBLAZESYM_SRC)/target/release/libblazesym.a::
-	$(Q)cd $(LIBBLAZESYM_SRC) && $(CARGO) build --features=cheader --release
-
-$(LIBBLAZESYM_OBJ): $(LIBBLAZESYM_SRC)/target/release/libblazesym.a | $(OUTPUT)
-	$(call msg,LIB, $@)
-	$(Q)cp $(LIBBLAZESYM_SRC)/target/release/libblazesym.a $@
-
-$(LIBBLAZESYM_HEADER): $(LIBBLAZESYM_SRC)/target/release/libblazesym.a | $(OUTPUT)
-	$(call msg,LIB,$@)
-	$(Q)cp $(LIBBLAZESYM_SRC)/target/release/blazesym.h $@
-
-
 $(OUTPUT)/%.o: %.c $(wildcard %.h) | $(OUTPUT)
 	$(call msg,CC,$@)
 	$(Q)$(CXX) $(CFLAGS) $(INCLUDES) -c $(filter %.c,$^) -o $@
-
-
-$(patsubst %,$(OUTPUT)/%.o,$(BZS_APPS)): $(LIBBLAZESYM_HEADER)
-
-$(BZS_APPS): $(LIBBLAZESYM_OBJ)
-
 
 kellect: $(LIBBPF_OBJ) $(BPFTOOL) modules $(OUTPUT)/main.o | $(OUTPUT)
 	$(call msg,FINAL,$@)
