@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 #include <argp.h>
 #include <signal.h>
 #include <stdio.h>
@@ -352,7 +353,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                                          "\"ThreadID\":%d, "
                                          "\"ProcessType\":\"%s\", "
                                          "\"Arguments\":{"
-                                         "\"GetMode\":%d, "
+                                         "\"GetMode\":%o, "
                                          "\"GetUID\":%d,"
                                          "\"GetPID\":%d,"
                                          "\"GetFilename\":\"%s\"} "
@@ -364,7 +365,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->getModeArguments.stat_gid,
                             e->getModeArguments.stat_filename);
                 } else {
-                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-7d %-20s\n",
+                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7o %-7d %-7d %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->getModeArguments.stat_mode,
@@ -386,7 +387,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"GetMode\":%d, "
+                           "\"GetMode\":%o, "
                            "\"GetUID\":%d,"
                            "\"GetPID\":%d,"
                            "\"GetFilename\":\"%s\"} "
@@ -398,7 +399,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->getModeArguments.stat_gid,
                            e->getModeArguments.stat_filename);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-7d %-20s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7o %-7d %-7d %-20s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->getModeArguments.stat_mode,
@@ -598,7 +599,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                                          "\"FileUser\":%d, "
                                          "\"FileMode\":%d, "
                                          "\"ReadBytes\":%lld, "
-                                         "\"FilePath\":\"%s\","
+                                         "\"FileName\":\"%s\","
                                          "} "
                                          "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -606,7 +607,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->readFileArguments.fileuser,
                             e->readFileArguments.filemode,
                             e->readFileArguments.read_bytes,
-                            e->readFileArguments.filepath);
+                            e->event.filename);
                 } else {
                     fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7lld %-7d %-7d %-7lld %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -614,7 +615,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->readFileArguments.fileuser,
                             e->readFileArguments.filemode,
                             e->readFileArguments.read_bytes,
-                            e->readFileArguments.filepath);
+                            e->event.filename);
                 }
             }
                 /**
@@ -634,7 +635,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             "\"FileUser\":%d, "
                             "\"FileMode\":%d, "
                             "\"ReadBytes\":%lld, "
-                            "\"FilePath\":\"%s\","
+                            "\"FileName\":\"%s\","
                             "} "
                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -642,7 +643,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->readFileArguments.fileuser,
                             e->readFileArguments.filemode,
                             e->readFileArguments.read_bytes,
-                            e->readFileArguments.filepath);
+                            e->event.filename);
                 } else {
                     printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7lld %-7d %-7d %-7lld %-20s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -650,7 +651,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->readFileArguments.fileuser,
                            e->readFileArguments.filemode,
                            e->readFileArguments.read_bytes,
-                           e->readFileArguments.filepath);
+                           e->event.filename);
                 }
             }
             break;
@@ -675,7 +676,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                                          "\"FileUser\":%d, "
                                          "\"FileMode\":%d, "
                                          "\"ReadBytes\":%lld, "
-                                         "\"FilePath\":\"%s\","
+                                         "\"FileName\":\"%s\","
                                          "} "
                                          "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -683,7 +684,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->writeFileArguments.fileuser,
                             e->writeFileArguments.filemode,
                             e->writeFileArguments.write_bytes,
-                            e->writeFileArguments.filepath);
+                            e->event.filename);
                 } else {
                     fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7lld %-7d %-7d %-7lld %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -691,7 +692,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->writeFileArguments.fileuser,
                             e->writeFileArguments.filemode,
                             e->writeFileArguments.write_bytes,
-                            e->writeFileArguments.filepath);
+                            e->event.filename);
                 }
             }
                 /**
@@ -711,7 +712,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            "\"FileUser\":%d, "
                            "\"FileMode\":%d, "
                            "\"ReadBytes\":%lld, "
-                           "\"FilePath\":\"%s\","
+                           "\"FileName\":\"%s\","
                            "} "
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -719,7 +720,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->writeFileArguments.fileuser,
                            e->writeFileArguments.filemode,
                            e->writeFileArguments.write_bytes,
-                           e->writeFileArguments.filepath);
+                           e->event.filename);
                 } else {
                     printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7lld %-7d %-7d %-7lld %-20s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -727,12 +728,11 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->writeFileArguments.fileuser,
                            e->writeFileArguments.filemode,
                            e->writeFileArguments.write_bytes,
-                           e->writeFileArguments.filepath);
+                           e->event.filename);
                 }
             }
             break;
         }
-
     }
     return 0;
 }

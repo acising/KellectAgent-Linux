@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 #ifndef KELLECT_LINUX_FILE_H
 #define KELLECT_LINUX_FILE_H
 
@@ -186,17 +187,10 @@ struct RemoveDirEvent {
 
 
 struct ReadFileArguments {
-    int flags;
-    int res;
-    int ss;
-    int sp;
-    int r14;
-    /* TESTING */
     __u64 inode;
     __u32 dev;
     __u32 rdev;
     __u64 read_bytes;
-    long ret;
     int fd;
     char filepath[MAX_FILENAME_LEN];
     unsigned short filemode;
@@ -209,17 +203,10 @@ struct ReadFileEvent {
 };
 
 struct WriteFileArguments {
-    int flags;
-    int res;
-    int ss;
-    int sp;
-    int r14;
-    /* TESTING */
     __u64 inode;
     __u32 dev;
     __u32 rdev;
     __u64 write_bytes;
-    long ret;
     int fd;
     char filepath[MAX_FILENAME_LEN];
     unsigned short filemode;
