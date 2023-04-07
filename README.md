@@ -42,7 +42,6 @@ The directory of KellectAgent-Linux is shown below.
 |:--------------:|:----------------:|
 |   `release`    | Executable files |
 |  `src/basic`   |   Common files   |
-| `src/blazesym` | `blazesym` tool  |
 | `src/bpftool`  |  `bpftool` tool  |
 | `src/include`  |   Header files   |
 |  `src/libbpf`  |  `libbpf` tool   |
