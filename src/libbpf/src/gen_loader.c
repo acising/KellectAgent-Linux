@@ -651,7 +651,7 @@ static void emit_bpf_kallsyms_lookup_name(struct bpf_gen *gen, struct ksym_relo_
  * BPF_REG_8 - pointer to instruction
  *
  * We need to reuse BTF fd for same symbol otherwise each relocation takes a new
- * index, while kernel limits total kfunc BTFs to 256. For duplicate symbols,
+ * index, while kernel limits all kfunc BTFs to 256. For duplicate symbols,
  * this would mean a new BTF fd index for each entry. By pairing symbol name
  * with index, we get the insn->imm, insn->off pairing that kernel uses for
  * kfunc_tab, which becomes the effective limit even though all of them may

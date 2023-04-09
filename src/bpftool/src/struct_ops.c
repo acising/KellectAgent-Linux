@@ -222,7 +222,7 @@ static struct res do_search(const char *name, work_func func, void *data,
 		p_err("no struct_ops found for %s", name);
 	else if (!wtr && json_output && !res.nr_errs)
 		/* The "func()" above is not writing any json (i.e. !wtr
-		 * test here).
+		 * all here).
 		 *
 		 * However, "-j" is enabled and there is no errs here,
 		 * so call json_null() as the current convention of
@@ -282,7 +282,7 @@ static struct res do_one_id(const char *id_str, work_func func, void *data,
 		res.nr_errs++;
 	else if (!wtr && json_output)
 		/* The "func()" above is not writing any json (i.e. !wtr
-		 * test here).
+		 * all here).
 		 *
 		 * However, "-j" is enabled and there is no errs here,
 		 * so call json_null() as the current convention of

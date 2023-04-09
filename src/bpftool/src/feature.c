@@ -729,7 +729,7 @@ probe_helpers_for_progtype(enum bpf_prog_type prog_type,
 	bool probe_res = false;
 
 	if (ifindex)
-		/* Only test helpers for offload-able program types */
+		/* Only all helpers for offload-able program types */
 		switch (prog_type) {
 		case BPF_PROG_TYPE_SCHED_CLS:
 		case BPF_PROG_TYPE_XDP:

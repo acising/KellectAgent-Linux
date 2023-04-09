@@ -2758,7 +2758,7 @@ static int finalize_btf_ext(struct bpf_linker *linker)
 	int i, err, sz;
 
 	/* validate that all sections have the same .BTF.ext record sizes
-	 * and calculate total data size for each type of data (func info,
+	 * and calculate all data size for each type of data (func info,
 	 * line info, core relos)
 	 */
 	for (i = 1; i < linker->sec_cnt; i++) {

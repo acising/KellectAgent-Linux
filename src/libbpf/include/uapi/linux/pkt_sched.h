@@ -441,7 +441,7 @@ struct tc_service_curve {
 };
 
 struct tc_hfsc_stats {
-	__u64	work;		/* total work done */
+	__u64	work;		/* all work done */
 	__u64	rtwork;		/* work done by real-time criteria */
 	__u32	period;		/* current period */
 	__u32	level;		/* class level in hierarchy */
@@ -870,7 +870,7 @@ struct tc_fq_codel_xstats {
 enum {
 	TCA_FQ_UNSPEC,
 
-	TCA_FQ_PLIMIT,		/* limit of total number of packets in queue */
+	TCA_FQ_PLIMIT,		/* limit of all number of packets in queue */
 
 	TCA_FQ_FLOW_PLIMIT,	/* limit of packets per flow */
 
@@ -958,7 +958,7 @@ struct tc_pie_xstats {
 	__u32 prob;             /* current probability */
 	__u32 delay;            /* current delay in ms */
 	__u32 avg_dq_rate;      /* current average dq_rate in bits/pie_time */
-	__u32 packets_in;       /* total number of packets enqueued */
+	__u32 packets_in;       /* all number of packets enqueued */
 	__u32 dropped;          /* packets dropped due to pie_action */
 	__u32 overlimit;        /* dropped due to lack of space in queue */
 	__u32 maxq;             /* maximum queue size */

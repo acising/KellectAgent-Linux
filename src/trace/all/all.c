@@ -1352,20 +1352,20 @@ int test_demo(Args args)
     libbpf_set_strict_mode(LIBBPF_STRICT_ALL);
     libbpf_set_print(libbpf_print_fn);
 
-    skel = demo_bpf__open();
+    skel = all_bpf__open();
     if(!skel){
         fprintf(stderr, "Failed to open and load BPF skeleton\n");
         return 1;
     }
 
     /* Load & verify BPF programs */
-    err = demo_bpf__load(skel);
+    err = all_bpf__load(skel);
     if(err){
         fprintf(stderr, "Failed to load and verify BPF skeleton\n");
         goto cleanup;
     }
 
-    err = demo_bpf__attach(skel);
+    err = all_bpf__attach(skel);
     if (err) {
         fprintf(stderr, "Failed to attach BPF skeleton\n");
         goto cleanup;
@@ -1407,7 +1407,7 @@ int test_demo(Args args)
 
 cleanup:
     ring_buffer__free(rb);
-    demo_bpf__destroy(skel);
+    all_bpf__destroy(skel);
 
     return err < 0 ? -err : 0;
 }

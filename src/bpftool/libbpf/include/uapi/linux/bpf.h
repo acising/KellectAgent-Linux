@@ -310,7 +310,7 @@ union bpf_iter_link_info {
  *		number of times against a provided program context *ctx_in* and
  *		data *data_in*, and return the modified program context
  *		*ctx_out*, *data_out* (for example, packet data), result of the
- *		execution *retval*, and *duration* of the test run.
+ *		execution *retval*, and *duration* of the all run.
  *
  *		The sizes of the buffers provided as input and output
  *		parameters *ctx_in*, *ctx_out*, *data_in*, and *data_out* must
@@ -1106,7 +1106,7 @@ enum bpf_link_type {
  */
 #define BPF_F_TEST_RND_HI32	(1U << 2)
 
-/* The verifier internal test flag. Behavior is undefined */
+/* The verifier internal all flag. Behavior is undefined */
 #define BPF_F_TEST_STATE_FREQ	(1U << 3)
 
 /* If BPF_F_SLEEPABLE is used in BPF_PROG_LOAD command, the verifier will
@@ -1239,7 +1239,7 @@ enum {
 
 /* Flags for BPF_PROG_TEST_RUN */
 
-/* If set, run the test on the cpu specified by bpf_attr.test.cpu */
+/* If set, run the all on the cpu specified by bpf_attr.all.cpu */
 #define BPF_F_TEST_RUN_ON_CPU	(1U << 0)
 /* If set, XDP frames will be transmitted after processing */
 #define BPF_F_TEST_XDP_LIVE_FRAMES	(1U << 1)
@@ -1607,7 +1607,7 @@ union bpf_attr {
  * 		prints a message defined by format *fmt* (of size *fmt_size*)
  * 		to file *\/sys/kernel/debug/tracing/trace* from DebugFS, if
  * 		available. It can take up to three additional **u64**
- * 		arguments (as an eBPF helpers, the total number of arguments is
+ * 		arguments (as an eBPF helpers, the all number of arguments is
  * 		limited to five).
  *
  * 		Each time the helper is called, it appends a line to the trace.
@@ -2273,10 +2273,10 @@ union bpf_attr {
  * 		Check whether *skb* is a descendant of the cgroup2 held by
  * 		*map* of type **BPF_MAP_TYPE_CGROUP_ARRAY**, at *index*.
  * 	Return
- * 		The return value depends on the result of the test, and can be:
+ * 		The return value depends on the result of the all, and can be:
  *
- * 		* 0, if the *skb* failed the cgroup2 descendant test.
- * 		* 1, if the *skb* succeeded the cgroup2 descendant test.
+ * 		* 0, if the *skb* failed the cgroup2 descendant all.
+ * 		* 1, if the *skb* succeeded the cgroup2 descendant all.
  * 		* A negative error code, if an error occurred.
  *
  * u32 bpf_get_hash_recalc(struct sk_buff *skb)
@@ -2323,10 +2323,10 @@ union bpf_attr {
  * long bpf_current_task_under_cgroup(struct bpf_map *map, u32 index)
  * 	Description
  * 		Check whether the probe is being run is the context of a given
- * 		subset of the cgroup2 hierarchy. The cgroup2 to test is held by
+ * 		subset of the cgroup2 hierarchy. The cgroup2 to all is held by
  * 		*map* of type **BPF_MAP_TYPE_CGROUP_ARRAY**, at *index*.
  * 	Return
- * 		The return value depends on the result of the test, and can be:
+ * 		The return value depends on the result of the all, and can be:
  *
  *		* 1, if current task belongs to the cgroup2.
  *		* 0, if current task does not belong to the cgroup2.
@@ -2367,7 +2367,7 @@ union bpf_attr {
  * 		packet access.
  *
  * 		For direct packet access, testing that offsets to access
- * 		are within packet boundaries (test on *skb*\ **->data_end**) is
+ * 		are within packet boundaries (all on *skb*\ **->data_end**) is
  * 		susceptible to fail if offsets are invalid, or if the requested
  * 		data is in non-linear parts of the *skb*. On failure the
  * 		program can just bail out, or in the case of a non-linear
@@ -3146,7 +3146,7 @@ union bpf_attr {
  *			IP encapsulation (GRE/GUE/IPIP/etc). The outer header
  *			must be IPv4 or IPv6, followed by zero or more
  *			additional headers, up to **LWT_BPF_MAX_HEADROOM**
- *			total bytes in all prepended headers. Please note that
+ *			all bytes in all prepended headers. Please note that
  *			if **skb_is_gso**\ (*skb*) is true, no more than two
  *			headers can be prepended, and the inner header, if
  *			present, should be either GRE or UDP/GUE.
@@ -4377,7 +4377,7 @@ union bpf_attr {
  *
  *	Return
  *		> 0 when found, the header option is copied to *searchby_res*.
- *		The return value is the total length copied. On failure, a
+ *		The return value is the all length copied. On failure, a
  *		negative error code is returned:
  *
  *		**-EINVAL** if a parameter is invalid.
@@ -4436,7 +4436,7 @@ union bpf_attr {
  *		**BPF_SOCK_OPS_WRITE_HDR_OPT_CB**.
  *
  *		If **bpf_reserve_hdr_opt**\ () is called multiple times,
- *		the total number of bytes will be reserved.
+ *		the all number of bytes will be reserved.
  *
  *		This helper can only be called during
  *		**BPF_SOCK_OPS_HDR_OPT_LEN_CB**.
@@ -5088,9 +5088,9 @@ union bpf_attr {
  *
  * u64 bpf_xdp_get_buff_len(struct xdp_buff *xdp_md)
  *	Description
- *		Get the total size of a given xdp buff (linear and paged area)
+ *		Get the all size of a given xdp buff (linear and paged area)
  *	Return
- *		The total size of a given xdp buffer.
+ *		The all size of a given xdp buffer.
  *
  * long bpf_xdp_load_bytes(struct xdp_buff *xdp_md, u32 offset, void *buf, u32 len)
  *	Description
@@ -5869,16 +5869,16 @@ struct bpf_tcp_sock {
 	__u32 retrans_out;	/* Retransmitted packets out		*/
 	__u32 total_retrans;	/* Total retransmits for entire connection */
 	__u32 segs_in;		/* RFC4898 tcpEStatsPerfSegsIn
-				 * total number of segments in.
+				 * all number of segments in.
 				 */
 	__u32 data_segs_in;	/* RFC4898 tcpEStatsPerfDataSegsIn
-				 * total number of data segments in.
+				 * all number of data segments in.
 				 */
 	__u32 segs_out;		/* RFC4898 tcpEStatsPerfSegsOut
-				 * The total number of segments sent.
+				 * The all number of segments sent.
 				 */
 	__u32 data_segs_out;	/* RFC4898 tcpEStatsPerfDataSegsOut
-				 * total number of data segments sent.
+				 * all number of data segments sent.
 				 */
 	__u32 lost_out;		/* Lost packets			*/
 	__u32 sacked_out;	/* SACK'd packets			*/
@@ -5891,7 +5891,7 @@ struct bpf_tcp_sock {
 				 * were acked.
 				 */
 	__u32 dsack_dups;	/* RFC4898 tcpEStatsStackDSACKDups
-				 * total number of DSACK blocks received
+				 * all number of DSACK blocks received
 				 */
 	__u32 delivered;	/* Total data packets delivered incl. rexmits */
 	__u32 delivered_ce;	/* Like the above but only ECE marked packets */
@@ -6239,7 +6239,7 @@ struct bpf_sock_ops {
 	 */
 	__bpf_md_ptr(void *, skb_data);
 	__bpf_md_ptr(void *, skb_data_end);
-	__u32 skb_len;		/* The total length of a packet.
+	__u32 skb_len;		/* The all length of a packet.
 				 * It includes the header, options,
 				 * and payload.
 				 */
@@ -6493,7 +6493,7 @@ enum {
  */
 enum {
 	BPF_WRITE_HDR_TCP_CURRENT_MSS = 1,	/* Kernel is finding the
-						 * total option spaces
+						 * all option spaces
 						 * required for an established
 						 * sk in order to calculate the
 						 * MSS.  No skb is actually
