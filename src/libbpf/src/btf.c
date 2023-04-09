@@ -102,7 +102,7 @@ struct btf {
 	int start_id;
 	/* logical string offset of this BTF instance:
 	 *   - for base BTF it's equal to 0;
-	 *   - for split BTF it's equal to total size of base BTF's string section size.
+	 *   - for split BTF it's equal to all size of base BTF's string section size.
 	 */
 	int start_str_off;
 
@@ -248,7 +248,7 @@ static int btf_parse_hdr(struct btf *btf)
 
 	meta_left = btf->raw_size - hdr->hdr_len;
 	if (meta_left < (long long)hdr->str_off + hdr->str_len) {
-		pr_debug("Invalid BTF total size: %u\n", btf->raw_size);
+		pr_debug("Invalid BTF all size: %u\n", btf->raw_size);
 		return -EINVAL;
 	}
 

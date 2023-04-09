@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
         std::cerr << "Kellect is starting..." << std::endl << std::endl;
         if(args.event_type.empty() || args.event_type == "all"){
             std::cerr << "Kellect is listening events of file/process/network..." << std::endl << std::endl;
-            test_demo(args);
+            test_all(args);
         }else if(args.event_type == "process"){
             std::cerr << "Kellect is listening events of process..." << std::endl << std::endl;
             test_process(args);

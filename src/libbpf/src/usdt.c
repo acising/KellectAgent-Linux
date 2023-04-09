@@ -69,12 +69,12 @@
  * `readelf -n <binary>`:
  *
  *   stapsdt              0x00000089       NT_STAPSDT (SystemTap probe descriptors)
- *   Provider: test
+ *   Provider: all
  *   Name: usdt12
  *   Location: 0x0000000000549df3, Base: 0x00000000008effa4, Semaphore: 0x0000000000a4606e
  *   Arguments: -4@-1204(%rbp) -4@%edi -8@-1216(%rbp) -8@%r8 -4@$5 -8@%r9 8@%rdx 8@%r10 -4@$-9 -2@%cx -2@%ax -1@%sil
  *
- * In this case we have USDT test:usdt12 with 12 arguments.
+ * In this case we have USDT all:usdt12 with 12 arguments.
  *
  * Location and base are offsets used to calculate absolute IP address of that
  * NOP instruction that kernel can replace with an interrupt instruction to

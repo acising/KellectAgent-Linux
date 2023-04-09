@@ -8,14 +8,14 @@
 #include <sys/resource.h>
 #include <bpf/libbpf.h>
 #include <time.h>
-#include "../../include/demo.h"
+#include "../../include/all.h"
 #include "../../include/arg_parser.h"
 #include "../../include/basic.h"
-#include "demo.skel.h"
+#include "all.skel.h"
 
 struct Args my_args;
 
-FILE * output_demo;
+FILE * output_all;
 
 static volatile bool exiting = false;
 
@@ -61,7 +61,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                          "\"Timestamp\":%ld,"
                                          "\"EventName\":\"%s\", "
                                          "\"ProcessName\":\"%s\", "
@@ -81,7 +81,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->openFileArguments.open_flags,
                             e->openFileArguments.open_mode);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d %-7d\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->openFileArguments.open_dfd,
@@ -134,7 +134,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                          "\"Timestamp\":%ld,"
                                          "\"EventName\":\"%s\", "
                                          "\"ProcessName\":\"%s\", "
@@ -152,7 +152,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->deleteArguments.delete_pathname,
                             e->deleteArguments.delete_flag);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->deleteArguments.delete_dfd,
@@ -201,7 +201,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                          "\"Timestamp\":%ld,"
                                          "\"EventName\":\"%s\", "
                                          "\"ProcessName\":\"%s\", "
@@ -223,7 +223,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->renameArguments.rename_newname,
                             e->renameArguments.rename_flags);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d %-20s %-7d\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d %-20s %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->renameArguments.rename_olddfd,
@@ -280,7 +280,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                          "\"Timestamp\":%ld,"
                                          "\"EventName\":\"%s\", "
                                          "\"ProcessName\":\"%s\", "
@@ -298,7 +298,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->changeModeArguments.chmod_mode,
                             e->changeModeArguments.chmod_filename);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-20s\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->changeModeArguments.chmod_dfd,
@@ -347,7 +347,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                          "\"Timestamp\":%ld,"
                                          "\"EventName\":\"%s\", "
                                          "\"ProcessName\":\"%s\", "
@@ -367,7 +367,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->getModeArguments.stat_gid,
                             e->getModeArguments.stat_filename);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-7d %-20s\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-7d %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->getModeArguments.stat_mode,
@@ -420,7 +420,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                          "\"Timestamp\":%ld,"
                                          "\"EventName\":\"%s\", "
                                          "\"ProcessName\":\"%s\", "
@@ -434,7 +434,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->event.ppid, process_type,
                             e->changeDirArguments.chdir_filename);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-20s\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->changeDirArguments.chdir_filename);
@@ -475,7 +475,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                          "\"Timestamp\":%ld,"
                                          "\"EventName\":\"%s\", "
                                          "\"ProcessName\":\"%s\", "
@@ -490,7 +490,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->makeDirArguments.mkdir_mode,
                             e->makeDirArguments.mkdir_filename);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,e->event.ppid, process_type,
                             e->makeDirArguments.mkdir_mode,
                             e->makeDirArguments.mkdir_filename);
@@ -534,7 +534,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                          "\"Timestamp\":%ld,"
                                          "\"EventName\":\"%s\", "
                                          "\"ProcessName\":\"%s\", "
@@ -548,7 +548,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->event.ppid, process_type,
                             e->removeDirArguments.rmdir_filename);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-20s\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->removeDirArguments.rmdir_filename);
@@ -589,7 +589,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                          "\"Timestamp\":%ld,"
                                          "\"EventName\":\"%s\", "
                                          "\"ProcessName\":\"%s\", "
@@ -611,7 +611,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->readFileArguments.read_bytes,
                             e->readFileArguments.filepath);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7lld %-7d %-7d %-7lld %-20s\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7lld %-7d %-7d %-7lld %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->readFileArguments.inode,
                             e->readFileArguments.fileuser,
@@ -666,7 +666,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                          "\"Timestamp\":%ld,"
                                          "\"EventName\":\"%s\", "
                                          "\"ProcessName\":\"%s\", "
@@ -688,7 +688,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->writeFileArguments.write_bytes,
                             e->writeFileArguments.filepath);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7lld %-7d %-7d %-7lld %-20s\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7lld %-7d %-7d %-7lld %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->writeFileArguments.inode,
                             e->writeFileArguments.fileuser,
@@ -745,7 +745,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                             "\"Timestamp\":%ld,"
                                             "\"EventName\":\"%s\", "
                                             "\"ProcessName\":\"%s\", "
@@ -766,7 +766,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                 }
                 else
                 {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-5d %-25s\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-5d %-25s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->connectArguments.fd,
                             e->connectArguments.addrlen,
@@ -822,7 +822,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                             "\"Timestamp\":%ld,"
                                             "\"EventName\":\"%s\", "
                                             "\"ProcessName\":\"%s\", "
@@ -841,7 +841,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                 }
                 else
                 {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-7d\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->socketArguments.family,
                             e->socketArguments.type,
@@ -901,7 +901,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                             "\"Timestamp\":%ld,"
                                             "\"EventName\":\"%s\", "
                                             "\"ProcessName\":\"%s\", "
@@ -924,7 +924,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                 }
                 else
                 {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7hu %-7hu %-15u %u.%u.%u.%u\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7hu %-7hu %-15u %u.%u.%u.%u\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->tcpIpv4ConnectArguments.addr_len,
                             e->tcpIpv4ConnectArguments.sin_family,
@@ -985,7 +985,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                             "\"Timestamp\":%ld,"
                                             "\"EventName\":\"%s\", "
                                             "\"ProcessName\":\"%s\", "
@@ -1004,7 +1004,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                 }
                 else
                 {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-20s\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->sendArguments.len,
                             e->sendArguments.rc,
@@ -1054,7 +1054,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                             "\"Timestamp\":%ld,"
                                             "\"EventName\":\"%s\", "
                                             "\"ProcessName\":\"%s\", "
@@ -1073,7 +1073,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->forkArguments.child_pid,
                             e->forkArguments.child_comm);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-10s %-7d %-10s\n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-10s %-7d %-10s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->forkArguments.parent_pid,
@@ -1126,7 +1126,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                             "\"Timestamp\":%ld,"
                                             "\"EventName\":\"%s\", "
                                             "\"ProcessName\":\"%s\", "
@@ -1144,7 +1144,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->execArguments.pid,
                             e->event.filename);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-20s \n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-20s \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->execArguments.old_pid,
@@ -1193,7 +1193,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                             "\"Timestamp\":%ld,"
                                             "\"EventName\":\"%s\", "
                                             "\"ProcessName\":\"%s\", "
@@ -1215,7 +1215,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->cloneArguments.child_tidptr
                     );
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7ld %-7ld %-7ld %-10p %-10p \n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7ld %-7ld %-7ld %-10p %-10p \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->cloneArguments.clone_flags,
                             e->cloneArguments.newsp,
@@ -1271,7 +1271,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                     /**
                      * output the record as json
                      */
-                    fprintf(output_demo, "{"
+                    fprintf(output_all, "{"
                                             "\"Timestamp\":%ld,"
                                             "\"EventName\":\"%s\", "
                                             "\"ProcessName\":\"%s\", "
@@ -1288,7 +1288,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             e->exitArguments.comm,
                             e->exitArguments.prio);
                 } else {
-                    fprintf(output_demo, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d \n",
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->exitArguments.pid,
                             e->exitArguments.comm,
@@ -1333,39 +1333,39 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
 }
 
 
-int test_demo(Args args)
+int test_all(Args args)
 {
     my_args = args;
 
     if(my_args.if_output_to_file){
-        output_demo = fopen(my_args.output_file.c_str(),"w");
-        if(output_demo == NULL){
+        output_all = fopen(my_args.output_file.c_str(),"w");
+        if(output_all == NULL){
             fprintf(stderr, "please enter a valid file name/path\n");
             return 1;
         }
     }
 
     struct ring_buffer *rb = NULL;
-    struct demo_bpf *skel;
+    struct all_bpf *skel;
     int err;
 
     libbpf_set_strict_mode(LIBBPF_STRICT_ALL);
     libbpf_set_print(libbpf_print_fn);
 
-    skel = demo_bpf__open();
+    skel = all_bpf__open();
     if(!skel){
         fprintf(stderr, "Failed to open and load BPF skeleton\n");
         return 1;
     }
 
     /* Load & verify BPF programs */
-    err = demo_bpf__load(skel);
+    err = all_bpf__load(skel);
     if(err){
         fprintf(stderr, "Failed to load and verify BPF skeleton\n");
         goto cleanup;
     }
 
-    err = demo_bpf__attach(skel);
+    err = all_bpf__attach(skel);
     if (err) {
         fprintf(stderr, "Failed to attach BPF skeleton\n");
         goto cleanup;
@@ -1383,7 +1383,7 @@ int test_demo(Args args)
      */
     if (!my_args.if_output_as_json) {
         if (my_args.if_output_to_file) {
-            fprintf(output_demo, "%-20s %-10s %-32s %-7s %-7s %10s\n",
+            fprintf(output_all, "%-20s %-10s %-32s %-7s %-7s %10s\n",
                     "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD");
         } else {
             printf("%-20s %-10s %-32s %-7s %-7s %10s\n",
@@ -1395,19 +1395,19 @@ int test_demo(Args args)
         err = ring_buffer__poll(rb, 10);
         if(err == -EINTR){
             err = 0;
-            fclose(output_demo);
+            fclose(output_all);
             break;
         }
         if (err < 0) {
             printf("Error polling perf buffer: %d\n", err);
-            fclose(output_demo);
+            fclose(output_all);
             break;
         }
     }
 
 cleanup:
     ring_buffer__free(rb);
-    demo_bpf__destroy(skel);
+    all_bpf__destroy(skel);
 
     return err < 0 ? -err : 0;
 }

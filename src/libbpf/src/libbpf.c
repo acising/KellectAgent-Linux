@@ -3746,7 +3746,7 @@ static int bpf_object__collect_externs(struct bpf_object *obj)
 			return -ENOTSUP;
 		}
 	}
-	pr_debug("collected %d externs total\n", obj->nr_extern);
+	pr_debug("collected %d externs all\n", obj->nr_extern);
 
 	if (!obj->nr_extern)
 		return 0;
@@ -4415,7 +4415,7 @@ static int probe_kern_prog_name(void)
 	int ret, insn_cnt = ARRAY_SIZE(insns);
 
 	/* make sure loading with name works */
-	ret = bpf_prog_load(BPF_PROG_TYPE_SOCKET_FILTER, "test", "GPL", insns, insn_cnt, NULL);
+	ret = bpf_prog_load(BPF_PROG_TYPE_SOCKET_FILTER, "all", "GPL", insns, insn_cnt, NULL);
 	return probe_fd(ret);
 }
 
