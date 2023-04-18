@@ -125,10 +125,8 @@ int handle_clone(struct trace_event_raw_sys_enter *ctx)
     return 0;
 }
 
-// SEC("tp/syscalls/sys_enter_exit_group")
-// int handle_sys_exit(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/sched/sched_process_exit")
-int handle_sys_exit(struct trace_event_raw_sched_process_template *ctx)
+int handle_exit(struct trace_event_raw_sched_process_template *ctx)
 {
     struct ExitEvent *e;
     struct task_struct *task;
@@ -152,7 +150,6 @@ int handle_sys_exit(struct trace_event_raw_sched_process_template *ctx)
     e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
     e->event.start_time = BPF_CORE_READ(task, start_time);
 
-    // bpf_core_read(&e->exitArguments.prio, sizeof(e->exitArguments.prio), &ctx->args[0]);
     bpf_core_read(&e->exitArguments.pid, sizeof(e->exitArguments.pid), &ctx->pid);
     bpf_core_read_str(&e->exitArguments.comm, sizeof(e->exitArguments.comm), &ctx->comm);
     bpf_core_read(&e->exitArguments.prio, sizeof(e->exitArguments.prio), &ctx->prio);
