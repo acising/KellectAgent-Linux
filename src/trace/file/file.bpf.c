@@ -250,6 +250,47 @@ int handle_syscalls_fchmodat(struct trace_event_raw_sys_enter *ctx)
     return 0;
 }
 
+SEC("tp/syscalls/sys_enter_newstat")
+int handle_syscalls_newstat(struct trace_event_raw_sys_enter *ctx)
+{
+    struct GetModeEvent *e;
+    struct task_struct *task;
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_GET_MODE;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    char *name_ptr = (char *)BPF_CORE_READ(ctx, args[0]);
+    bpf_probe_read_user_str(&e->getModeArguments.stat_filename, sizeof(e->getModeArguments.stat_filename), name_ptr);
+
+    struct stat *stat_buf = (struct stat*)BPF_CORE_READ(ctx, args[1]);
+    short file_mode_raw = BPF_CORE_READ_USER(stat_buf, st_mode);
+    int mask = 0xfff;
+    e->getModeArguments.stat_mode = file_mode_raw & mask;
+
+    bpf_core_read_user(&e->getModeArguments.stat_uid, sizeof(e->getModeArguments.stat_uid), &stat_buf->st_uid);
+    bpf_core_read_user(&e->getModeArguments.stat_gid, sizeof(e->getModeArguments.stat_gid), &stat_buf->st_gid);
+
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
 SEC("tp/syscalls/sys_enter_newlstat")
 int handle_syscalls_newlstat(struct trace_event_raw_sys_enter *ctx)
 {
