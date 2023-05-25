@@ -251,13 +251,12 @@ The *private properties* we could infer from supported events is listed below:
 | `parent_tidptr` |            The location of a variable that will be set to the PID of the new process            |                                  A pointer                                  |
 | `child_tidptr`  | The location of a variable that will be set to the PID of the new process’s thread group leader |                                  A pointer                                  | 
 
-#### 4. Process Exiting *(under development)*
+#### 4. Process Exiting
 
-|  Parameter   |                          Description                           |     Comments      |
-|:------------:|:--------------------------------------------------------------:|:-----------------:|
-| `exit_code`  |                    Exit code of the process                    |         -         | 
-| `error_code` | Most likely to be the `status` while calling the `exit()` call | under development |
-|    `prio`    |       The priority of the process at the time it exited        | under development |
+|  Parameter  |                    Description                    |                   Comments                   |
+|:-----------:|:-------------------------------------------------:|:--------------------------------------------:|
+| `exit_code` |             Exit code of the process              | The `status` while calling the `exit()` call |
+|   `prio`    | The priority of the process at the time it exited |      The `dynamic prio` of the process       | 
 
 ### Network
 
