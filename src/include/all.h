@@ -35,10 +35,10 @@ enum EventType {
 
     EVENT_NETWORK_CONNECT = 201,
     EVENT_NETWORK_DISCONNECT = 202,
-    EVENT_NETWORK_SOCKET = 203,
-    EVENT_NETWORK_TCP_IPV4 = 204,
-    EVENT_NETWORK_SEND = 205,
-    EVENT_NETWORK_RECV = 206
+    EVENT_NETWORK_SENDTO = 203,
+    EVENT_NETWORK_RECVFROM = 204,
+    EVENT_NETWORK_SENDMSG = 205,
+    EVENT_NETWORK_RECVMSG = 206
 };
 
 
@@ -194,17 +194,10 @@ struct RemoveDirEvent {
 
 
 struct ReadFileArguments {
-    int flags;
-    int res;
-    int ss;
-    int sp;
-    int r14;
-    /* TESTING */
     __u64 inode;
     __u32 dev;
     __u32 rdev;
     __u64 read_bytes;
-    long ret;
     int fd;
     char filepath[MAX_FILENAME_LEN];
     unsigned short filemode;
@@ -217,17 +210,10 @@ struct ReadFileEvent {
 };
 
 struct WriteFileArguments {
-    int flags;
-    int res;
-    int ss;
-    int sp;
-    int r14;
-    /* TESTING */
     __u64 inode;
     __u32 dev;
     __u32 rdev;
     __u64 write_bytes;
-    long ret;
     int fd;
     char filepath[MAX_FILENAME_LEN];
     unsigned short filemode;
@@ -239,13 +225,14 @@ struct WriteFileEvent {
     struct WriteFileArguments writeFileArguments;
 };
 
-
 struct ConnectArguments
 {
     int fd;
-    unsigned short sa_family;
-    char sa_data[14];
     int addrlen;
+    unsigned short sa_family; // Socket type
+    uint32_t s_addr;  // IPv4 address
+    uint16_t s_port;  // IPv4, IPv6 port
+    struct in6_addr *s_addr_v6; // IPv6 address
 };
 
 struct ConnectEvent
@@ -254,48 +241,60 @@ struct ConnectEvent
     struct ConnectArguments connectArguments;
 };
 
-struct SocketArguments
-{
-    int family;
-    int type;
-    int protocol;
-};
-
-struct SocketEvent
-{
-    struct Event event;
-    struct SocketArguments socketArguments;
-};
-
-struct TcpIpv4ConnectArguments
-{
-    int addr_len;
-    // in: struct sockaddr_in
-    unsigned short sin_family;
-    unsigned short sin_port;
-    // in: sockaddr_in -> struct in_addr
-    uint32_t s_addr;
-    char ip_addr[16];
-};
-
-struct TcpIpv4ConnectEvent
-{
-    struct Event event;
-    struct TcpIpv4ConnectArguments tcpIpv4ConnectArguments;
-};
-
 struct SendArguments
 {
-    void *skbaddr;
-    unsigned int len;
-    int rc;
-    u32 __data_loc_name;
+    int fd;
+    void *buff;
+    unsigned int len;  // maybe size_t
+    unsigned int flags;
+    int addr_len;
+    unsigned short sa_family; // Socket type
+    uint32_t s_addr;  // IPv4 address
+    uint16_t s_port;  // IPv4, IPv6 port
+    struct in6_addr *s_addr_v6; // IPv6 address
 };
 
 struct SendEvent
 {
     struct Event event;
     struct SendArguments sendArguments;
+};
+
+struct RecvArguments
+{
+    int fd;
+    void *buff;
+    unsigned int len;  // maybe size_t
+    unsigned int flags;
+    int addr_len;
+    unsigned short sa_family; // Socket type
+    uint32_t s_addr;  // IPv4 address
+    uint16_t s_port;  // IPv4, IPv6 port
+    struct in6_addr *s_addr_v6; // IPv6 address
+};
+
+struct RecvEvent
+{
+    struct Event event;
+    struct RecvArguments recvArguments;
+};
+
+struct SendRecvMsgArguments
+{
+    int fd;
+    unsigned int flags;
+    unsigned int msg_flags; 
+    int addr_len;
+    unsigned short sa_family; // Socket type
+    uint32_t s_addr;  // IPv4 address
+    uint16_t s_port;  // IPv4, IPv6 port
+    struct in6_addr *s_addr_v6; // IPv6 address
+};
+
+struct SendRecvMsgEvent
+{
+    struct Event event;
+    struct SendRecvMsgArguments sendRecvMsgArguments;
 };
 
 struct CloneArguments {
@@ -324,9 +323,9 @@ struct ForkArguments {
     unsigned char common_preempt_count;
     int common_pid;
     char parent_comm[16];
-    pid_t parent_pid;
-    char child_comm[16];
-    pid_t child_pid;
+	pid_t parent_pid;
+	char child_comm[16];
+	pid_t child_pid;
 };
 
 
@@ -352,8 +351,9 @@ struct ExecEvent {
 
 struct ExitArguments {
     char comm[16];
-    pid_t pid;
-    int prio;
+	pid_t pid;
+	int prio;
+    int exit_code;
 };
 
 struct ExitEvent {

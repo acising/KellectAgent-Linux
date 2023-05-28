@@ -260,13 +260,15 @@ The *private properties* we could infer from supported events is listed below:
 
 ### Network
 
-3 types of process/thread related events are currently supported:
+5 types of process/thread related events are currently supported:
 
-| Id  |      Type of Action       | Number of Parameters |
-|:---:|:-------------------------:|:--------------------:|
-|  1  |  Connection Establishing  |          5           |
-|  2  |  Datagram Socket Sending  |          7           |
-|  3  | Datagram Socket Receiving |          7           | 
+| Id  |     Type of Action      | Number of Parameters |
+|:---:|:-----------------------:|:--------------------:|
+|  1  | Connection Establishing |          5           |
+|  2  |     Socket Sending      |          7           |
+|  3  |    Socket Receiving     |          7           |
+|  4  |     Message Sending     |          7           |
+|  5  |    Message Receiving    |          7           | 
 
 #### 1. Connection Establishing
 
@@ -278,7 +280,7 @@ The *private properties* we could infer from supported events is listed below:
 |   `port`   |            Port number            |                                                 -                                                 |
 |   `addr`   |         IPv4/IPv6 address         |                                                 -                                                 | 
 
-#### 2. Datagram Socket Sending *(under development)*
+#### 2. Socket Sending *(under development)*
 
 | Parameter  |                           Description                           |         Comments          |
 |:----------:|:---------------------------------------------------------------:|:-------------------------:|
@@ -290,7 +292,7 @@ The *private properties* we could infer from supported events is listed below:
 |   `port`   |    Port number of the peer socket which we are communicating    |             -             |
 |   `addr`   | IPv4/IPv6 address of the peer socket which we are communicating |             -             |
 
-#### 3. Datagram Socket Receiving *(under development)*
+#### 3. Socket Receiving *(under development)*
 
 | Parameter  |                                     Description                                      |                                                                                         Comments                                                                                          |
 |:----------:|:------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
@@ -301,3 +303,27 @@ The *private properties* we could infer from supported events is listed below:
 |  `family`  |             Address family of the peer socket which we are communicating             |                                                                                             -                                                                                             |
 |   `port`   |              Port number of the peer socket which we are communicating               |                                                                                             -                                                                                             |
 |   `addr`   |           IPv4/IPv6 address of the peer socket which we are communicating            |                                                                                             -                                                                                             |
+
+### 4. Message Sending *(under development)*
+
+|  Parameter  |                           Description                           |         Comments          |
+|:-----------:|:---------------------------------------------------------------:|:-------------------------:|
+|    `fd`     |                The file descriptor of the socket                |             -             |
+|   `flags`   |       A bit mask controlling socket-specific I/O features       | When not needed, set to 0 |
+| `msg_flags` |                      Flags on sent message                      |             -             |
+| `addr_len`  |                 Length of the address structure                 |             -             |
+|  `family`   |  Address family of the peer socket which we are communicating   |             -             |
+|   `port`    |    Port number of the peer socket which we are communicating    |             -             |
+|   `addr`    | IPv4/IPv6 address of the peer socket which we are communicating |             -             |
+
+### 5. Message Receiving *(under development)*
+
+|  Parameter  |                           Description                           |         Comments          |
+|:-----------:|:---------------------------------------------------------------:|:-------------------------:|
+|    `fd`     |                The file descriptor of the socket                |             -             |
+|   `flags`   |       A bit mask controlling socket-specific I/O features       | When not needed, set to 0 |
+| `msg_flags` |                    Flags on received message                    |             -             |
+| `addr_len`  |                 Length of the address structure                 |             -             |
+|  `family`   |  Address family of the peer socket which we are communicating   |             -             |
+|   `port`    |    Port number of the peer socket which we are communicating    |             -             |
+|   `addr`    | IPv4/IPv6 address of the peer socket which we are communicating |             -             |
