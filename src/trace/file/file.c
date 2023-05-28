@@ -79,7 +79,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->openFileArguments.open_flags,
                             e->openFileArguments.open_mode);
                 } else {
-                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d %-7d\n",
+                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-20s %-7d %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->openFileArguments.open_dfd,
@@ -113,7 +113,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->openFileArguments.open_flags,
                            e->openFileArguments.open_mode);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d %-7d\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-20s %-7d %-7d\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->openFileArguments.open_dfd,
@@ -150,7 +150,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->deleteArguments.delete_pathname,
                             e->deleteArguments.delete_flag);
                 } else {
-                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d\n",
+                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-20s %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->deleteArguments.delete_dfd,
@@ -181,7 +181,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->deleteArguments.delete_pathname,
                            e->deleteArguments.delete_flag);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-20s %-7d\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->deleteArguments.delete_dfd,
@@ -221,7 +221,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->renameArguments.rename_newname,
                             e->renameArguments.rename_flags);
                 } else {
-                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d %-20s %-7d\n",
+                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-20s %-7d %-20s %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->renameArguments.rename_olddfd,
@@ -258,7 +258,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->renameArguments.rename_newname,
                            e->renameArguments.rename_flags);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s %-7d %-20s %-7d\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-20s %-7d %-20s %-7d\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->renameArguments.rename_olddfd,
@@ -296,7 +296,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->changeModeArguments.chmod_mode,
                             e->changeModeArguments.chmod_filename);
                 } else {
-                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-20s\n",
+                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-7d %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->changeModeArguments.chmod_dfd,
@@ -327,7 +327,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->changeModeArguments.chmod_mode,
                            e->changeModeArguments.chmod_filename);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-20s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-7d %-20s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->changeModeArguments.chmod_dfd,
@@ -365,7 +365,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->getModeArguments.stat_gid,
                             e->getModeArguments.stat_filename);
                 } else {
-                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7o %-7d %-7d %-20s\n",
+                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7o %-7d %-7d %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->getModeArguments.stat_mode,
@@ -399,7 +399,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->getModeArguments.stat_gid,
                            e->getModeArguments.stat_filename);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7o %-7d %-7d %-20s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7o %-7d %-7d %-20s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->getModeArguments.stat_mode,
@@ -432,7 +432,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->event.ppid, process_type,
                             e->changeDirArguments.chdir_filename);
                 } else {
-                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-20s\n",
+                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-15s %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->changeDirArguments.chdir_filename);
@@ -457,7 +457,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->event.ppid, process_type,
                            e->changeDirArguments.chdir_filename);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-20s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-20s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->changeDirArguments.chdir_filename);
@@ -488,7 +488,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->makeDirArguments.mkdir_mode,
                             e->makeDirArguments.mkdir_filename);
                 } else {
-                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s\n",
+                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,e->event.ppid, process_type,
                             e->makeDirArguments.mkdir_mode,
                             e->makeDirArguments.mkdir_filename);
@@ -515,7 +515,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->makeDirArguments.mkdir_mode,
                            e->makeDirArguments.mkdir_filename);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-20s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-20s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->makeDirArguments.mkdir_mode,
@@ -546,7 +546,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->event.ppid, process_type,
                             e->removeDirArguments.rmdir_filename);
                 } else {
-                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-20s\n",
+                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-15s %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->removeDirArguments.rmdir_filename);
@@ -571,7 +571,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->event.ppid, process_type,
                            e->removeDirArguments.rmdir_filename);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-20s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-20s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->removeDirArguments.rmdir_filename);
@@ -609,7 +609,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->readFileArguments.read_bytes,
                             e->event.filename);
                 } else {
-                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7lld %-7d %-7d %-7lld %-20s\n",
+                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7lld %-7d %-7d %-7lld %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->readFileArguments.inode,
                             e->readFileArguments.fileuser,
@@ -645,7 +645,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->readFileArguments.read_bytes,
                             e->event.filename);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7lld %-7d %-7d %-7lld %-20s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7lld %-7d %-7d %-7lld %-20s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->readFileArguments.inode,
                            e->readFileArguments.fileuser,
@@ -686,7 +686,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             e->writeFileArguments.write_bytes,
                             e->event.filename);
                 } else {
-                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7lld %-7d %-7d %-7lld %-20s\n",
+                    fprintf(output_file, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7lld %-7d %-7d %-7lld %-20s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->writeFileArguments.inode,
                             e->writeFileArguments.fileuser,
@@ -722,7 +722,7 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            e->writeFileArguments.write_bytes,
                            e->event.filename);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7lld %-7d %-7d %-7lld %-20s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7lld %-7d %-7d %-7lld %-20s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->writeFileArguments.inode,
                            e->writeFileArguments.fileuser,
@@ -762,8 +762,6 @@ int test_file(Args args) {
         return 1;
     }
 
-    printf("=========================Open=========================");
-
     /* Load & verify BPF programs */
     err = file_bpf__load(skel);
     if (err) {
@@ -771,16 +769,12 @@ int test_file(Args args) {
         goto cleanup;
     }
 
-    printf("=========================Load=========================");
-
     /* Attach tracepoints */
     err = file_bpf__attach(skel);
     if (err) {
         fprintf(stderr, "Failed to attach BPF skeleton\n");
         goto cleanup;
     }
-
-    printf("=========================Attach=========================");
 
     /* Set up ring buffer polling */
     rb = ring_buffer__new(bpf_map__fd(skel->maps.rb), handle_file_event, NULL, NULL);
@@ -790,18 +784,16 @@ int test_file(Args args) {
         goto cleanup;
     }
 
-    printf("=========================Ring Buffer=========================");
-
     /**
      * if the output format is json, do not print the title.
      */
     if (!my_args_file.if_output_as_json) {
         if (my_args_file.if_output_to_file) {
-            fprintf(output_file, "%-20s %-10s %-32s %-7s %-7s %10s\n",
-                    "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD");
+            fprintf(output_file, "%-20s %-10s %-32s %-7s %-7s %-15s %-s\n",
+                    "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD", "--------------- PrivateProps ---------------");
         } else {
-            printf("%-20s %-10s %-32s %-7s %-7s %10s\n",
-                   "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD");
+            printf("%-20s %-10s %-32s %-7s %-7s %-15s %-s\n",
+                   "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD", "--------------- PrivateProps ---------------");
         }
     }
 

@@ -80,7 +80,7 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                             e->forkArguments.child_pid,
                             e->forkArguments.child_comm);
                 } else {
-                    fprintf(output_process, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-10s %-7d %-10s\n",
+                    fprintf(output_process, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-10s %-7d %-10s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->forkArguments.parent_pid,
@@ -114,7 +114,7 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                            e->forkArguments.child_pid,
                            e->forkArguments.child_comm);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-10s %-7d %-10s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-10s %-7d %-10s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->forkArguments.parent_pid,
@@ -151,7 +151,7 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                             e->execArguments.pid,
                             e->event.filename);
                 } else {
-                    fprintf(output_process, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-20s \n",
+                    fprintf(output_process, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-7d %-20s \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->execArguments.old_pid,
@@ -182,7 +182,7 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                            e->execArguments.pid,
                            e->event.filename);
                 } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-20s \n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-7d %-20s \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->execArguments.old_pid,
@@ -211,8 +211,8 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                                             "\"CloneFlags\":%ld, "
                                             "\"NewSP\":%ld,"
                                             "\"TLS\":%ld,"
-                                            "\"ParentTidPtr\":%p,"
-                                            "\"ChildTidPtr\":%p"
+                                            "\"ParentTidPtr\":\"%p\","
+                                            "\"ChildTidPtr\":\"%p\""
                                             "}} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->cloneArguments.clone_flags,
@@ -222,7 +222,7 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                             e->cloneArguments.child_tidptr
                             );
                 } else {
-                    fprintf(output_process, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7ld %-7ld %-7ld %-10p %-10p \n",
+                    fprintf(output_process, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7ld %-7ld %-7ld %-10p %-10p \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->cloneArguments.clone_flags,
                             e->cloneArguments.newsp,
@@ -247,8 +247,8 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                            "\"CloneFlags\":%ld, "
                            "\"NewSP\":%ld,"
                            "\"TLS\":%ld,"
-                           "\"ParentTidPtr\":%p,"
-                           "\"ChildTidPtr\":%p"
+                           "\"ParentTidPtr\":\"%p\","
+                           "\"ChildTidPtr\":\"%p\""
                            "}} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->cloneArguments.clone_flags,
@@ -259,7 +259,7 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                 }
                     // raw output
                 else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7ld %-7ld %-7ld %-10p %-10p \n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7ld %-7ld %-7ld %-10p %-10p \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->cloneArguments.clone_flags,
                            e->cloneArguments.newsp,
@@ -288,7 +288,7 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                                             "\"Arguments\":{"
                                             "\"Exit_code\":%d, "
                                             "\"PID\":%d, "
-                                            "\"ExitPName\":%s,"
+                                            "\"ExitPName\":\"%s\","
                                             "\"Priority\":%d}"
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -297,7 +297,7 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                             e->exitArguments.comm,
                             e->exitArguments.prio);
                 } else {
-                    fprintf(output_process, "%-20ld %-10s %-32s %-7d %-7d %-10s %-5d %-7d %-20s %-7d \n",
+                    fprintf(output_process, "%-20ld %-10s %-32s %-7d %-7d %-15s %-5d %-7d %-20s %-7d \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->exitArguments.exit_code,
                             e->exitArguments.pid,
@@ -320,7 +320,7 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                            "\"Arguments\":{"
                            "\"Exit_code\":%d, "
                            "\"PID\":%d, "
-                           "\"ExitPName\":%s,"
+                           "\"ExitPName\":\"%s\","
                            "\"Priority\":%d}"
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -330,7 +330,7 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
                            e->exitArguments.prio);
                 }
                 else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-5d %-7d %-20s %-7d \n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-5d %-7d %-20s %-7d \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->exitArguments.exit_code,
                            e->exitArguments.pid,
@@ -397,11 +397,11 @@ int test_process(Args args) {
      */
     if (!my_args_process.if_output_as_json) {
         if (my_args_process.if_output_to_file) {
-            fprintf(output_process, "%-20s %-10s %-32s %-7s %-7s %10s\n",
-                    "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD");
+            fprintf(output_process, "%-20s %-10s %-32s %-7s %-7s %-15s %-s\n",
+                    "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD", "--------------- PrivateProps ---------------");
         } else {
-            printf("%-20s %-10s %-32s %-7s %-7s %10s\n",
-                   "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD");
+            printf("%-20s %-10s %-32s %-7s %-7s %-15s %-s\n",
+                   "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD", "--------------- PrivateProps ---------------");
         }
     }
 
