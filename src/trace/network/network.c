@@ -105,7 +105,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s} "
+                                            "\"Address\":\"%s\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->connectArguments.fd,
@@ -116,7 +116,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                 }
                 else
                 {
-                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-5d %-5d %-39s\n",
+                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-7d %-5d %-5d %-39s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->connectArguments.fd,
                             e->connectArguments.addrlen,
@@ -155,7 +155,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                 }
                 else
                 {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-5d %-5d %-39s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-7d %-5d %-5d %-39s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->connectArguments.fd,
                            e->connectArguments.addrlen,
@@ -215,7 +215,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s} "
+                                            "\"Address\":\"%s\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->sendArguments.fd,
@@ -228,7 +228,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                 }
                 else
                 {
-                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-5d %-5d %-5d %-5d %-5d %-39s\n",
+                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-5d %-5d %-5d %-5d %-5d %-39s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->sendArguments.fd,
                             e->sendArguments.len,
@@ -273,7 +273,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                 }
                 else
                 {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-5d %-5d %-5d %-5d %-5d %-39s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-5d %-5d %-5d %-5d %-5d %-39s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->sendArguments.fd,
                            e->sendArguments.len,
@@ -335,7 +335,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s} "
+                                            "\"Address\":\"%s\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->recvArguments.fd,
@@ -348,7 +348,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                 }
                 else
                 {
-                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-5d %-5d %-5d %-5d %-5d %-39s\n",
+                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-5d %-5d %-5d %-5d %-5d %-39s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->recvArguments.fd,
                             e->recvArguments.len,
@@ -393,7 +393,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                 }
                 else
                 {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-5d %-5d %-5d %-5d %-5d %-39s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-5d %-5d %-5d %-5d %-5d %-39s\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->recvArguments.fd,
                            e->recvArguments.len,
@@ -455,7 +455,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s} "
+                                            "\"Address\":\"%s\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->sendRecvMsgArguments.fd,
@@ -468,7 +468,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                 }
                 else
                 {
-                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-5d %-5d %-5d %-5d %-5d %-39s\n",
+                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-5d %-5d %-5d %-5d %-5d %-39s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->sendRecvMsgArguments.fd,
                             e->sendRecvMsgArguments.flags,
@@ -513,7 +513,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                 }
                 else
                 {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-5d %-5d %-5d %-5d %-5d %s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-5d %-5d %-5d %-5d %-5d %s\n",
                         getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                         e->sendRecvMsgArguments.fd,
                         e->sendRecvMsgArguments.flags,
@@ -575,7 +575,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s} "
+                                            "\"Address\":\"%s\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->sendRecvMsgArguments.fd,
@@ -588,7 +588,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                 }
                 else
                 {
-                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-5d %-5d %-5d %-5d %-5d %-39s\n",
+                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-5d %-5d %-5d %-5d %-5d %-39s\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->sendRecvMsgArguments.fd,
                             e->sendRecvMsgArguments.flags,
@@ -633,7 +633,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                 }
                 else
                 {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-5d %-5d %-5d %-5d %-5d %s\n",
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-15s %-7d %-5d %-5d %-5d %-5d %-5d %s\n",
                         getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                         e->sendRecvMsgArguments.fd,
                         e->sendRecvMsgArguments.flags,
@@ -702,11 +702,11 @@ int test_network(Args args) {
      */
     if (!my_args_network.if_output_as_json) {
         if (my_args_network.if_output_to_file) {
-            fprintf(output_network, "%-20s %-10s %-32s %-7s %-7s %10s\n",
-                    "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD");
+            fprintf(output_network, "%-20s %-10s %-32s %-7s %-7s %-15s %-s\n",
+                    "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD", "--------------- PrivateProps ---------------");
         } else {
-            printf("%-20s %-15s %-32s %-7s %-7s %-10s\n",
-                   "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD");
+            printf("%-20s %-10s %-32s %-7s %-7s %-15s %-s\n",
+                   "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD", "--------------- PrivateProps ---------------");
         }
     }
 
