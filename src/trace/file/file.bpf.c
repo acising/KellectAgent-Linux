@@ -22,6 +22,8 @@ struct {
 
 const volatile unsigned long long min_duration_ns = 0;
 
+//////////////////////////////////////////// Kellect version 1.0
+
 SEC("tp/syscalls/sys_enter_openat")
 int handle_syscalls_openat(struct trace_event_raw_sys_enter *ctx)
 {
@@ -175,7 +177,7 @@ int handle_syscalls_unlinkat(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_enter_renameat2")
 int handle_syscalls_renameat2(struct trace_event_raw_sys_enter *ctx)
 {
-    struct RenameEvent *e;
+    struct Renameat2Event *e;
     struct task_struct *task;
 
     e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
@@ -199,14 +201,14 @@ int handle_syscalls_renameat2(struct trace_event_raw_sys_enter *ctx)
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
 
-    e->renameArguments.rename_olddfd = BPF_CORE_READ(ctx, args[0]);
-    e->renameArguments.rename_newdfd = BPF_CORE_READ(ctx, args[2]);
-    e->renameArguments.rename_flags = BPF_CORE_READ(ctx, args[4]);
+    e->renameat2Arguments.rename_olddfd = BPF_CORE_READ(ctx, args[0]);
+    e->renameat2Arguments.rename_newdfd = BPF_CORE_READ(ctx, args[2]);
+    e->renameat2Arguments.rename_flags = BPF_CORE_READ(ctx, args[4]);
 
     char *oldname_ptr = (char *)BPF_CORE_READ(ctx, args[1]);
-    bpf_probe_read_user_str(&e->renameArguments.rename_oldname, sizeof(e->renameArguments.rename_oldname), oldname_ptr);
+    bpf_probe_read_user_str(&e->renameat2Arguments.rename_oldname, sizeof(e->renameat2Arguments.rename_oldname), oldname_ptr);
     char *newname_ptr = (char *)BPF_CORE_READ(ctx, args[3]);
-    bpf_probe_read_user_str(&e->renameArguments.rename_newname, sizeof(e->renameArguments.rename_newname), newname_ptr);
+    bpf_probe_read_user_str(&e->renameat2Arguments.rename_newname, sizeof(e->renameat2Arguments.rename_newname), newname_ptr);
 
     /* successfully submit it to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -488,6 +490,768 @@ int BPF_KPROBE(vfs_write_entry, struct file *file, const char *buf, size_t count
     // get file user
     e->writeFileArguments.fileuser = BPF_CORE_READ(file, f_inode, i_uid.val);
 
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+//////////////////////////////////////////// Kellect version 1.1
+
+SEC("tp/syscalls/sys_enter_dup")
+int handle_dup(struct trace_event_raw_sys_enter *ctx)
+{
+    struct DupFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_DUP;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->dupFileArguments.dup_fildes = BPF_CORE_READ(ctx, args[0]);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_dup2")
+int handle_dup2(struct trace_event_raw_sys_enter *ctx)
+{
+    struct Dup2FileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_DUP_2;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->dup2FileArguments.dup2_oldfd = BPF_CORE_READ(ctx, args[0]);
+    e->dup2FileArguments.dup2_newfd = BPF_CORE_READ(ctx, args[1]);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_close")
+int handle_close(struct trace_event_raw_sys_enter *ctx)
+{
+    struct CloseFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_CLOSE;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->closeFileArguments.close_fd = BPF_CORE_READ(ctx, args[0]);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_ftruncate")
+int handle_file_ftruncate(struct trace_event_raw_sys_enter *ctx)
+{
+    struct FtruncateFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_FTRUNCATE;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->ftruncateFileArguments.ftruncate_fd = BPF_CORE_READ(ctx, args[0]);
+    e->ftruncateFileArguments.ftruncate_length = BPF_CORE_READ(ctx, args[1]);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_chmod")
+int handle_file_chmod(struct trace_event_raw_sys_enter *ctx)
+{
+    struct ChmodFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_CHMOD;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    char *pathname_ptr = (char *)BPF_CORE_READ(ctx, args[0]);
+    bpf_probe_read_user_str(&e->chmodFileArguments.chmod_pathname, sizeof(e->chmodFileArguments.chmod_pathname), pathname_ptr);
+
+    e->chmodFileArguments.mode = BPF_CORE_READ(ctx, args[1]);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_fchdir")
+int handle_file_fchdir(struct trace_event_raw_sys_enter *ctx)
+{
+    struct FchdirFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_FCHDIR;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->fchdirFileArguments.fchdir_fd = BPF_CORE_READ(ctx, args[0]);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_link")
+int handle_file_link(struct trace_event_raw_sys_enter *ctx)
+{
+    struct LinkFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_LINK;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    char *old_name_ptr = (char *)BPF_CORE_READ(ctx, args[0]);
+    bpf_probe_read_user_str(&e->linkFileArguments.link_oldpath, sizeof(e->linkFileArguments.link_oldpath), old_name_ptr);
+
+    char *new_name_ptr = (char *)BPF_CORE_READ(ctx, args[1]);
+    bpf_probe_read_user_str(&e->linkFileArguments.link_newpath, sizeof(e->linkFileArguments.link_newpath), new_name_ptr);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_linkat")
+int handle_file_linkat(struct trace_event_raw_sys_enter *ctx)
+{
+    struct LinkatFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_LINKAT;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->linkatFileArguments.linkat_olddfd = BPF_CORE_READ(ctx, args[0]);
+
+    char *old_name_ptr = (char *)BPF_CORE_READ(ctx, args[1]);
+    bpf_probe_read_user_str(&e->linkatFileArguments.linkat_oldname, sizeof(e->linkatFileArguments.linkat_oldname), old_name_ptr);
+
+    e->linkatFileArguments.linkat_newdfd = BPF_CORE_READ(ctx, args[2]);
+
+    char *new_name_ptr = (char *)BPF_CORE_READ(ctx, args[3]);
+    bpf_probe_read_user_str(&e->linkatFileArguments.linkat_newname, sizeof(e->linkatFileArguments.linkat_newname), new_name_ptr);
+
+    e->linkatFileArguments.linkat_flags = BPF_CORE_READ(ctx, args[4]);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_fchmod")
+int handle_file_fchmod(struct trace_event_raw_sys_enter *ctx)
+{
+    struct FchmodFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_FCHMOD;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->fchmodFileArguments.fchmod_fd = BPF_CORE_READ(ctx, args[0]);
+    e->fchmodFileArguments.fchmod_mode = BPF_CORE_READ(ctx, args[1]);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_mkdirat")
+int handle_file_mkdirat(struct trace_event_raw_sys_enter *ctx)
+{
+    struct MkdiratFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_MKDIRAT;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->mkdiratFileArguments.mkdirat_dfd = BPF_CORE_READ(ctx, args[0]);
+
+    char *pathname_ptr = (char *)BPF_CORE_READ(ctx, args[1]);
+    bpf_probe_read_user_str(&e->mkdiratFileArguments.mkdirat_name, sizeof(e->mkdiratFileArguments.mkdirat_name), pathname_ptr);
+
+    e->mkdiratFileArguments.mkdirat_mode = BPF_CORE_READ(ctx, args[2]);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_rename")
+int handle_file_rename(struct trace_event_raw_sys_enter *ctx)
+{
+    struct RenameFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_RENAME;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    char *oldname_ptr = (char *)BPF_CORE_READ(ctx, args[0]);
+    bpf_probe_read_user_str(&e->renameFileArguments.rename_oldname, sizeof(e->renameFileArguments.rename_oldname), oldname_ptr);
+    char *newname_ptr = (char *)BPF_CORE_READ(ctx, args[1]);
+    bpf_probe_read_user_str(&e->renameFileArguments.rename_newname, sizeof(e->renameFileArguments.rename_newname), newname_ptr);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_renameat")
+int handle_file_renameat(struct trace_event_raw_sys_enter *ctx)
+{
+    struct RenameatFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_RENAMEAT;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->renameatFileArguments.renameat_oldfd = BPF_CORE_READ(ctx, args[0]);
+    e->renameatFileArguments.renameat_newfd = BPF_CORE_READ(ctx, args[2]);
+
+    char *oldname_ptr = (char *)BPF_CORE_READ(ctx, args[1]);
+    bpf_probe_read_user_str(&e->renameatFileArguments.renameat_oldname, sizeof(e->renameatFileArguments.renameat_oldname), oldname_ptr);
+    char *newname_ptr = (char *)BPF_CORE_READ(ctx, args[3]);
+    bpf_probe_read_user_str(&e->renameatFileArguments.renameat_newname, sizeof(e->renameatFileArguments.renameat_newname), newname_ptr);
+
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_symlink")
+int handle_file_symlink(struct trace_event_raw_sys_enter *ctx)
+{
+    struct SymlinkFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_SYMLINK;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    char *oldname_ptr = (char *)BPF_CORE_READ(ctx, args[0]);
+    bpf_probe_read_user_str(&e->symlinkFileArguments.symlink_oldname, sizeof(e->symlinkFileArguments.symlink_oldname), oldname_ptr);
+    char *newname_ptr = (char *)BPF_CORE_READ(ctx, args[1]);
+    bpf_probe_read_user_str(&e->symlinkFileArguments.symlink_newname, sizeof(e->symlinkFileArguments.symlink_newname), newname_ptr);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_symlinkat")
+int handle_file_symlinkat(struct trace_event_raw_sys_enter *ctx)
+{
+    struct SymlinkatFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_SYMLINKAT;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    char *oldname_ptr = (char *)BPF_CORE_READ(ctx, args[0]);
+    bpf_probe_read_user_str(&e->symlinkatFileArguments.symlinkat_oldname, sizeof(e->symlinkatFileArguments.symlinkat_oldname), oldname_ptr);
+    e->symlinkatFileArguments.symlinkat_fd = BPF_CORE_READ(ctx, args[1]);
+    char *newname_ptr = (char *)BPF_CORE_READ(ctx, args[2]);
+    bpf_probe_read_user_str(&e->symlinkatFileArguments.symlinkat_newname, sizeof(e->symlinkatFileArguments.symlinkat_newname), newname_ptr);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_unlink")
+int handle_file_unlink(struct trace_event_raw_sys_enter *ctx)
+{
+    struct UnlinkFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_UNLINK;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    char *oldname_ptr = (char *)BPF_CORE_READ(ctx, args[0]);
+    bpf_probe_read_user_str(&e->unlinkFileArguments.unlink_name, sizeof(e->unlinkFileArguments.unlink_name), oldname_ptr);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_truncate")
+int handle_file_truncate(struct trace_event_raw_sys_enter *ctx)
+{
+    struct TruncateFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_TRUNCATE;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    char *path_ptr = (char *)BPF_CORE_READ(ctx, args[0]);
+    bpf_probe_read_user_str(&e->truncateFileArguments.truncate_path, sizeof(e->truncateFileArguments.truncate_path), path_ptr);
+    e->truncateFileArguments.length = BPF_CORE_READ(ctx, args[1]);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_pread64")
+int handle_file_pread64(struct trace_event_raw_sys_enter *ctx)
+{
+    struct Pread64FileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_PREAD64;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->pread64FileArguments.read_fd = BPF_CORE_READ(ctx, args[0]);
+    //char *ptr = (char *)BPF_CORE_READ(ctx, args[1]);
+    //bpf_probe_read_user_str(&e->pread64FileArguments.read_buff, sizeof(e->pread64FileArguments.read_buff), ptr);
+    e->pread64FileArguments.read_size = BPF_CORE_READ(ctx, args[2]);
+    e->pread64FileArguments.read_pos = BPF_CORE_READ(ctx, args[3]);
+
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_preadv")
+int handle_file_preadv(struct trace_event_raw_sys_enter *ctx)
+{
+    struct PreadvFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_PREADV;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->preadvFileArguments.read_fd = BPF_CORE_READ(ctx, args[0]);
+    e->preadvFileArguments.read_vlen = BPF_CORE_READ(ctx, args[2]);
+    e->preadvFileArguments.read_pos_l = BPF_CORE_READ(ctx, args[3]);
+    e->preadvFileArguments.read_pos_h = BPF_CORE_READ(ctx, args[4]);
+
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_pwrite64")
+int handle_file_pwrite64(struct trace_event_raw_sys_enter *ctx)
+{
+    struct Pwrite64FileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_PWRITE64;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->pwrite64FileArguments.write_fd = BPF_CORE_READ(ctx, args[0]);
+    e->pwrite64FileArguments.write_size = BPF_CORE_READ(ctx, args[2]);
+    e->pwrite64FileArguments.write_pos = BPF_CORE_READ(ctx, args[3]);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+SEC("tp/syscalls/sys_enter_pwritev")
+int handle_file_pwritev(struct trace_event_raw_sys_enter *ctx)
+{
+    struct PwritevFileEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_FILE_PWRITEV;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    //special arguments
+    e->pwritevFileArguments.write_fd = BPF_CORE_READ(ctx, args[0]);
+    e->pwritevFileArguments.write_vlen = BPF_CORE_READ(ctx, args[2]);
+    e->pwritevFileArguments.write_pos_l = BPF_CORE_READ(ctx, args[3]);
+    e->pwritevFileArguments.write_pos_h = BPF_CORE_READ(ctx, args[4]);
+
+
+    /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
     return 0;
 }

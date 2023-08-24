@@ -10,5 +10,7 @@ int test_all(Args args);
 int test_file(Args args);
 int test_process(Args args);
 int test_network(Args args);
+int test_user(Args args);
+
 
 #endif //KELLECT_LINUX_MAIN_H

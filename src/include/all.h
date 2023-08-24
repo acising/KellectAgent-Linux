@@ -13,6 +13,7 @@ typedef unsigned int __u32;
 typedef __u32 u32;
 
 enum EventType {
+    /// kellect v1.0
     EVENT_PROCESS_FORK = 1,
     EVENT_PROCESS_EXEC = 2,
     EVENT_PROCESS_EXIT = 3,
@@ -24,7 +25,7 @@ enum EventType {
 
     EVENT_FILE_OPEN = 101,
     EVENT_FILE_DELETE = 102,
-    EVENT_FILE_RENAME = 103,
+    EVENT_FILE_RENAMEAT_2 = 103,
     EVENT_FILE_CHANGE_MODE = 104,
     EVENT_FILE_GET_MODE = 105,
     EVENT_FILE_CHANGE_DIR = 106,
@@ -38,7 +39,47 @@ enum EventType {
     EVENT_NETWORK_SOCKET = 203,
     EVENT_NETWORK_TCP_IPV4 = 204,
     EVENT_NETWORK_SEND = 205,
-    EVENT_NETWORK_RECV = 206
+    EVENT_NETWORK_RECV = 206,
+
+
+    ///zhengyulin 20230718
+    EVENT_FILE_DUP = 111,
+    EVENT_FILE_CLOSE = 112,
+    EVENT_FILE_FTRUNCATE = 113,
+    EVENT_FILE_CHMOD = 114,
+    EVENT_FILE_FCHDIR = 115,
+    EVENT_FILE_LINK = 116,
+    EVENT_FILE_LINKAT = 117,
+    EVENT_FILE_FCHMOD = 118,
+    EVENT_FILE_MKDIRAT = 119,
+    EVENT_FILE_RENAME = 120,
+    EVENT_FILE_SYMLINK = 121,
+    EVENT_FILE_SYMLINKAT = 122,
+    EVENT_FILE_UNLINK = 123,
+    EVENT_FILE_TRUNCATE = 124,
+    EVENT_FILE_DUP_2 = 125,
+    EVENT_FILE_RENAMEAT = 126,
+    EVENT_FILE_PREAD64 = 127,
+    EVENT_FILE_PREADV = 128,
+    EVENT_FILE_PWRITE64 = 129,
+    EVENT_FILE_PWRITEV = 130,
+    //EVENT_FILE_READ = 131,
+    //EVENT_FILE_READV = 132,
+    //EVENT_FILE_WRITE = 133,
+    //EVENT_FILE_WRITEV = 134,
+
+
+    ///zhengyulin 20230725
+    EVENT_SETGID = 301,
+    EVENT_SETUID = 302,
+    EVENT_SETREGID = 303,
+    EVENT_SETRESGID = 304,
+    EVENT_SETRESUID = 305,
+    EVENT_SETREUID = 306,
+
+    EVENT_NETWORK_ACCEPT = 307,
+    EVENT_NETWORK_GETPEERNAME = 308,
+    EVENT_NETWORK_SOCKETPAIR = 309
 };
 
 
@@ -119,7 +160,7 @@ struct DeleteEvent {
     struct DeleteArguments deleteArguments;
 };
 
-struct RenameArguments {
+struct Renameat2Arguments {
     int rename_olddfd;
     char rename_oldname[MAX_FILENAME_LEN];
     int rename_newdfd;
@@ -127,9 +168,9 @@ struct RenameArguments {
     unsigned int rename_flags;
 };
 
-struct RenameEvent {
+struct Renameat2Event {
     struct Event event;
-    struct RenameArguments renameArguments;
+    struct Renameat2Arguments renameat2Arguments;
 };
 
 struct ChangeModeArguments {
@@ -317,7 +358,6 @@ struct CloneEvent
     struct CloneArguments cloneArguments;
 };
 
-
 struct ForkArguments {
     unsigned short common_type;
     unsigned char common_flags;
@@ -328,7 +368,6 @@ struct ForkArguments {
     char child_comm[16];
     pid_t child_pid;
 };
-
 
 struct ForkEvent {
     struct Event event;
@@ -422,6 +461,282 @@ struct CloseArguments {
 struct CloseEvent {
     struct Event event;
     struct CloseArguments closeArguments;
+};
+
+struct DupFileArguments{
+    int dup_fildes;
+};
+
+struct DupFileEvent{
+    struct Event event;
+    struct DupFileArguments dupFileArguments;
+};
+
+struct Dup2FileArguments{
+    int dup2_oldfd;
+    int dup2_newfd;
+};
+
+struct Dup2FileEvent{
+    struct Event event;
+    struct Dup2FileArguments dup2FileArguments;
+};
+
+struct CloseFileArguments{
+    int close_fd;
+};
+
+struct CloseFileEvent{
+    struct Event event;
+    struct CloseFileArguments closeFileArguments;
+};
+
+struct FtruncateFileArguments{
+    int ftruncate_fd;
+    int ftruncate_length;
+};
+
+struct FtruncateFileEvent{
+    struct Event event;
+    struct FtruncateFileArguments ftruncateFileArguments;
+};
+
+struct ChmodFileArguments{
+    char chmod_pathname[MAX_FILENAME_LEN];
+    int mode;
+};
+
+struct ChmodFileEvent{
+    struct Event event;
+    struct ChmodFileArguments chmodFileArguments;
+};
+
+struct FchdirFileArguments{
+    int fchdir_fd;
+};
+
+struct FchdirFileEvent{
+    struct Event event;
+    struct FchdirFileArguments fchdirFileArguments;
+};
+
+struct LinkFileArguments{
+    char link_oldpath[MAX_FILENAME_LEN];
+    char link_newpath[MAX_FILENAME_LEN];
+};
+
+struct LinkFileEvent{
+    struct Event event;
+    struct LinkFileArguments linkFileArguments;
+};
+
+struct LinkatFileArguments{
+    int linkat_olddfd;
+    char linkat_oldname[MAX_FILENAME_LEN];
+    int linkat_newdfd;
+    char linkat_newname[MAX_FILENAME_LEN];
+    int linkat_flags;
+};
+
+struct LinkatFileEvent{
+    struct Event event;
+    struct LinkatFileArguments linkatFileArguments;
+};
+
+struct FchmodFileArguments{
+    int fchmod_fd;
+    int fchmod_mode;
+};
+
+struct FchmodFileEvent{
+    struct Event event;
+    struct FchmodFileArguments fchmodFileArguments;
+};
+
+struct MkdiratFileArguments{
+    int mkdirat_dfd;
+    char mkdirat_name[MAX_FILENAME_LEN];
+    short mkdirat_mode;
+};
+
+struct MkdiratFileEvent{
+    struct Event event;
+    struct MkdiratFileArguments mkdiratFileArguments;
+};
+
+struct RenameFileArguments{
+    char rename_oldname[MAX_FILENAME_LEN];
+    char rename_newname[MAX_FILENAME_LEN];
+};
+
+struct RenameFileEvent{
+    struct Event event;
+    struct RenameFileArguments renameFileArguments;
+};
+
+struct RenameatFileArguments {
+    int renameat_oldfd;
+    char renameat_oldname[MAX_FILENAME_LEN];
+    int renameat_newfd;
+    char renameat_newname[MAX_FILENAME_LEN];
+};
+
+struct RenameatFileEvent {
+    struct Event event;
+    struct RenameatFileArguments renameatFileArguments;
+};
+
+struct SymlinkFileArguments{
+    char symlink_oldname[MAX_FILENAME_LEN];
+    char symlink_newname[MAX_FILENAME_LEN];
+};
+
+struct SymlinkFileEvent{
+    struct Event event;
+    struct SymlinkFileArguments symlinkFileArguments;
+};
+
+struct SymlinkatFileArguments{
+    char symlinkat_oldname[MAX_FILENAME_LEN];
+    int symlinkat_fd;
+    char symlinkat_newname[MAX_FILENAME_LEN];
+};
+
+struct SymlinkatFileEvent{
+    struct Event event;
+    struct SymlinkatFileArguments symlinkatFileArguments;
+};
+
+struct UnlinkFileArguments{
+    char unlink_name[MAX_FILENAME_LEN];
+};
+
+struct UnlinkFileEvent{
+    struct Event event;
+    struct UnlinkFileArguments unlinkFileArguments;
+};
+
+struct TruncateFileArguments{
+    char truncate_path[MAX_FILENAME_LEN];
+    int length;
+};
+
+struct TruncateFileEvent{
+    struct Event event;
+    struct TruncateFileArguments truncateFileArguments;
+};
+
+struct Pread64FileArguments{
+    int read_fd;
+    //char read_buff[MAX_BUFF_LEN];
+    int read_size;
+    int read_pos;
+};
+
+struct Pread64FileEvent{
+    struct Event event;
+    struct Pread64FileArguments pread64FileArguments;
+};
+
+struct PreadvFileArguments{
+    int read_fd;
+    int read_vlen;
+    int read_pos_l;
+    int read_pos_h;
+};
+
+struct PreadvFileEvent{
+    struct Event event;
+    struct PreadvFileArguments preadvFileArguments;
+};
+
+struct Pwrite64FileArguments{
+    int write_fd;
+    int write_size;
+    int write_pos;
+};
+
+struct Pwrite64FileEvent{
+    struct Event event;
+    struct Pwrite64FileArguments pwrite64FileArguments;
+};
+
+struct PwritevFileArguments{
+    int write_fd;
+    int write_vlen;
+    int write_pos_l;
+    int write_pos_h;
+};
+
+struct PwritevFileEvent{
+    struct Event event;
+    struct PwritevFileArguments pwritevFileArguments;
+};
+
+//////////////////////////////////////// USER //////////////////////////////////////////////////
+
+struct SetgidArguments{
+    int gid;
+};
+
+struct SetgidEvent{
+    struct Event event;
+    struct SetgidArguments setgidArguments;
+};
+
+struct SetuidArguments{
+    int uid;
+};
+
+struct SetuidEvent{
+    struct Event event;
+    struct SetuidArguments setuidArguments;
+};
+
+struct SetregidArguments{
+    int setregid_rgid;
+    int setregid_egid;
+
+};
+
+struct SetregidEvent{
+    struct Event event;
+    struct SetregidArguments setregidArguments;
+};
+
+struct SetresgidArguments{
+    int setresgid_rgid;
+    int setresgid_egid;
+    int setresgid_sgid;
+
+};
+
+struct SetresgidEvent{
+    struct Event event;
+    struct SetresgidArguments setresgidArguments;
+};
+
+struct SetresuidArguments{
+    int setresuid_ruid;
+    int setresuid_euid;
+    int setresuid_suid;
+
+};
+
+struct SetresuidEvent{
+    struct Event event;
+    struct SetresuidArguments setresuidArguments;
+};
+
+struct SetreuidArguments{
+    int setreuid_ruid;
+    int setreuid_euid;
+
+};
+
+struct SetreuidEvent{
+    struct Event event;
+    struct SetreuidArguments setreuidArguments;
 };
 
 

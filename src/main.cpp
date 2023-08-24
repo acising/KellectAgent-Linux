@@ -24,6 +24,9 @@ int main(int argc, char* argv[]) {
         }else if(args.event_type == "network"){
             std::cerr << "Kellect is listening events of network..." << std::endl << std::endl;
             test_network(args);
+        }else if(args.event_type == "user"){
+            std::cerr << "Kellect is listening events of user..." << std::endl << std::endl;
+            test_user(args);
         }
     }else {
         std::cout << "please run as root" << std::endl;
