@@ -15,7 +15,14 @@ enum EventType
     EVENT_NETWORK_SENDTO = 203,
     EVENT_NETWORK_RECVFROM = 204,
     EVENT_NETWORK_SENDMSG = 205,
-    EVENT_NETWORK_RECVMSG = 206
+    EVENT_NETWORK_RECVMSG = 206,
+    EVENT_NETWORK_ACCEPT = 207,
+    EVENT_NETWORK_ACCEPT4=208,
+    EVENT_NETWORK_BIND = 209,
+    EVENT_NETWORK_GETPEERNAME=210,
+    EVENT_NETWORK_RECVMMSG=211,
+    EVENT_NETWORK_SOCKETPAIR=212,
+    EVENT_NETWORK_SENDMMSG=213
 };
 
 
@@ -143,5 +150,124 @@ struct SendRecvMsgEvent
     struct Event event;
     struct SendRecvMsgArguments sendRecvMsgArguments;
 };
+struct AcceptArguments
+{
+    int fd;
+    int upper_addrlen;
+    unsigned short sa_family; // Socket type
+    uint32_t s_addr;  // IPv4 address
+    uint16_t s_port;  // IPv4, IPv6 port
+    struct in6_addr *s_addr_v6; // IPv6 address
+};
 
+struct AcceptEvent
+{
+    struct Event event;
+    struct AcceptArguments acceptArguments;
+};
+struct Accept4Arguments
+{
+    int fd;
+    int upper_addrlen;
+    unsigned short sa_family; // Socket type
+    uint32_t s_addr;  // IPv4 address
+    uint16_t s_port;  // IPv4, IPv6 port
+    int flags;
+    struct in6_addr *s_addr_v6; // IPv6 address
+};
+
+struct Accept4Event
+{
+    struct Event event;
+    struct Accept4Arguments accept4Arguments;
+};
+struct BindArguments
+{
+    int fd;
+    int addrlen;
+    unsigned short sa_family; // Socket type
+    uint32_t s_addr;  // IPv4 address
+    uint16_t s_port;  // IPv4, IPv6 port
+    struct in6_addr *s_addr_v6; // IPv6 address
+};
+
+struct BindEvent
+{
+    struct Event event;
+    struct BindArguments bindArguments;
+};
+struct GetPeerNameArguments
+{
+    int fd;
+    int addr_len;
+    unsigned short sa_family; // Socket type
+    uint32_t s_addr;  // IPv4 address
+    uint16_t s_port;  // IPv4, IPv6 port
+    struct in6_addr *s_addr_v6; // IPv6 address
+};
+
+struct GetPeerNameEvent
+{
+    struct Event event;
+    struct GetPeerNameArguments getpeernameArguments;
+};
+struct RecvMmsgArguments
+{
+    int fd;
+    unsigned int flags;
+    unsigned int mmsg_flags; 
+    unsigned int vlen;
+    
+    int addr_len;
+    unsigned short sa_family; // Socket type
+    uint32_t s_addr;  // IPv4 address
+    uint16_t s_port;  // IPv4, IPv6 port
+    struct in6_addr *s_addr_v6; // IPv6 address
+};
+
+struct RecvMmsgEvent
+{
+    struct Event event;
+    struct RecvMmsgArguments recvmmsgArguments;
+};
+struct SendMmsgArguments
+{
+    int fd;
+    unsigned int flags;
+    unsigned int mmsg_flags; 
+    unsigned int vlen;
+    
+    int addr_len;
+    unsigned short sa_family; // Socket type
+    uint32_t s_addr;  // IPv4 address
+    uint16_t s_port;  // IPv4, IPv6 port
+    struct in6_addr *s_addr_v6; // IPv6 address
+};
+
+struct SendMmsgEvent
+{
+    struct Event event;
+    struct SendMmsgArguments sendmmsgArguments;
+};
+struct SocketPairArguments
+{
+    int family;
+    unsigned int type;
+    unsigned int protocol; 
+    int sv1;
+    int sv2;
+    
+    int addr_len;
+    unsigned short sa_family; // Socket type
+    uint32_t s_addr;  // IPv4 address
+    uint16_t s_port;  // IPv4, IPv6 port
+    struct in6_addr *s_addr_v6; // IPv6 address
+    
+};
+
+struct SocketPairEvent
+{
+    struct Event event;
+    struct SocketPairArguments socketpairArguments;
+};
 #endif

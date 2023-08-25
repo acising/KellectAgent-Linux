@@ -646,6 +646,732 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
             }
             break;
         }
+        case EVENT_NETWORK_ACCEPT: {
+            event_type = (char *) "ACCEPT";
+            struct AcceptEvent *e = (struct AcceptEvent *) data;
+
+            /* monitor IPv4, IPv6 sockets only */
+            if (e->acceptArguments.sa_family != AF_INET && e->acceptArguments.sa_family != AF_INET6)
+            {
+                break;
+            }
+
+            /* declare ip and port for display */
+            char ip[INET6_ADDRSTRLEN];
+            int port = ntohs(e->acceptArguments.s_port);
+
+            /* process IPv4 and IPv6 address */
+            switch (e->acceptArguments.sa_family) {
+                case AF_INET: {
+                    inet_ntop(AF_INET, &(e->acceptArguments.s_addr), ip, INET_ADDRSTRLEN);
+                    break;
+                }
+                case AF_INET6: {
+                    inet_ntop(AF_INET6, &(e->acceptArguments.s_addr_v6), ip, INET6_ADDRSTRLEN);
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+
+            if (my_args_network.if_output_to_file)
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    /**
+                     * output the record as json
+                     */
+                    fprintf(output_network, "{"
+                                        "\"Timestamp\":%ld,"
+                                        "\"EventName\":\"%s\", "
+                                        "\"ProcessName\":\"%s\", "
+                                        "\"ProcessID\":%d, "
+                                        "\"ThreadID\":%d, "
+                                        "\"ProcessType\":\"%s\", "
+                                        "\"Arguments\":{"
+                                        "\"fd\":%d, "
+                                        "\"Addrlen\":%d,"
+                                        "\"SaFamily\":%d,"
+                                        "\"Port\":%d,"
+                                        "\"Address\":%s} "
+                                        "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->acceptArguments.fd,
+                            e->acceptArguments.upper_addrlen,
+                            e->acceptArguments.sa_family,
+                            port,
+                            ip);
+                }
+                else
+                {
+                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-5d %-5d %-39s\n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->acceptArguments.fd,
+                            e->acceptArguments.upper_addrlen,
+                            e->acceptArguments.sa_family,
+                            port,
+                            ip);
+                }
+            }
+                /**
+                 * output to console/shell
+                 */
+            else
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    printf("{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\", "
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, "
+                           "\"ProcessType\":\"%s\", "
+                           "\"Arguments\":{"
+                           "\"fd\":%d, "
+                           "\"Addrlen\":%d,"
+                           "\"SaFamily\":%d,"
+                           "\"Port\":%d,"
+                           "\"Address\":%s} "
+                           "} \n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->acceptArguments.fd,
+                           e->acceptArguments.upper_addrlen,
+                           e->acceptArguments.sa_family,
+                           port,
+                           ip);
+                }
+                else
+                {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-5d %-5d %-39s\n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->acceptArguments.fd,
+                           e->acceptArguments.upper_addrlen,
+                           e->acceptArguments.sa_family,
+                           port,
+                           ip);
+                }
+            }
+            break;
+        }
+        case EVENT_NETWORK_ACCEPT4: {
+            event_type = (char *) "ACCEPT4";
+            struct Accept4Event *e = (struct Accept4Event *) data;
+
+            /* monitor IPv4, IPv6 sockets only */
+            if (e->accept4Arguments.sa_family != AF_INET && e->accept4Arguments.sa_family != AF_INET6)
+            {
+                break;
+            }
+
+            /* declare ip and port for display */
+            char ip[INET6_ADDRSTRLEN];
+            int port = ntohs(e->accept4Arguments.s_port);
+
+            /* process IPv4 and IPv6 address */
+            switch (e->accept4Arguments.sa_family) {
+                case AF_INET: {
+                    inet_ntop(AF_INET, &(e->accept4Arguments.s_addr), ip, INET_ADDRSTRLEN);
+                    break;
+                }
+                case AF_INET6: {
+                    inet_ntop(AF_INET6, &(e->accept4Arguments.s_addr_v6), ip, INET6_ADDRSTRLEN);
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+
+            if (my_args_network.if_output_to_file)
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    /**
+                     * output the record as json
+                     */
+                    fprintf(output_network, "{"
+                                        "\"Timestamp\":%ld,"
+                                        "\"EventName\":\"%s\", "
+                                        "\"ProcessName\":\"%s\", "
+                                        "\"ProcessID\":%d, "
+                                        "\"ThreadID\":%d, "
+                                        "\"ProcessType\":\"%s\", "
+                                        "\"Arguments\":{"
+                                        "\"fd\":%d, "
+                                        "\"Addrlen\":%d,"
+                                        "\"SaFamily\":%d,"
+                                        "\"Flags\":%d,"
+                                        "\"Port\":%d,"
+                                        "\"Address\":%s} "
+                                        "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->accept4Arguments.fd,
+                            e->accept4Arguments.upper_addrlen,
+                            e->accept4Arguments.sa_family,
+                            e->accept4Arguments.flags,
+                            port,
+                            ip);
+                }
+                else
+                {
+                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-5d %-5d %-5d %-39s\n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->accept4Arguments.fd,
+                            e->accept4Arguments.upper_addrlen,
+                            e->accept4Arguments.sa_family,
+                             e->accept4Arguments.flags,
+                            port,
+                            ip);
+                }
+            }
+                /**
+                 * output to console/shell
+                 */
+            else
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    printf("{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\", "
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, "
+                           "\"ProcessType\":\"%s\", "
+                           "\"Arguments\":{"
+                           "\"fd\":%d, "
+                           "\"Addrlen\":%d,"
+                           "\"SaFamily\":%d,"
+                            "\"Flags\":%d,"
+                           "\"Port\":%d,"
+                           "\"Address\":%s} "
+                           "} \n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->accept4Arguments.fd,
+                           e->accept4Arguments.upper_addrlen,
+                           e->accept4Arguments.sa_family,
+                            e->accept4Arguments.flags,
+                           port,
+                           ip);
+                }
+                else
+                {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-5d %-5d %-5d %-39s\n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->accept4Arguments.fd,
+                           e->accept4Arguments.upper_addrlen,
+                           e->accept4Arguments.sa_family,
+                            e->accept4Arguments.flags,
+                           port,
+                           ip);
+                }
+            }
+            break;
+        }
+        case EVENT_NETWORK_BIND: {
+            event_type = (char *) "BIND";
+            struct BindEvent *e = (struct BindEvent *) data;
+
+            /* monitor IPv4, IPv6 sockets only */
+            if (e->bindArguments.sa_family != AF_INET && e->bindArguments.sa_family != AF_INET6)
+            {
+                break;
+            }
+            
+            /* declare ip and port for display */
+            char ip[INET6_ADDRSTRLEN];
+            int port = ntohs(e->bindArguments.s_port);
+
+            /* process IPv4 and IPv6 address */
+            switch (e->bindArguments.sa_family) {
+                case AF_INET: {
+                    inet_ntop(AF_INET, &(e->bindArguments.s_addr), ip, INET_ADDRSTRLEN);
+                    break;
+                }
+                case AF_INET6: {
+                    inet_ntop(AF_INET6, &(e->bindArguments.s_addr_v6), ip, INET6_ADDRSTRLEN);
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+
+            if (my_args_network.if_output_to_file)
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    /**
+                     * output the record as json
+                     */
+                    fprintf(output_network, "{"
+                                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"fd\":%d, "
+                                            "\"Addrlen\":%d,"
+                                            "\"SaFamily\":%d,"
+                                            "\"Port\":%d,"
+                                            "\"Address\":%s} "
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->bindArguments.fd,
+                            e->bindArguments.addrlen,
+                            e->bindArguments.sa_family,
+                            port,
+                            ip);
+                }
+                else
+                {
+                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-5d %-5d %-39s\n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->bindArguments.fd,
+                            e->bindArguments.addrlen,
+                            e->bindArguments.sa_family,
+                            port,
+                            ip);
+                }
+            }
+            /**
+             * output to console/shell
+             */
+            else
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    printf("{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\", "
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, "
+                           "\"ProcessType\":\"%s\", "
+                           "\"Arguments\":{"
+                           "\"fd\":%d, "
+                           "\"Addrlen\":%d,"
+                           "\"SaFamily\":%d,"
+                           "\"Port\":%d,"
+                           "\"Address\":%s} "
+                           "} \n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->bindArguments.fd,
+                           e->bindArguments.addrlen,
+                           e->bindArguments.sa_family,
+                           port,
+                           ip);
+                }
+                else
+                {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-5d %-5d %-39s\n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->bindArguments.fd,
+                           e->bindArguments.addrlen,
+                           e->bindArguments.sa_family,
+                           port,
+                           ip);
+                }
+            }
+            break;
+        }
+         case EVENT_NETWORK_GETPEERNAME: {
+            event_type = (char *) "GETPEERNAME";
+            struct GetPeerNameEvent *e = (struct GetPeerNameEvent *) data;
+
+            /* monitor IPv4, IPv6 sockets only */
+            if (e->getpeernameArguments.sa_family != AF_INET && e->getpeernameArguments.sa_family != AF_INET6)
+            {
+                break;
+            }
+            
+            /* declare ip and port for display */
+            char ip[INET6_ADDRSTRLEN];
+            int port = ntohs(e->getpeernameArguments.s_port);
+
+            /* process IPv4 and IPv6 address */
+            switch (e->getpeernameArguments.sa_family) {
+                case AF_INET: {
+                    inet_ntop(AF_INET, &(e->getpeernameArguments.s_addr), ip, INET_ADDRSTRLEN);
+                    break;
+                }
+                case AF_INET6: {
+                    inet_ntop(AF_INET6, &(e->getpeernameArguments.s_addr_v6), ip, INET6_ADDRSTRLEN);
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+
+            if (my_args_network.if_output_to_file)
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    /**
+                     * output the record as json
+                     */
+                    fprintf(output_network, "{"
+                                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"fd\":%d, "
+                                            "\"Addr_len\":%d,"
+                                            "\"SaFamily\":%d,"
+                                            "\"Port\":%d,"
+                                            "\"Address\":%s} "
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->getpeernameArguments.fd,
+                            e->getpeernameArguments.addr_len,
+                            e->getpeernameArguments.sa_family,
+                            port,
+                            ip);
+                }
+                else
+                {
+                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-5d %-5d %-39s\n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->getpeernameArguments.fd,
+                            e->getpeernameArguments.addr_len,
+                            e->getpeernameArguments.sa_family,
+                            port,
+                            ip);
+                }
+            }
+            /**
+             * output to console/shell
+             */
+            else
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    printf("{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\", "
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, "
+                           "\"ProcessType\":\"%s\", "
+                           "\"Arguments\":{"
+                           "\"fd\":%d, "
+                           "\"Addr_len\":%d,"
+                           "\"SaFamily\":%d,"
+                           "\"Port\":%d,"
+                           "\"Address\":%s} "
+                           "} \n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->getpeernameArguments.fd,
+                           e->getpeernameArguments.addr_len,
+                           e->getpeernameArguments.sa_family,
+                           port,
+                           ip);
+                }
+                else
+                {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-5d %-5d %-39s\n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->getpeernameArguments.fd,
+                           e->getpeernameArguments.addr_len,
+                           e->getpeernameArguments.sa_family,
+                           port,
+                           ip);
+                }
+            }
+            break;
+        }
+        case EVENT_NETWORK_RECVMMSG: {
+            event_type = (char *) "DS_RECVMMSG";
+            struct RecvMmsgEvent *e = (struct RecvMmsgEvent *) data;
+
+            /* monitor IPv4, IPv6 sockets only */
+            //if (e->recvmmsgArguments.sa_family != AF_INET && e->recvmmsgArguments.sa_family != AF_INET6) {
+                //break;
+            //}
+
+            /* declare ip and port for display */
+            //char ip[INET6_ADDRSTRLEN];
+            //int port = ntohs(e->recvmmsgArguments.s_port);
+
+            /* process IPv4 and IPv6 address */
+            //switch (e->recvmmsgArguments.sa_family) {
+                //case AF_INET: {
+                    //inet_ntop(AF_INET, &(e->recvmmsgArguments.s_addr), ip, INET_ADDRSTRLEN);
+                    //break;
+                //}
+                //case AF_INET6: {
+                    //inet_ntop(AF_INET6, &(e->recvmmsgArguments.s_addr_v6), ip, INET6_ADDRSTRLEN);
+                    //break;
+                //}
+                //default: {
+                    //break;
+                //}
+            //}
+
+            if (my_args_network.if_output_to_file)
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    /**
+                     * output the record as json
+                     */
+                    fprintf(output_network, "{"
+                                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"fd\":%d, "
+                                            "\"Flags\":%d, "
+                                            "\"Addrlen\":%d,"
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->recvmmsgArguments.fd,
+                            e->recvmmsgArguments.flags,
+                            e->recvmmsgArguments.vlen);
+                }
+                else
+                {
+                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-5d %-5d  \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->recvmmsgArguments.fd,
+                            e->recvmmsgArguments.flags,
+                            e->recvmmsgArguments.vlen
+                            );
+                }
+            }
+            /**
+             * output to console/shell
+             */
+            else
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    printf("{"
+                                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"fd\":%d, "
+                                            "\"Flags\":%d, "
+                                            "\"Addrlen\":%d,"
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->recvmmsgArguments.fd,
+                            e->recvmmsgArguments.flags,
+                            e->recvmmsgArguments.vlen);
+                }
+                else
+                {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-5d %-5d  \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->recvmmsgArguments.fd,
+                            e->recvmmsgArguments.flags,
+                            e->recvmmsgArguments.vlen
+                            );
+                }
+            }
+            break;
+        }
+        case EVENT_NETWORK_SENDMMSG: {
+            event_type = (char *) "SENDMMSG";
+            struct SendMmsgEvent *e = (struct SendMmsgEvent *) data;
+
+            /* monitor IPv4, IPv6 sockets only */
+            //if (e->sendmmsgArguments.sa_family != AF_INET && e->sendmmsgArguments.sa_family != AF_INET6) {
+                //break;
+            //}
+
+            /* declare ip and port for display */
+            //char ip[INET6_ADDRSTRLEN];
+            //int port = ntohs(e->sendmmsgArguments.s_port);
+
+            /* process IPv4 and IPv6 address */
+            //switch (e->sendmmsgArguments.sa_family) {
+                //case AF_INET: {
+                    //inet_ntop(AF_INET, &(e->sendmmsgArguments.s_addr), ip, INET_ADDRSTRLEN);
+                    //break;
+                //}
+                //case AF_INET6: {
+                    //inet_ntop(AF_INET6, &(e->sendmmsgArguments.s_addr_v6), ip, INET6_ADDRSTRLEN);
+                    //break;
+                //}
+                //default: {
+                    //break;
+                //}
+            //}
+
+            if (my_args_network.if_output_to_file)
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    /**
+                     * output the record as json
+                     */
+                    fprintf(output_network, "{"
+                                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"fd\":%d, "
+                                            "\"Flags\":%d, "
+                                            "\"Addrlen\":%d,"
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->sendmmsgArguments.fd,
+                            e->sendmmsgArguments.flags,
+                            e->sendmmsgArguments.vlen);
+                }
+                else
+                {
+                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-5d %-5d  \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->sendmmsgArguments.fd,
+                            e->sendmmsgArguments.flags,
+                            e->sendmmsgArguments.vlen
+                            );
+                }
+            }
+            /**
+             * output to console/shell
+             */
+            else
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    printf("{"
+                                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"fd\":%d, "
+                                            "\"Flags\":%d, "
+                                            "\"Addrlen\":%d,"
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->sendmmsgArguments.fd,
+                            e->sendmmsgArguments.flags,
+                            e->sendmmsgArguments.vlen);
+                }
+                else
+                {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-5d %-5d  \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->sendmmsgArguments.fd,
+                            e->sendmmsgArguments.flags,
+                            e->sendmmsgArguments.vlen
+                            );
+                }
+            }
+            break;
+        }
+         case EVENT_NETWORK_SOCKETPAIR: {
+            event_type = (char *) "SOCKETPAIR";
+            struct SocketPairEvent *e = (struct SocketPairEvent *) data;
+
+            if (my_args_network.if_output_to_file)
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    /**
+                     * output the record as json
+                     */
+                    fprintf(output_network, "{"
+                                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"family\":%d, "
+                                            "\"type\":%d,"
+                                            "\"protocol\":%d,"
+                                             "\"Sv1\":%d,"
+                                              "\"Sv2\":%d,"
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->socketpairArguments.family,
+                            e->socketpairArguments.type,
+                            e->socketpairArguments.protocol,
+                            e->socketpairArguments.sv1,
+                            e->socketpairArguments.sv2
+                            );
+                }
+                else
+                {
+                    fprintf(output_network, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-9d %-9d %-9d\n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->socketpairArguments.family,
+                            e->socketpairArguments.type,
+                            e->socketpairArguments.protocol,
+                            e->socketpairArguments.sv1,
+                            e->socketpairArguments.sv2
+                            );
+                }
+            }
+            /**
+             * output to console/shell
+             */
+            else
+            {
+                if (my_args_network.if_output_as_json)
+                {
+                    printf("{"
+                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"family\":%d, "
+                                            "\"type\":%d,"
+                                            "\"protocol\":%d,"
+                                            "\"Sv1\":%d,"
+                                              "\"Sv2\":%d,"
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->socketpairArguments.family,
+                            e->socketpairArguments.type,
+                            e->socketpairArguments.protocol,
+                            e->socketpairArguments.sv1,
+                            e->socketpairArguments.sv2
+                            );
+                }
+                else
+                {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d  %-9d %-9d %-9d\n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->socketpairArguments.family,
+                            e->socketpairArguments.type,
+                            e->socketpairArguments.protocol,
+                            e->socketpairArguments.sv1,
+                            e->socketpairArguments.sv2
+                            );
+                }
+            }
+            break;
+        }
     }
     return 0;
 }
