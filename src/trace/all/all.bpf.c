@@ -1896,6 +1896,7 @@ int handle_setreuid(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_pipe")
 int handle_pipe(struct trace_event_raw_sys_enter *ctx)
 {
@@ -1938,6 +1939,7 @@ int handle_pipe(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_discard(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_exit_pipe")
 int handle_socket_pipe_exit(struct trace_event_raw_sys_exit *ctx)
 {
@@ -1967,6 +1969,7 @@ int handle_socket_pipe_exit(struct trace_event_raw_sys_exit *ctx)
     bpf_map_delete_elem(&pipe_args_map, &pid_tgid);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_pipe2")
 int handle_pipe2(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2011,6 +2014,7 @@ int handle_pipe2(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_discard(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_exit_pipe2")
 int handle_socket_pipe2_exit(struct trace_event_raw_sys_exit *ctx)
 {
@@ -2040,6 +2044,7 @@ int handle_socket_pipe2_exit(struct trace_event_raw_sys_exit *ctx)
     bpf_map_delete_elem(&pipe2_args_map, &pid_tgid);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_kill")
 int handle_kill(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2074,6 +2079,7 @@ int handle_kill(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_clone3")
 int handle_clone3(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2112,6 +2118,7 @@ int handle_clone3(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_execve")
 int handle_execve(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2146,6 +2153,7 @@ int handle_execve(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_execveat")
 int handle_execveat(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2181,6 +2189,7 @@ int handle_execveat(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_exit_group")
 int handle_exit_group(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2214,6 +2223,7 @@ int handle_exit_group(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_ptrace")
 int handle_ptrace(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2250,6 +2260,7 @@ int handle_ptrace(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_tgkill")
 int handle_tgkill(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2285,6 +2296,7 @@ int handle_tgkill(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_tkill")
 int handle_tkill(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2319,6 +2331,7 @@ int handle_tkill(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_vfork")
 int handle_vfork(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2351,6 +2364,7 @@ int handle_vfork(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_mmap")
 int handle_mmap(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2389,6 +2403,7 @@ int handle_mmap(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_mprotect")
 int handle_mprotect(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2425,6 +2440,7 @@ int handle_mprotect(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_accept")
 int handle_socket_accept(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2496,7 +2512,6 @@ int handle_socket_accept(struct trace_event_raw_sys_enter *ctx)
     return 0;
 }
 
-
 SEC("tp/syscalls/sys_exit_accept")
 int handle_socket_accept_exit(struct trace_event_raw_sys_exit *ctx) {
 
@@ -2526,6 +2541,7 @@ int handle_socket_accept_exit(struct trace_event_raw_sys_exit *ctx) {
     bpf_map_delete_elem(&accept_args_map, &pid_tgid);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_accept4")
 int handle_socket_accept4(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2598,6 +2614,7 @@ int handle_socket_accept4(struct trace_event_raw_sys_enter *ctx)
     // bpf_map_update_elem(&accept_tmp, &pid_tgid, &e, BPF_ANY);
     return 0;
 }
+
 SEC("tp/syscalls/sys_exit_accept4")
 int handle_socket_accept4_exit(struct trace_event_raw_sys_exit *ctx) {
 
@@ -2627,6 +2644,7 @@ int handle_socket_accept4_exit(struct trace_event_raw_sys_exit *ctx) {
     bpf_map_delete_elem(&accept_args_map, &pid_tgid);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_bind")
 int handle_socket_bind(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2683,6 +2701,7 @@ int handle_socket_bind(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_getpeername")
 int handle_socket_getpeername(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2741,6 +2760,7 @@ int handle_socket_getpeername(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_recvmmsg")
 int handle_recvmmsg(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2801,6 +2821,7 @@ int handle_recvmmsg(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_sendmmsg")
 int handle_sendmmsg(struct trace_event_raw_sys_enter *ctx)
 {
@@ -2861,6 +2882,7 @@ int handle_sendmmsg(struct trace_event_raw_sys_enter *ctx)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+
 SEC("tp/syscalls/sys_enter_socketpair")
 int handle_socket_socketpair_enter(struct trace_event_raw_sys_enter *ctx)
 {
