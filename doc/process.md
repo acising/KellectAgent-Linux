@@ -30,13 +30,14 @@
 | `parent_tidptr` |            The location of a variable that will be set to the PID of the new process            |                                  A pointer                                  |
 | `child_tidptr`  | The location of a variable that will be set to the PID of the new process’s thread group leader |                                  A pointer                                  | 
 
-## 4. Process Exiting *(under development)*
+## 4. Process Exiting 
 
 |  Parameter   |                          Description                           |     Comments      |
 |:------------:|:--------------------------------------------------------------:|:-----------------:|
 | `exit_code`  |                    Exit code of the process                    |         -         | 
-| `error_code` | Most likely to be the `status` while calling the `exit()` or`exit_group()`call |         -         |
 |    `prio`    |       The priority of the process at the time it exited        |     -             |
+|    `pid`    |       The `pid` of the current process        |     -             |
+|    `comm`    |       The commond of the process at the time it exited        |     -             |
 
 ## 5. Process Creating Pipe
 
@@ -45,7 +46,7 @@
 | `fildes`  |                  File descriptors for both read and write ends                  |         -         |
 | `flags`  |                    Additional behavior for creating pipe                   |         -         | 
 
-## 5. Process Killing
+## 6. Process Killing
 
 |  Parameter   |                          Description                           |     Comments      |
 |:------------:|:--------------------------------------------------------------:|:-----------------:|
@@ -53,7 +54,7 @@
 | `sig`  |                    a number of signal which will be sent to process               |         -         |
 | `tgid`(tgkill)  |                   Thread ID of the main thread in the thread group               |         -         | 
 
-## 6. Process Tracing
+## 7. Process Tracing
 
 |  Parameter   |                          Description                           |     Comments      |
 |:------------:|:--------------------------------------------------------------:|:-----------------:|
@@ -62,7 +63,7 @@
 | `addr`  |                    the memory address to be monitored                   |         -         | 
 | `data`  |                    data that is read, retrieved, or to be written               |         -         | 
 
-## 7. Process Creating memory-mapped
+## 8. Process Creating memory-mapped
 
 |  Parameter   |                          Description                           |     Comments      |
 |:------------:|:--------------------------------------------------------------:|:-----------------:|
@@ -73,7 +74,7 @@
 | `fd`  |                    A file descriptor that refers to an open directory               |         -         |
 | `off`  |                   The offset of the file pointer during mapping               |         -         | 
 
-## 8. Changing access permissions for process virtual memory areas
+## 9. Changing access permissions for process virtual memory areas
 
 |  Parameter   |                          Description                           |     Comments      |
 |:------------:|:--------------------------------------------------------------:|:-----------------:|

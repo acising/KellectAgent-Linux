@@ -112,7 +112,7 @@ The *private properties* we could infer from supported events is listed below:
 |  4  |      File Opening       |          4           |
 |  5  |    File Mode Setting    |          3           |
 |  6  |   File Mode Querying    |          4           |
-|  7  | File Directory Changing |          1           |
+|  7  | File Directory Changing |          2           |
 |  8  | File Directory Creating |          2           |
 |  9  | File Directory Deleting |          1           |
 | 10  |      File Reading       |          5           |
@@ -127,18 +127,19 @@ details of each event can be found in [here](doc/file.md)
 
 ### Process & thread
 
-8 types of process/thread related events are currently supported:
+9 types of process/thread related events are currently supported:
 
 | Id  |  Type of Action   | Number of Parameters |
 |:---:|:-----------------:|:--------------------:|
 |  1  |  Process Forking  |          4           |
-|  2  | Process Executing |          3           |
+|  2  | Process Executing |          6           |
 |  3  |  Process Cloning  |          5           |
-|  4  |  Process Exiting  |          2           | 
-|  5  |  Process Killing  |          3           |
-|  6  |  Process Tracing  |          4           |
-|  7  |  Process Creating memory-mapped  |          6           |
-|  8  |  Changing access permissions for process virtual memory areas  |          3           |
+|  4  |  Process Exiting  |          4           | 
+|  5  |  Process Creating Pipe  |          2           |
+|  6  |  Process Killing  |          3           |
+|  7  |  Process Tracing  |          4           |
+|  8  |  Process Creating memory-mapped  |          6           |
+|  9  |  Changing access permissions for process virtual memory areas  |          3           |
 
 details of each event can be found in [here](doc/process.md)
 
