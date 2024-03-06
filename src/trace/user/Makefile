@@ -2,7 +2,7 @@
 BASE_SRC := ../..
 OUTPUT := $(BASE_SRC)/../release
 HEADER := $(abspath $(BASE_SRC)/include)
-
+LDFLAGS := 
 CLANG ?= clang
 LLVM_STRIP ?= llvm-strip
 LIBBPF_SRC := $(abspath $(BASE_SRC)/libbpf/src)
@@ -13,6 +13,10 @@ BPFTOOL ?= $(BPFTOOL_OUTPUT)/bootstrap/bpftool
 LIBBLAZESYM_SRC := $(abspath blazesym/)
 LIBBLAZESYM_OBJ := $(abspath $(OUTPUT)/libblazesym.a)
 LIBBLAZESYM_HEADER := $(abspath $(OUTPUT)/blazesym.h)
+# 添加库路径和链接信息
+LIBBLAZESYM_LIB_DIR := ../../include
+CFLAGS += -I$(LIBBLAZESYM_LIB_DIR)
+LDFLAGS += -L$(LIBBLAZESYM_LIB_DIR) -lblazesym_c
 ARCH := $(shell uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/')
 VMLINUX := $(BASE_SRC)/vmlinux.h
 # Use our own libbpf API headers and Linux UAPI headers distributed with
@@ -79,7 +83,7 @@ $(OUTPUT)/.o:
 # Build BPF code
 $(OUTPUT)/%.bpf.o: %.bpf.c $(HEADER)/*.h $(VMLINUX) $(LIBBPF_OBJ)
 	$(call msg,BPF,$@)
-	$(Q)$(CLANG) -g -O2 -target bpf -D__TARGET_ARCH_$(ARCH) $(INCLUDES) $(CLANG_BPF_SYS_INCLUDES) -c $(filter %.c,$^) -o $@
+	$(Q)$(CLANG) -g -O2 -target bpf -D__TARGET_ARCH_$(ARCH) $(INCLUDES) $(CLANG_BPF_SYS_INCLUDES) -c $(filter %.c,$^) -o $@ $(LDFLAGS)
 	$(Q)$(LLVM_STRIP) -g $@ # strip useless DWARF info
 
 # Generate BPF skeletons
@@ -93,7 +97,7 @@ $(patsubst %,$(OUTPUT)/%.o,$(APPS)): %.o: %.skel.h
 
 $(OUTPUT)/%.o: %.c $(wildcard %.h)
 	$(call msg,CXX,$@)
-	$(Q)$(CXX) $(CFLAGS) $(INCLUDES) -c $(filter %.c,$^) -o $@
+	$(Q)$(CXX) $(CFLAGS) $(INCLUDES) -c $(filter %.c,$^) -o $@ $(LDFLAGS)
 
 # delete failed targets
 .DELETE_ON_ERROR:

@@ -16,6 +16,8 @@ struct Args {
     std::string event_type;
     bool if_output_to_file = false;
     bool if_output_as_json = false;
+    bool if_output_as_origin = false;
+    bool if_output_as_custom = false;
     std::string output_file;
     bool if_debug_mode = false;
 };

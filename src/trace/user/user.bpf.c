@@ -4,7 +4,7 @@
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
 #include "../../include/user.h"
-
+#define BPF_MAX_STACK_DEPTH 128
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
 
 static __always_inline __u16 my_ntohs(__u16 netshort) {
@@ -57,7 +57,9 @@ int handle_setuid(struct trace_event_raw_sys_enter *ctx)
 {
     struct SetuidEvent *e;
     struct task_struct *task;
-
+    const struct blaze_symbolize_inlined_fn* inlined;
+	const struct blaze_result *result;
+	const struct blaze_sym *sym;
     e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
     if(!e){
         bpf_printk("buffer is overflowed, event is losing\n");
@@ -78,10 +80,6 @@ int handle_setuid(struct trace_event_raw_sys_enter *ctx)
     e->event.start_time = BPF_CORE_READ(task, start_time);
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
-
-    //special arguments
-    e->setuidArguments.uid = BPF_CORE_READ(ctx, args[0]);
-
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
     return 0;
@@ -210,7 +208,6 @@ int handle_setreuid(struct trace_event_raw_sys_enter *ctx)
     }
 
     task = (struct task_struct *)bpf_get_current_task();
-
     e->event.pid = BPF_CORE_READ(task, pid);
     e->event.ppid = BPF_CORE_READ(task, tgid);
     e->event.event_type = EVENT_SETREUID;
@@ -230,5 +227,40 @@ int handle_setreuid(struct trace_event_raw_sys_enter *ctx)
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+SEC("tracepoint/net/net_dev_xmit")
+int handle_net_net_dev_xmit(struct trace_event_raw_net_dev_xmit *ctx)
+{
+    struct NetdevxmitEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if(!e){
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_NET_DEV_XMIT;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+	bpf_printk("net_dev_xmit");
+	//special arguments
+	int flag=10;
+	e->netdevxmitArguments.skbaddr=ctx->skbaddr;
+	e->netdevxmitArguments.len=ctx->len;
+	/* send data to user-space for post-processing */
+	bpf_ringbuf_submit(e, 0);
     return 0;
 }

@@ -13,7 +13,7 @@ Args parse_args(int argc, char* argv[])
 {
     Args args;
 
-    const char* const short_options = "f:o:e:hlVd";
+    const char* const short_options = "c:f:o:e:hlVd";
     option long_options[] = {
             option{ "help",    no_argument, nullptr, Options::HELP },
             option{ "version", no_argument, nullptr, Options::VERSION },
@@ -50,25 +50,33 @@ Args parse_args(int argc, char* argv[])
                 break;
             }
             case 'f':
-                if (strcmp(optarg,"text") != 0 && strcmp(optarg, "json") != 0){
+                if (strcmp(optarg,"text") != 0 && strcmp(optarg, "json")!=0 && strcmp(optarg,"origin") != 0){
                     std::cerr << "please input valid output format('text' or 'json')" << std::endl;
                     exit(1);
                 }else if(strcmp(optarg, "json") == 0){
                     args.if_output_as_json = true;
-                }
+                }else if(strcmp(optarg,"origin") == 0){
+		    args.if_output_as_origin = true;
+		    std::cerr<<args.if_output_as_origin;
+		}
                 break;
             case 'e':
                 if (strcmp(optarg, "all") != 0
                     && strcmp(optarg, "process") != 0
                     && strcmp(optarg, "file") != 0
                     && strcmp(optarg, "network") != 0
-                    && strcmp(optarg, "user") != 0) {
+                    && strcmp(optarg, "user") != 0
+		    && strcmp(optarg,"conf")!=0) {
                     std::cerr << "please enter a valid event type('all' or 'process' or 'file' or 'network' or 'memory')" << std::endl;
                     exit(1);
                 }else {
                     args.event_type = optarg;
                 }
                 break;
+	    case 'c':
+		if(strcmp(optarg,"custom")==0)args.if_output_as_custom=true;
+		args.event_type="conf";	
+		break;
             case 'l':
                 args.listing = true;
                 break;

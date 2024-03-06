@@ -12,7 +12,8 @@ enum EventType {
     EVENT_SETREGID = 303,
     EVENT_SETRESGID = 304,
     EVENT_SETRESUID = 305,
-    EVENT_SETREUID = 306
+    EVENT_SETREUID = 306,
+    EVENT_NET_DEV_XMIT = 307
 };
 
 struct Event {
@@ -79,6 +80,8 @@ struct SetgidEvent{
 
 struct SetuidArguments{
     int uid;
+    int count;
+    __u64 stack;
 };
 
 struct SetuidEvent{
@@ -132,5 +135,16 @@ struct SetreuidEvent{
     struct SetreuidArguments setreuidArguments;
 };
 
+struct NetdevxmitArguments{
+    void * skbaddr;
+    int len;
+    __u8 protocol;
+
+};
+
+struct NetdevxmitEvent{
+    struct Event event;
+    struct NetdevxmitArguments netdevxmitArguments;
+};
 #endif //KELLECT_LINUX_FILE_H
 

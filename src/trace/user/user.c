@@ -14,8 +14,11 @@
 #include <ostream>
 #include <iostream>
 #include <arpa/inet.h>
+#include <dlfcn.h>
+#include <execinfo.h>
 
 struct Args my_args_user;
+void *dladdr(void *addr, Dl_info *info);
 
 FILE *output_user;
 
@@ -50,9 +53,9 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
     if (strcmp("gnome-terminal-", e->comm) == 0 && my_args_user.if_output_to_file == false) {
         return 0;
     }
-
     char *event_type;
-
+printf(" %d\n",
+                   IPPROTO_ICMP);
     switch (e->event_type) {
         case EVENT_SETGID:{
             event_type = (char *) "SETGID";
@@ -61,19 +64,38 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
                 if (my_args_user.if_output_as_json) {
                     //output the record as json
                     fprintf(output_user, "{"
-                                        "\"Timestamp\":%ld,"
-                                        "\"EventName\":\"%s\", "
-                                        "\"ProcessName\":\"%s\", "
-                                        "\"ProcessID\":%d, "
-                                        "\"ThreadID\":%d, "
-                                        "\"ProcessType\":\"%s\", "
-                                        "\"Arguments\":{"
-                                        "\"gid\":%d} "
-                                        "}\n",
+                                         "\"Timestamp\":%ld,"
+                                         "\"EventName\":\"%s\", "
+                                         "\"ProcessName\":\"%s\", "
+                                         "\"ProcessID\":%d, "
+                                         "\"ThreadID\":%d, "
+                                         "\"ProcessType\":\"%s\", "
+                                         "\"Arguments\":{"
+                                         "\"gid\":%d} "
+                                         "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
                             e->setgidArguments.gid);
-                } else {
+                } 
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    fprintf(output_user, "{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"gid\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+                           e->setgidArguments.gid);
+                }  
+                else {
                     fprintf(output_user, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
@@ -96,7 +118,26 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->setgidArguments.gid);
-                } else {
+                }
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    printf("{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"gid\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+                           e->setgidArguments.gid);
+                }  
+                else {
                     printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
@@ -119,16 +160,38 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
                                         "\"ThreadID\":%d, "
                                         "\"ProcessType\":\"%s\", "
                                         "\"Arguments\":{"
-                                        "\"uid\":%d} "
+                                        "\"uid\":%d"
+                                        "\"count\":%d}"
                                         "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
-                            e->setuidArguments.uid);
-                } else {
-                    fprintf(output_user, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d\n",
+                            e->setuidArguments.uid,
+                            e->setuidArguments.count);
+                } 
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    fprintf(output_user, "{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"uid\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+                           e->setuidArguments.uid);
+                } 
+                else {
+                    fprintf(output_user, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
-                            e->setuidArguments.uid);
+                            e->setuidArguments.uid,
+                            e->setuidArguments.count);
                 }
             }
                 //output to console/shell
@@ -142,16 +205,39 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"uid\":%d} "
+                           "\"uid\":%d"
+                                                                   "\"count\":%d}"
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
+                           e->setuidArguments.uid,
+                           e->setuidArguments.count);
+                } 
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    printf( "{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"uid\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                            e->setuidArguments.uid);
-                } else {
-                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d\n",
+                }
+                else {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
-                           e->setuidArguments.uid);
+                           e->setuidArguments.uid,
+                           e->setuidArguments.count);
+
                 }
             }
             break;
@@ -177,7 +263,28 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
                             e->event.ppid, process_type,
                             e->setregidArguments.setregid_rgid,
                             e->setregidArguments.setregid_egid);
-                } else {
+                } 
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    fprintf(output_user, "{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"rgid\":%d "
+                           "\"egid\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+                           e->setregidArguments.setregid_rgid,
+                           e->setregidArguments.setregid_egid);
+                }
+                else {
                     fprintf(output_user, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
@@ -203,7 +310,28 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
                            e->event.ppid, process_type,
                            e->setregidArguments.setregid_rgid,
                            e->setregidArguments.setregid_egid);
-                } else {
+                } 
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    printf( "{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"rgid\":%d "
+                           "\"egid\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+                           e->setregidArguments.setregid_rgid,
+                           e->setregidArguments.setregid_egid);
+                }
+                else {
                     printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
@@ -236,7 +364,30 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
                             e->setresgidArguments.setresgid_rgid,
                             e->setresgidArguments.setresgid_egid,
                             e->setresgidArguments.setresgid_sgid);
-                } else {
+                } 
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    fprintf(output_user, "{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"rgid\":%d "
+                           "\"egid\":%d "
+                           "\"sgid\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+                           e->setresgidArguments.setresgid_rgid,
+                           e->setresgidArguments.setresgid_egid,
+                           e->setresgidArguments.setresgid_sgid);
+                }
+                else {
                     fprintf(output_user, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
@@ -265,7 +416,30 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
                            e->setresgidArguments.setresgid_rgid,
                            e->setresgidArguments.setresgid_egid,
                            e->setresgidArguments.setresgid_sgid);
-                } else {
+                } 
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    printf( "{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"rgid\":%d "
+                           "\"egid\":%d "
+                           "\"sgid\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+                           e->setresgidArguments.setresgid_rgid,
+                           e->setresgidArguments.setresgid_egid,
+                           e->setresgidArguments.setresgid_sgid);
+                }
+                else {
                     printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-7d\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
@@ -299,7 +473,30 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
                             e->setresuidArguments.setresuid_ruid,
                             e->setresuidArguments.setresuid_euid,
                             e->setresuidArguments.setresuid_suid);
-                } else {
+                } 
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    fprintf(output_user, "{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"ruid\":%d "
+                           "\"euid\":%d "
+                           "\"suid\":%d} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+                           e->setresuidArguments.setresuid_ruid,
+                           e->setresuidArguments.setresuid_euid,
+                           e->setresuidArguments.setresuid_suid);
+                }
+                else {
                     fprintf(output_user, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
@@ -328,7 +525,30 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
                            e->setresuidArguments.setresuid_ruid,
                            e->setresuidArguments.setresuid_euid,
                            e->setresuidArguments.setresuid_suid);
-                } else {
+                } 
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    printf( "{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"ruid\":%d "
+                           "\"euid\":%d "
+                           "\"suid\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+                           e->setresuidArguments.setresuid_ruid,
+                           e->setresuidArguments.setresuid_euid,
+                           e->setresuidArguments.setresuid_suid);
+                }
+                else {
                     printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-7d\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
@@ -360,7 +580,28 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
                             e->event.ppid, process_type,
                             e->setreuidArguments.setreuid_ruid,
                             e->setreuidArguments.setreuid_euid);
-                } else {
+                } 
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    fprintf(output_user, "{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"ruid\":%d "
+                           "\"euid\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+                           e->setreuidArguments.setreuid_ruid,
+                           e->setreuidArguments.setreuid_euid);
+                }
+                else {
                     fprintf(output_user, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                             e->event.ppid, process_type,
@@ -386,12 +627,123 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
                            e->event.ppid, process_type,
                            e->setreuidArguments.setreuid_ruid,
                            e->setreuidArguments.setreuid_euid);
-                } else {
+                } 
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    printf( "{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"ruid\":%d "
+                           "\"euid\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+                           e->setreuidArguments.setreuid_ruid,
+                           e->setreuidArguments.setreuid_euid);
+                }
+                else {
                     printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->setreuidArguments.setreuid_ruid,
                            e->setreuidArguments.setreuid_euid);
+                }
+            }
+            break;
+        }
+        case EVENT_NET_DEV_XMIT:{
+            event_type = (char *) "EVENT_NET_DEV_XMIT";
+            struct NetdevxmitEvent *e = (struct NetdevxmitEvent *) data;
+            if (my_args_user.if_output_to_file) {
+                if (my_args_user.if_output_as_json) {
+                    //output the record as json
+                    fprintf(output_user, "{"
+                                         "\"Timestamp\":%ld,"
+                                         "\"EventName\":\"%s\", "
+                                         "\"ProcessName\":\"%s\", "
+                                         "\"ProcessID\":%d, "
+                                         "\"ThreadID\":%d, "
+                                         "\"ProcessType\":\"%s\", "
+                                         "\"Arguments\":{"
+                                         "\"len\":%d} "
+                                         "}\n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
+                            e->event.ppid, process_type,
+                            e->netdevxmitArguments.len);
+                } 
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    fprintf(output_user, "{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"len\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+ e->netdevxmitArguments.len);
+                }  
+                else {
+                    fprintf(output_user, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d\n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
+                            e->event.ppid, process_type,
+                             e->netdevxmitArguments.len);
+                }
+            }
+                //output to console/shell
+            else {
+                if (my_args_user.if_output_as_json) {
+                    printf("{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\", "
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, "
+                           "\"ProcessType\":\"%s\", "
+                           "\"Arguments\":{"
+                           "\"len\":%d} "
+                           "}\n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
+                           e->event.ppid, process_type,
+                           e->netdevxmitArguments.len);
+                }
+                else if (my_args_user.if_output_as_origin) {
+                    //output the record as origin
+                    printf("{"
+                    "\"Subject\":{"
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, " 
+                           "\"ProcessType\":\"%s\"}"
+                           "\"EVENT\":{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\"}"
+                           "\"Object\":{"
+                           "\"Arguments\":{"
+                           "\"len\":%d}} "
+                           "}\n",
+                           e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
+                           e->netdevxmitArguments.len);
+                }  
+                else {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d\n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
+                           e->event.ppid, process_type,
+                            e->netdevxmitArguments.len,
+                            e->netdevxmitArguments.protocol);
                 }
             }
             break;
@@ -403,6 +755,8 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
 
 //communicate with main.c
 int test_user(Args args) {
+printf("Error polling perf buffer: %d\n", args.if_output_as_origin);
+printf("Error polling perf buffer: %d\n", args.if_output_as_json);
     my_args_user = args;
     std::cerr << "=============test=============" << std::endl << std::endl;
     printf("=========================test=========================\n");
@@ -413,7 +767,6 @@ int test_user(Args args) {
             return 1;
         }
     }
-
     struct ring_buffer *rb = NULL;
     struct user_bpf *skel;
     int err;
@@ -433,6 +786,7 @@ int test_user(Args args) {
     /* Load & verify BPF programs */
     err = user_bpf__load(skel);
     if (err) {
+    	 fprintf(stderr, "Failed to load BPF skeleton: %d\n", libbpf_strerror(err,NULL,0));
         fprintf(stderr, "Failed to load BPF skeleton\n");
         goto cleanup;
     }
@@ -461,7 +815,7 @@ int test_user(Args args) {
     /**
      * if the output format is json, do not print the title.
      */
-    if (!my_args_user.if_output_as_json) {
+    if (!my_args_user.if_output_as_json&&!my_args_user.if_output_as_origin) {
         if (my_args_user.if_output_to_file) {
             fprintf(output_user, "%-20s %-10s %-32s %-7s %-7s %15s\n",
                     "TimeStamp", "EventName", "COMM", "PID", "PPID", "PROCESS/THREAD");

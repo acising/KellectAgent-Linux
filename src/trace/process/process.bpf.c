@@ -5,6 +5,8 @@
 #include <bpf/bpf_core_read.h>
 #include "../../include/process.h"
 
+#define BPF_MAX_STACK_DEPTH 128
+
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
 static __always_inline __u16 my_ntohs(__u16 netshort) {
 return ((netshort>>8)&0xff) | ((netshort<<8)&0xff00);
@@ -106,7 +108,31 @@ int handle_exec(struct trace_event_raw_sched_process_exec *ctx)
     bpf_core_read(&e->execArguments.old_pid, sizeof(e->execArguments.old_pid), &ctx->old_pid);
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    __u64 stack[BPF_MAX_STACK_DEPTH/4] = {};
+    int stack_depth = bpf_get_stack(ctx, &stack, BPF_MAX_STACK_DEPTH, 0);
+    bpf_printk("stack[%d]: \n", stack_depth/8);
+bpf_printk("stack[%d]: 0x%llx\n", 0, stack[0]);
+    bpf_printk("stack[%d]: 0x%llx\n", 1, stack[1]);
+    bpf_printk("stack[%d]: 0x%llx\n", 2, stack[2]);
+    bpf_printk("stack[%d]: 0x%llx\n", 3, stack[3]);
+    char func_name[64]; // 假设函数名不超过 64 个字符
+char fmt[] = "Function name: %s\n";
+int len = 0;
 
+len = bpf_probe_read_kernel_str(func_name, sizeof(func_name), (void *)stack[0]); // 从内核地址读取函数名
+    if (len > 0) {
+    func_name[len] = '\0';  // 确保字符串以 null 结尾
+    bpf_trace_printk(fmt, sizeof(fmt), func_name); // 打印函数名
+} else {
+    bpf_trace_printk(fmt, sizeof(fmt), "Failed to read function name\n"); // 如果读取失败，打印错误信息
+}
+len = bpf_probe_read_kernel_str(func_name, sizeof(func_name), (void *)stack[1]); // 从内核地址读取函数名
+if (len > 0) {
+    func_name[len] = '\0';  // 确保字符串以 null 结尾
+    bpf_trace_printk(fmt, sizeof(fmt), func_name); // 打印函数名
+} else {
+    bpf_trace_printk(fmt, sizeof(fmt), "Failed to read function name\n"); // 如果读取失败，打印错误信息
+}
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
     return 0;
