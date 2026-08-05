@@ -8,6 +8,7 @@
 #include "../../include/network.h"
 #include "network.skel.h"
 #include "../../include/arg_parser.h"
+#include "../../include/filter.h"
 #include "../../include/basic.h"
 #include <string.h>
 #include <stdlib.h>
@@ -51,6 +52,13 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
      * exclude the event created by terminal if the output directly
      */
     if (strcmp("gnome-terminal-", e->comm) == 0 && my_args_network.if_output_to_file == false) {
+        return 0;
+    }
+
+    /**
+     * v1 userspace filter: include (union) + exclude (drop-on-match)
+     */
+    if (event_filtered_out(e->pid, e->comm, &my_args_network)) {
         return 0;
     }
 
@@ -1440,12 +1448,12 @@ int test_network(Args args) {
         err = ring_buffer__poll(rb, 10);
         if (err == -EINTR) {
             err = 0;
-            fclose(output_network);
+            if (output_network != NULL) fclose(output_network);
             break;
         }
         if (err < 0) {
             printf("Error polling perf buffer: %d\n", err);
-            fclose(output_network);
+            if (output_network != NULL) fclose(output_network);
             break;
         }
     }

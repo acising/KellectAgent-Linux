@@ -8,6 +8,8 @@
 #include "../../include/process.h"
 #include "process.skel.h"
 #include "../../include/arg_parser.h"
+#include "../../include/filter.h"
+#include "../../include/snapshot.h"
 #include "../../include/basic.h"
 
 struct Args my_args_process;
@@ -47,6 +49,13 @@ static int handle_process_event(void *ctx, void *data, size_t data_sz) {
      * exclude the event created by terminal if the output directly
      */
     if (strcmp("gnome-terminal-", e->comm) == 0 && my_args_process.if_output_to_file == false) {
+        return 0;
+    }
+
+    /**
+     * v1 userspace filter: include (union) + exclude (drop-on-match)
+     */
+    if (event_filtered_out(e->pid, e->comm, &my_args_process)) {
         return 0;
     }
 
@@ -1210,19 +1219,22 @@ int test_process(Args args) {
         }
     }
 
+    walk_proc_snapshot(output_process, my_args_process.if_output_to_file, &my_args_process, "DCStart");
+
     while (!exiting) {
         err = ring_buffer__poll(rb, 10);
         if (err == -EINTR) {
             err = 0;
-            fclose(output_process);
             break;
         }
         if (err < 0) {
             printf("Error polling perf buffer: %d\n", err);
-            fclose(output_process);
             break;
         }
     }
+
+    walk_proc_snapshot(output_process, my_args_process.if_output_to_file, &my_args_process, "DCEnd");
+    if (output_process != NULL) fclose(output_process);
 
     cleanup:
     ring_buffer__free(rb);

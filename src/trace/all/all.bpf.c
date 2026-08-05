@@ -82,9 +82,30 @@ struct {
     __type(value, struct socketpair_args);
 } socketpair_args_map SEC(".maps");
 
+/* Phase 1 #6-A Stage 2: connect entry→return 桥接 map。
+ * entry handler 存目标地址，kretprobe retval<0 时取出填 ConnectFailed。
+ * key = u32 pid_tgid（低 32 位 = 线程 id，与 accept_args_map 一致）。
+ * 成功路径（retval>=0）也必须在 kretprobe delete，否则 map 泄漏。 */
+struct connect_args {
+    unsigned short sa_family;     /* AF_INET=2 / AF_INET6=10 */
+    __u16          s_port;        /* 网络字节序 */
+    __u32          s_addr;        /* IPv4 网络字节序（v4 路径填）*/
+    struct in6_addr s_addr_v6;    /* IPv6（v6 路径填）*/
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, 8192);
+    __type(key, u32);
+    __type(value, struct connect_args);
+} connect_args_map SEC(".maps");
+
 struct {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
-    __uint(max_entries, 256 * 1024);
+    /* Was 256 KB — saturates under `-e all` desktop load (trace_pipe showed
+     * 432 "buffer is overflowed" drops in 3s), starving low-frequency connect/
+     * UDP/connect-failed events. 16 MB absorbs the bursts (64x, ~32K slots). */
+    __uint(max_entries, 16 * 1024 * 1024);
 } rb SEC(".maps");
 
 const volatile unsigned long long min_duration_ns = 0;
@@ -688,6 +709,216 @@ int BPF_KPROBE(tcp_v4_connect_entry, struct sock *sk, struct sockaddr *uaddr, in
     e->tcpIpv4ConnectArguments.sin_family = BPF_CORE_READ(sin, sin_family);
     e->tcpIpv4ConnectArguments.sin_port = BPF_CORE_READ(sin, sin_port);
     e->tcpIpv4ConnectArguments.s_addr = BPF_CORE_READ(sin, sin_addr.s_addr);
+
+    /* Stage 2: 存目标地址供 kretprobe retval<0 时取 */
+    u32 pid_tgid_v4 = bpf_get_current_pid_tgid();
+    struct connect_args ca_v4 = {};
+    ca_v4.sa_family = e->tcpIpv4ConnectArguments.sin_family;
+    ca_v4.s_port    = e->tcpIpv4ConnectArguments.sin_port;
+    ca_v4.s_addr    = e->tcpIpv4ConnectArguments.s_addr;
+    bpf_map_update_elem(&connect_args_map, &pid_tgid_v4, &ca_v4, BPF_ANY);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+/* Phase 1 #6-A: tcp_v6_connect — mirror tcp_v4_connect, parse sockaddr_in6 */
+SEC("kprobe/tcp_v6_connect")
+int BPF_KPROBE(tcp_v6_connect_entry, struct sock *sk, struct sockaddr *uaddr, int addr_len)
+{
+    struct TcpIpv6ConnectEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if (!e)
+    {
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_NETWORK_TCP_IPV6;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    bpf_core_read(&e->tcpIpv6ConnectArguments.addr_len, sizeof(e->tcpIpv6ConnectArguments.addr_len), &addr_len);
+
+    struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)uaddr;
+    e->tcpIpv6ConnectArguments.sin6_family = BPF_CORE_READ(sin6, sin6_family);
+    e->tcpIpv6ConnectArguments.sin6_port = BPF_CORE_READ(sin6, sin6_port);
+    bpf_core_read(&e->tcpIpv6ConnectArguments.sin6_addr, sizeof(e->tcpIpv6ConnectArguments.sin6_addr), &sin6->sin6_addr);
+
+    /* Stage 2: 存目标地址供 kretprobe retval<0 时取 */
+    u32 pid_tgid_v6 = bpf_get_current_pid_tgid();
+    struct connect_args ca_v6 = {};
+    ca_v6.sa_family = e->tcpIpv6ConnectArguments.sin6_family;
+    ca_v6.s_port    = e->tcpIpv6ConnectArguments.sin6_port;
+    __builtin_memcpy(&ca_v6.s_addr_v6, &e->tcpIpv6ConnectArguments.sin6_addr, sizeof(ca_v6.s_addr_v6));
+    bpf_map_update_elem(&connect_args_map, &pid_tgid_v6, &ca_v6, BPF_ANY);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+/* Phase 1 #6-A: udp_sendmsg — first struct sock read in this file.
+ * Dest addr/port from sk->__sk_common (connected-socket path). */
+SEC("kprobe/udp_sendmsg")
+int BPF_KPROBE(udp_sendmsg_entry, struct sock *sk, struct msghdr *msg, size_t len)
+{
+    struct UdpSendMsgEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if (!e)
+    {
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_NETWORK_UDP_SENDMSG;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    bpf_core_read(&e->udpSendMsgArguments.len, sizeof(e->udpSendMsgArguments.len), &len);
+
+    e->udpSendMsgArguments.sa_family = BPF_CORE_READ(sk, __sk_common.skc_family);
+    e->udpSendMsgArguments.s_addr = BPF_CORE_READ(sk, __sk_common.skc_daddr);
+    e->udpSendMsgArguments.s_port = BPF_CORE_READ(sk, __sk_common.skc_dport);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+/* Phase 1 #6-A: connect-failure kretprobe (codebase's FIRST kretprobe).
+ * Stage 1: emit ConnectFailed on retval < 0 (retval + pid/comm only).
+ * Stage 2: pid-tgid map correlation — attach failed dest addr from entry. */
+SEC("kretprobe/tcp_v4_connect")
+int BPF_KRETPROBE(tcp_v4_connect_ret, int ret)
+{
+    u32 pid_tgid = bpf_get_current_pid_tgid();
+
+    /* Stage 2: 成功路径必须清理 map，否则条目泄漏 */
+    if (ret >= 0) {
+        bpf_map_delete_elem(&connect_args_map, &pid_tgid);
+        return 0;
+    }
+
+    struct ConnectFailedEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if (!e)
+    {
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_NETWORK_CONNECT_FAILED;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    e->connectFailedArguments.retval = ret;
+
+    /* Stage 2: 从 map 取目标地址。未命中则 sa_family=0（用户态据此跳过 IP 打印）*/
+    struct connect_args *ca = bpf_map_lookup_elem(&connect_args_map, &pid_tgid);
+    if (ca) {
+        e->connectFailedArguments.sa_family = ca->sa_family;
+        e->connectFailedArguments.s_port    = ca->s_port;
+        e->connectFailedArguments.s_addr    = ca->s_addr;
+    } else {
+        e->connectFailedArguments.sa_family = 0;
+    }
+
+    bpf_map_delete_elem(&connect_args_map, &pid_tgid);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+/* Phase 1 #6-A Stage 2: tcp_v6_connect return — mirror v4 kretprobe. */
+SEC("kretprobe/tcp_v6_connect")
+int BPF_KRETPROBE(tcp_v6_connect_ret, int ret)
+{
+    u32 pid_tgid = bpf_get_current_pid_tgid();
+
+    if (ret >= 0) {
+        bpf_map_delete_elem(&connect_args_map, &pid_tgid);
+        return 0;
+    }
+
+    struct ConnectFailedEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if (!e)
+    {
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_NETWORK_CONNECT_FAILED;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    e->connectFailedArguments.retval = ret;
+
+    struct connect_args *ca = bpf_map_lookup_elem(&connect_args_map, &pid_tgid);
+    if (ca) {
+        e->connectFailedArguments.sa_family = ca->sa_family;
+        e->connectFailedArguments.s_port    = ca->s_port;
+        __builtin_memcpy(&e->connectFailedArguments.s_addr_v6, &ca->s_addr_v6, sizeof(e->connectFailedArguments.s_addr_v6));
+    } else {
+        e->connectFailedArguments.sa_family = 0;
+    }
+
+    bpf_map_delete_elem(&connect_args_map, &pid_tgid);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);

@@ -1,2 +1,23 @@
 release/
 .vscode/
+
+# 上游原始副本（嵌套 git 子仓库，不可提交）
+upstream-original/
+
+# 测试打包镜像（可由 src/ 随时重建，test_kellect.sh/manual_verify.sh 仍跟踪）
+test/kellect-linux/
+
+# per-host 生成（每台 BTF 不同，主机本地 bpftool 生成，不可拷贝/提交）
+src/vmlinux.h
+
+# 个人本地配置
+.claude/settings.local.json
+
+# 信创适配/开发笔记文档（本地参考，不进版本库；README 引用的模块文档在 doc/ 仍跟踪）
+notes/
+
+# 构建产物
+*.o
+*.a
+*.so
+*.skel.h

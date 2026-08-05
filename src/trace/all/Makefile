@@ -90,6 +90,7 @@ $(OUTPUT)/%.skel.h: $(OUTPUT)/%.bpf.o
 
 # Build user-space code%.o:
 $(patsubst %,$(OUTPUT)/%.o,$(APPS)): %.o: %.skel.h
+$(OUTPUT)/conf.o: $(OUTPUT)/all.skel.h
 
 
 $(OUTPUT)/%.o: %.c $(wildcard %.h)

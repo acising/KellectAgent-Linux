@@ -33,6 +33,9 @@ enum Options
     INFO,
     HELP,
     VERSION,
+    EXCLUDE_PID,
+    COMM,
+    EXCLUDE_COMM,
 };
 
 enum TimestampType

@@ -6,6 +6,14 @@
 #ifndef KELLECT_LINUX_DEMO_H
 #define KELLECT_LINUX_DEMO_H
 
+/* in6_addr 完整定义来源：
+ *   - 用户态 (all.c/conf.c, g++): 来自 glibc <netinet/in.h>
+ *   - BPF 态 (all.bpf.c, clang -target bpf): 来自 vmlinux.h（被 .bpf.c 先于本头包含）,
+ *     BPF 端不能引入 glibc 头（会触发 gnu/stubs-32.h 缺失），故用 __BPF_HELPERS__ 守卫。 */
+#ifndef __BPF_HELPERS__
+#include <netinet/in.h>
+#endif
+
 #define TASK_COMM_LEN 64
 #define MAX_FILENAME_LEN 127
 
@@ -64,6 +72,10 @@ enum EventType {
     EVENT_NETWORK_RECVMMSG=213,
     EVENT_NETWORK_SOCKETPAIR=214,
     EVENT_NETWORK_SENDMMSG=215,
+    /// Phase 1 #6-A: TCP completeness (tcp_v6_connect + udp_sendmsg + connect-failure kretprobe)
+    EVENT_NETWORK_TCP_IPV6=216,
+    EVENT_NETWORK_UDP_SENDMSG=217,
+    EVENT_NETWORK_CONNECT_FAILED=218,
 
 
     ///zhengyulin 20230718
@@ -335,6 +347,56 @@ struct TcpIpv4ConnectEvent
 {
     struct Event event;
     struct TcpIpv4ConnectArguments tcpIpv4ConnectArguments;
+};
+
+/* Phase 1 #6-A: mirror TcpIpv4ConnectEvent for IPv6 (tcp_v6_connect kprobe) */
+struct TcpIpv6ConnectArguments
+{
+    int addr_len;
+    // in: struct sockaddr_in6
+    unsigned short sin6_family;
+    unsigned short sin6_port;
+    // in: sockaddr_in6 -> struct in6_addr (value, not pointer)
+    struct in6_addr sin6_addr;
+};
+
+struct TcpIpv6ConnectEvent
+{
+    struct Event event;
+    struct TcpIpv6ConnectArguments tcpIpv6ConnectArguments;
+};
+
+/* Phase 1 #6-A: udp_sendmsg kprobe — dest addr/port read from struct sock (first sock read) */
+struct UdpSendMsgArguments
+{
+    unsigned int len;             // udp_sendmsg size_t len
+    unsigned short sa_family;     // sk->__sk_common.skc_family
+    uint32_t s_addr;              // IPv4 dest: skc_daddr
+    uint16_t s_port;              // dest port (network order): skc_dport
+    struct in6_addr s_addr_v6;    // IPv6 dest (Stage 2 refinement; unused in Stage 1 print)
+};
+
+struct UdpSendMsgEvent
+{
+    struct Event event;
+    struct UdpSendMsgArguments udpSendMsgArguments;
+};
+
+/* Phase 1 #6-A: connect-failure kretprobe (retval<0). Stage 1 fills retval only;
+ * addr fields are populated in Stage 2 via pid-tgid map correlation. */
+struct ConnectFailedArguments
+{
+    int retval;                   // connect() return value (<0 = errno, 0 = success)
+    unsigned short sa_family;     // Stage 2
+    uint32_t s_addr;              // Stage 2
+    uint16_t s_port;              // Stage 2
+    struct in6_addr s_addr_v6;    // Stage 2
+};
+
+struct ConnectFailedEvent
+{
+    struct Event event;
+    struct ConnectFailedArguments connectFailedArguments;
 };
 
 struct SendArguments

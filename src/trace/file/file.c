@@ -8,6 +8,7 @@
 #include "../../include/file.h"
 #include "file.skel.h"
 #include "../../include/arg_parser.h"
+#include "../../include/filter.h"
 #include "../../include/basic.h"
 #include <string.h>
 #include <stdlib.h>
@@ -17,6 +18,10 @@ struct Args my_args_file;
 FILE *output_file;
 
 static volatile bool exiting = false;
+
+static void handle_signal(int signal) {
+    exiting = true;
+}
 
 static int libbpf_print_fn(enum libbpf_print_level level, const char *format, va_list args) {
     if (my_args_file.if_debug_mode) {
@@ -45,6 +50,13 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
      * exclude the event created by terminal if the output directly
      */
     if (strcmp("gnome-terminal-", e->comm) == 0 && my_args_file.if_output_to_file == false) {
+        return 0;
+    }
+
+    /**
+     * v1 userspace filter: include (union) + exclude (drop-on-match)
+     */
+    if (event_filtered_out(e->pid, e->comm, &my_args_file)) {
         return 0;
     }
 
@@ -2015,19 +2027,22 @@ int test_file(Args args) {
         }
     }
 
+    signal(SIGINT, handle_signal);
+    signal(SIGTERM, handle_signal);
+
     while (!exiting) {
         err = ring_buffer__poll(rb, 10);
         if (err == -EINTR) {
             err = 0;
-            fclose(output_file);
             break;
         }
         if (err < 0) {
             printf("Error polling perf buffer: %d\n", err);
-            fclose(output_file);
             break;
         }
     }
+
+    if (output_file != NULL) fclose(output_file);
 
     cleanup:
     ring_buffer__free(rb);

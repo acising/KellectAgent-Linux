@@ -14,7 +14,7 @@ return ((netshort>>8)&0xff) | ((netshort<<8)&0xff00);
 
 struct {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
-    __uint(max_entries, 512 * 1024 * 1024);
+    __uint(max_entries, 16 * 1024 * 1024);
 } rb SEC(".maps");
 
 SEC("tp/syscalls/sys_enter_setgid")

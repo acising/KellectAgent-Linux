@@ -8,6 +8,7 @@
 #include "../../include/user.h"
 #include "user.skel.h"
 #include "../../include/arg_parser.h"
+#include "../../include/filter.h"
 #include "../../include/basic.h"
 #include <string.h>
 #include <stdlib.h>
@@ -23,6 +24,10 @@ void *dladdr(void *addr, Dl_info *info);
 FILE *output_user;
 
 static volatile bool exiting = false;
+
+static void handle_signal(int signal) {
+    exiting = true;
+}
 
 static int libbpf_print_fn(enum libbpf_print_level level, const char *format, va_list args) {
     if (my_args_user.if_debug_mode) {
@@ -51,6 +56,13 @@ static int handle_user_event(void *ctx, void *data, size_t data_sz) {
      * exclude the event created by terminal if the output directly
      */
     if (strcmp("gnome-terminal-", e->comm) == 0 && my_args_user.if_output_to_file == false) {
+        return 0;
+    }
+
+    /**
+     * v1 userspace filter: include (union) + exclude (drop-on-match)
+     */
+    if (event_filtered_out(e->pid, e->comm, &my_args_user)) {
         return 0;
     }
     char *event_type;
@@ -786,8 +798,7 @@ printf("Error polling perf buffer: %d\n", args.if_output_as_json);
     /* Load & verify BPF programs */
     err = user_bpf__load(skel);
     if (err) {
-    	 fprintf(stderr, "Failed to load BPF skeleton: %d\n", libbpf_strerror(err,NULL,0));
-        fprintf(stderr, "Failed to load BPF skeleton\n");
+        fprintf(stderr, "Failed to load BPF skeleton: %d (%s)\n", err, strerror(-err));
         goto cleanup;
     }
 
@@ -825,19 +836,22 @@ printf("Error polling perf buffer: %d\n", args.if_output_as_json);
         }
     }
 
+    signal(SIGINT, handle_signal);
+    signal(SIGTERM, handle_signal);
+
     while (!exiting) {
         err = ring_buffer__poll(rb, 10);
         if (err == -EINTR) {
             err = 0;
-            fclose(output_user);
             break;
         }
         if (err < 0) {
             printf("Error polling perf buffer: %d\n", err);
-            fclose(output_user);
             break;
         }
     }
+
+    if (output_user != NULL) fclose(output_user);
 
     cleanup:
     ring_buffer__free(rb);

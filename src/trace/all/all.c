@@ -11,6 +11,8 @@
 #include <time.h>
 #include "../../include/all.h"
 #include "../../include/arg_parser.h"
+#include "../../include/filter.h"
+#include "../../include/snapshot.h"
 #include "../../include/basic.h"
 #include "all.skel.h"
 #include <string.h>
@@ -22,6 +24,10 @@ struct Args my_args;
 FILE * output_all;
 
 static volatile bool exiting = false;
+
+static void handle_signal(int signal) {
+    exiting = true;
+}
 
 static int libbpf_print_fn(enum libbpf_print_level level, const char *format, va_list args) {
     if (my_args.if_debug_mode) {
@@ -51,6 +57,13 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
      * exclude the event created by terminal if the output directly
      */
     if (strcmp("gnome-terminal-", e->comm) == 0 && my_args.if_output_to_file == false) {
+        return 0;
+    }
+
+    /**
+     * v1 userspace filter: include (union) + exclude (drop-on-match)
+     */
+    if (event_filtered_out(e->pid, e->comm, &my_args)) {
         return 0;
     }
 
@@ -1575,6 +1588,277 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            e->tcpIpv4ConnectArguments.sin_port,
                            e->tcpIpv4ConnectArguments.s_addr,
                            bytes[0], bytes[1], bytes[2], bytes[3]);
+                }
+            }
+            break;
+        }
+        case EVENT_NETWORK_TCP_IPV6: {
+            event_type = (char *) "TCP_IPv6";
+            struct TcpIpv6ConnectEvent *e = (struct TcpIpv6ConnectEvent *) data;
+
+            char ip6[INET6_ADDRSTRLEN];
+            inet_ntop(AF_INET6, &(e->tcpIpv6ConnectArguments.sin6_addr), ip6, INET6_ADDRSTRLEN);
+            int port = ntohs(e->tcpIpv6ConnectArguments.sin6_port);
+
+            if (my_args.if_output_to_file)
+            {
+                if (my_args.if_output_as_json)
+                {
+                    fprintf(output_all, "{"
+                                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"AddrLen\":%d, "
+                                            "\"Sin6Family\":%hu,"
+                                            "\"Sin6Port\":%d,"
+                                            "\"Sin6Addr\":%s} "
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->tcpIpv6ConnectArguments.addr_len,
+                            e->tcpIpv6ConnectArguments.sin6_family,
+                            port,
+                            ip6);
+                }
+                else
+                {
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7hu %-7d %-39s\n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->tcpIpv6ConnectArguments.addr_len,
+                            e->tcpIpv6ConnectArguments.sin6_family,
+                            port,
+                            ip6);
+                }
+            }
+            /**
+             * output to console/shell
+             */
+            else
+            {
+                if (my_args.if_output_as_json)
+                {
+                    printf("{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\", "
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, "
+                           "\"ProcessType\":\"%s\", "
+                           "\"Arguments\":{"
+                           "\"AddrLen\":%d, "
+                           "\"Sin6Family\":%hu,"
+                           "\"Sin6Port\":%d,"
+                           "\"Sin6Addr\":%s} "
+                           "} \n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->tcpIpv6ConnectArguments.addr_len,
+                           e->tcpIpv6ConnectArguments.sin6_family,
+                           port,
+                           ip6);
+                }
+                else
+                {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7hu %-7d %-39s\n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->tcpIpv6ConnectArguments.addr_len,
+                           e->tcpIpv6ConnectArguments.sin6_family,
+                           port,
+                           ip6);
+                }
+            }
+            break;
+        }
+        case EVENT_NETWORK_UDP_SENDMSG: {
+            event_type = (char *) "UDP_SendMsg";
+            struct UdpSendMsgEvent *e = (struct UdpSendMsgEvent *) data;
+
+            uint32_t s_addr = e->udpSendMsgArguments.s_addr;
+            uint8_t bytes[4];
+            bytes[0] = s_addr & 0xFF;
+            bytes[1] = (s_addr >> 8) & 0xFF;
+            bytes[2] = (s_addr >> 16) & 0xFF;
+            bytes[3] = (s_addr >> 24) & 0xFF;
+            int port = ntohs(e->udpSendMsgArguments.s_port);
+
+            if (my_args.if_output_to_file)
+            {
+                if (my_args.if_output_as_json)
+                {
+                    fprintf(output_all, "{"
+                                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"Len\":%u, "
+                                            "\"SaFamily\":%hu,"
+                                            "\"SAddr\":%u,"
+                                            "\"Port\":%d,"
+                                            "\"IPv4Addr\":%u.%u.%u.%u} "
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->udpSendMsgArguments.len,
+                            e->udpSendMsgArguments.sa_family,
+                            e->udpSendMsgArguments.s_addr,
+                            port,
+                            bytes[0], bytes[1], bytes[2], bytes[3]);
+                }
+                else
+                {
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7u %-7hu %-15u %-7d %u.%u.%u.%u\n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->udpSendMsgArguments.len,
+                            e->udpSendMsgArguments.sa_family,
+                            e->udpSendMsgArguments.s_addr,
+                            port,
+                            bytes[0], bytes[1], bytes[2], bytes[3]);
+                }
+            }
+            /**
+             * output to console/shell
+             */
+            else
+            {
+                if (my_args.if_output_as_json)
+                {
+                    printf("{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\", "
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, "
+                           "\"ProcessType\":\"%s\", "
+                           "\"Arguments\":{"
+                           "\"Len\":%u, "
+                           "\"SaFamily\":%hu,"
+                           "\"SAddr\":%u,"
+                           "\"Port\":%d,"
+                           "\"IPv4Addr\":%u.%u.%u.%u} "
+                           "} \n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->udpSendMsgArguments.len,
+                           e->udpSendMsgArguments.sa_family,
+                           e->udpSendMsgArguments.s_addr,
+                           port,
+                           bytes[0], bytes[1], bytes[2], bytes[3]);
+                }
+                else
+                {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7u %-7hu %-15u %-7d %u.%u.%u.%u\n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->udpSendMsgArguments.len,
+                           e->udpSendMsgArguments.sa_family,
+                           e->udpSendMsgArguments.s_addr,
+                           port,
+                           bytes[0], bytes[1], bytes[2], bytes[3]);
+                }
+            }
+            break;
+        }
+        case EVENT_NETWORK_CONNECT_FAILED: {
+            event_type = (char *) "Connect_Failed";
+            struct ConnectFailedEvent *e = (struct ConnectFailedEvent *) data;
+
+            /* Stage 2: 按 sa_family 预处理地址字段（BPF 端 map 关联来的）。
+             * sa_family=0 表示 map 未命中（entry 没跑/被驱逐），地址字段无意义。 */
+            unsigned short fam = e->connectFailedArguments.sa_family;
+            int port_host = (fam == 2 || fam == 10) ? ntohs(e->connectFailedArguments.s_port) : 0;
+            uint32_t s_addr = e->connectFailedArguments.s_addr;
+            uint8_t bytes[4] = {0, 0, 0, 0};
+            bytes[0] = s_addr & 0xFF;
+            bytes[1] = (s_addr >> 8) & 0xFF;
+            bytes[2] = (s_addr >> 16) & 0xFF;
+            bytes[3] = (s_addr >> 24) & 0xFF;
+            char ip6[INET6_ADDRSTRLEN] = {0};
+            inet_ntop(AF_INET6, &(e->connectFailedArguments.s_addr_v6), ip6, INET6_ADDRSTRLEN);
+
+            if (my_args.if_output_to_file)
+            {
+                if (my_args.if_output_as_json)
+                {
+                    /**
+                     * output the record as json
+                     */
+                    fprintf(output_all, "{"
+                                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"Retval\":%d, "
+                                            "\"SaFamily\":%hu, "
+                                            "\"SPort\":%d, "
+                                            "\"SAddr\":%u, "
+                                            "\"IPv4Addr\":%u.%u.%u.%u, "
+                                            "\"Sin6Addr\":\"%s\"} "
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->connectFailedArguments.retval,
+                            fam,
+                            port_host,
+                            (fam == 2) ? s_addr : 0,
+                            (fam == 2) ? bytes[0] : 0, (fam == 2) ? bytes[1] : 0, (fam == 2) ? bytes[2] : 0, (fam == 2) ? bytes[3] : 0,
+                            (fam == 10) ? ip6 : "N/A");
+                }
+                else
+                {
+                    fprintf(output_all, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7hu %-7d %-15u %u.%u.%u.%u %-39s\n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->connectFailedArguments.retval,
+                            fam,
+                            port_host,
+                            (fam == 2) ? s_addr : 0,
+                            (fam == 2) ? bytes[0] : 0, (fam == 2) ? bytes[1] : 0, (fam == 2) ? bytes[2] : 0, (fam == 2) ? bytes[3] : 0,
+                            (fam == 10) ? ip6 : "N/A");
+                }
+            }
+            /**
+             * output to console/shell
+             */
+            else
+            {
+                if (my_args.if_output_as_json)
+                {
+                    printf("{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\", "
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, "
+                           "\"ProcessType\":\"%s\", "
+                           "\"Arguments\":{"
+                           "\"Retval\":%d, "
+                           "\"SaFamily\":%hu, "
+                           "\"SPort\":%d, "
+                           "\"SAddr\":%u, "
+                           "\"IPv4Addr\":%u.%u.%u.%u, "
+                           "\"Sin6Addr\":\"%s\"} "
+                           "} \n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->connectFailedArguments.retval,
+                           fam,
+                           port_host,
+                           (fam == 2) ? s_addr : 0,
+                           (fam == 2) ? bytes[0] : 0, (fam == 2) ? bytes[1] : 0, (fam == 2) ? bytes[2] : 0, (fam == 2) ? bytes[3] : 0,
+                           (fam == 10) ? ip6 : "N/A");
+                }
+                else
+                {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7hu %-7d %-15u %u.%u.%u.%u %-39s\n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->connectFailedArguments.retval,
+                           fam,
+                           port_host,
+                           (fam == 2) ? s_addr : 0,
+                           (fam == 2) ? bytes[0] : 0, (fam == 2) ? bytes[1] : 0, (fam == 2) ? bytes[2] : 0, (fam == 2) ? bytes[3] : 0,
+                           (fam == 10) ? ip6 : "N/A");
                 }
             }
             break;
@@ -7743,19 +8027,25 @@ int test_all(Args args)
         }
     }
 
+    signal(SIGINT, handle_signal);
+    signal(SIGTERM, handle_signal);
+
+    walk_proc_snapshot(output_all, my_args.if_output_to_file, &my_args, "DCStart");
+
     while(!exiting) {
         err = ring_buffer__poll(rb, 10);
         if(err == -EINTR){
             err = 0;
-            fclose(output_all);
             break;
         }
         if (err < 0) {
             printf("Error polling perf buffer: %d\n", err);
-            fclose(output_all);
             break;
         }
     }
+
+    walk_proc_snapshot(output_all, my_args.if_output_to_file, &my_args, "DCEnd");
+    if (output_all != NULL) fclose(output_all);
 
 cleanup:
     ring_buffer__free(rb);

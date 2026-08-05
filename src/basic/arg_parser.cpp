@@ -6,18 +6,59 @@
 #include <getopt.h>
 #include <string.h>
 #include <fstream>
+#include <cstdlib>
+#include <vector>
 #include "../include/arg_parser.h"
 #include "../include/basic.h"
+
+// v1 filter list parsing: comma-separated and/or repeated flags -> vector
+static void parse_int_list(const char *s, std::vector<int> &out) {
+    const char *p = s;
+    while (p && *p) {
+        char *end = nullptr;
+        long v = strtol(p, &end, 10);
+        if (end == p) {
+            std::cerr << "invalid pid list: " << s << std::endl;
+            exit(1);
+        }
+        out.push_back(static_cast<int>(v));
+        p = end;
+        if (*p == ',') {
+            p++;
+        } else if (*p != '\0') {
+            std::cerr << "invalid pid list: " << s << std::endl;
+            exit(1);
+        }
+    }
+}
+
+static void parse_str_list(const char *s, std::vector<std::string> &out) {
+    std::string ss(s);
+    size_t start = 0;
+    while (start <= ss.size()) {
+        size_t comma = ss.find(',', start);
+        if (comma == std::string::npos) {
+            out.push_back(ss.substr(start));
+            break;
+        }
+        out.push_back(ss.substr(start, comma - start));
+        start = comma + 1;
+    }
+}
 
 Args parse_args(int argc, char* argv[])
 {
     Args args;
 
-    const char* const short_options = "c:f:o:e:hlVd";
+    const char* const short_options = "c:f:o:e:hlVdp:";
     option long_options[] = {
-            option{ "help",    no_argument, nullptr, Options::HELP },
-            option{ "version", no_argument, nullptr, Options::VERSION },
-            option{ "info",    no_argument, nullptr, Options::INFO },
+            option{ "help",         no_argument,       nullptr, Options::HELP },
+            option{ "version",      no_argument,       nullptr, Options::VERSION },
+            option{ "info",         no_argument,       nullptr, Options::INFO },
+            option{ "pid",          required_argument, nullptr, 'p' },
+            option{ "exclude-pid",  required_argument, nullptr, Options::EXCLUDE_PID },
+            option{ "comm",         required_argument, nullptr, Options::COMM },
+            option{ "exclude-comm", required_argument, nullptr, Options::EXCLUDE_COMM },
             option{ nullptr, 0, nullptr, 0 }, // Must be last
     };
 
@@ -82,6 +123,18 @@ Args parse_args(int argc, char* argv[])
                 break;
             case 'd':
                 args.if_debug_mode = true;
+                break;
+            case 'p':
+                parse_int_list(optarg, args.include_pids);
+                break;
+            case Options::EXCLUDE_PID:
+                parse_int_list(optarg, args.exclude_pids);
+                break;
+            case Options::COMM:
+                parse_str_list(optarg, args.include_comms);
+                break;
+            case Options::EXCLUDE_COMM:
+                parse_str_list(optarg, args.exclude_comms);
                 break;
             default:
                 usage();

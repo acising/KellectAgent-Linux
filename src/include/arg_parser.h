@@ -3,12 +3,16 @@
 // Created by zhuzhiling on 9/7/22.
 //
 #include <string>
+#include <vector>
 #ifndef KELLECT_LINUX_ARG_PARSER_H
 #define KELLECT_LINUX_ARG_PARSER_H
 
 struct Args {
-    std::string pid_str;
-    std::string cmd_str;
+    // v1 userspace filtering: include (union) + exclude (drop-on-match)
+    std::vector<int> include_pids;
+    std::vector<int> exclude_pids;
+    std::vector<std::string> include_comms;
+    std::vector<std::string> exclude_comms;
     bool listing = false;
     bool usdt_file_activation = false;
     int helper_check_level = 0;
