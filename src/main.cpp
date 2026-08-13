@@ -30,7 +30,10 @@ int main(int argc, char* argv[]) {
         }else if(args.event_type =="conf"){
             std::cerr <<"Kellect is listening events of conf..."<<std::endl<<std::endl;
 	    test_conf(args);
-	}
+	}else if(args.event_type == "image"){
+            std::cerr << "Kellect is listening events of image load..." << std::endl << std::endl;
+            test_image(args);
+        }
     }else {
         std::cout << "please run as root" << std::endl;
     }

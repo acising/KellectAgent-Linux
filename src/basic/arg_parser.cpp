@@ -107,7 +107,8 @@ Args parse_args(int argc, char* argv[])
                     && strcmp(optarg, "file") != 0
                     && strcmp(optarg, "network") != 0
                     && strcmp(optarg, "user") != 0
-		    && strcmp(optarg,"conf")!=0) {
+		    && strcmp(optarg,"conf")!=0
+                    && strcmp(optarg, "image") != 0) {
                     std::cerr << "please enter a valid event type('all' or 'process' or 'file' or 'network' or 'memory')" << std::endl;
                     exit(1);
                 }else {
