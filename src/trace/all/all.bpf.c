@@ -102,10 +102,12 @@ struct {
 
 struct {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
-    /* Was 256 KB — saturates under `-e all` desktop load (trace_pipe showed
-     * 432 "buffer is overflowed" drops in 3s), starving low-frequency connect/
-     * UDP/connect-failed events. 16 MB absorbs the bursts (64x, ~32K slots). */
-    __uint(max_entries, 16 * 1024 * 1024);
+    /* Aggregator module: unions all event types (process+file+network+user),
+     * highest combined event rate. 128 MB (~520K slots) absorbs ~5s burst at
+     * ~100K/s peak (APT lateral movement / data exfil).
+     * History: 256 KB → 432 drops/3s; 16 MB → OK for desktop but tight for
+     * server-scale syscall bursts; 128 MB per load-based sizing (Falco preset 6). */
+    __uint(max_entries, 128 * 1024 * 1024);
 } rb SEC(".maps");
 
 const volatile unsigned long long min_duration_ns = 0;

@@ -84,7 +84,9 @@ struct {
 
 struct {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
-    __uint(max_entries, 256 * 1024);
+    /* conf = aggregator variant (-e conf / -c custom). Mirrors all.bpf.c sizing.
+     * 128 MB (~520K slots). Was 256 KB — same saturation risk as old all.bpf.c. */
+    __uint(max_entries, 128 * 1024 * 1024);
 } rb SEC(".maps");
 
 const volatile unsigned long long min_duration_ns = 0;

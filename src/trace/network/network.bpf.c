@@ -16,7 +16,10 @@ return ((netshort>>8)&0xff) | ((netshort<<8)&0xff00);
 struct
 {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
-    __uint(max_entries, 512 * 1024 * 1024);
+    /* Mid-frequency network events (connect/accept/sendto ~1-5K/s peak).
+     * 64 MB (~260K slots) absorbs ~50s burst. Was 512 MB which caused
+     * bpf_create_map EINVAL on low-MemAvailable hosts (kellect-ebpf skill §3). */
+    __uint(max_entries, 64 * 1024 * 1024);
 } rb SEC(".maps");
 
 struct accept_args {

@@ -17,7 +17,10 @@ struct {
 
 struct {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
-    __uint(max_entries, 256 * 1024);
+    /* High-frequency file ops (open/read/write/rename ~10-50K/s peak).
+     * 64 MB (~260K slots) absorbs ~5s burst. Was 256 KB which saturated
+     * under desktop load (432 drops in 3s, kellect-ebpf skill §3). */
+    __uint(max_entries, 64 * 1024 * 1024);
 } rb SEC(".maps");
 
 const volatile unsigned long long min_duration_ns = 0;

@@ -14,7 +14,10 @@ return ((netshort>>8)&0xff) | ((netshort<<8)&0xff00);
 
 struct {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
-    __uint(max_entries, 16 * 1024 * 1024);
+    /* setuid/setgid/setresuid: extremely low-frequency events (<1/s). 4 MB
+     * (~16K slots) is ample headroom while avoiding wasted memory on servers.
+     * Was 16 MB; tuned down per load-based ringbuf sizing (APT scenario). */
+    __uint(max_entries, 4 * 1024 * 1024);
 } rb SEC(".maps");
 
 SEC("tp/syscalls/sys_enter_setgid")

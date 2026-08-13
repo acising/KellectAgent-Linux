@@ -35,7 +35,11 @@ struct {
 } pipe2_args_map SEC(".maps");
 struct {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
-    __uint(max_entries, 512 * 1024 * 1024);
+    /* Highest-frequency module: full syscall set incl. unfiltered mmap/mprotect
+     * (~20-100K/s peak during APT lateral movement / data exfil bursts).
+     * 128 MB (~520K slots) absorbs ~5s burst. Was 512 MB which caused
+     * bpf_create_map EINVAL when MemAvailable < 512 MB (kellect-ebpf skill §3). */
+    __uint(max_entries, 128 * 1024 * 1024);
 } rb SEC(".maps");
 
 SEC("tp/sched/sched_process_fork")
