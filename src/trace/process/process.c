@@ -11,6 +11,7 @@
 #include "../../include/filter.h"
 #include "../../include/snapshot.h"
 #include "../../include/basic.h"
+#include "../../include/output_sink.h"
 
 struct Args my_args_process;
 
@@ -1163,7 +1164,7 @@ int test_process(Args args) {
     my_args_process = args;
 
     if (my_args_process.if_output_to_file) {
-        output_process = fopen(my_args_process.output_file.c_str(), "w");
+        output_process = create_output_sink(&my_args_process);
         if (output_process == NULL) {
             fprintf(stderr, "please enter a valid file name/path\n");
             return 1;
@@ -1234,7 +1235,7 @@ int test_process(Args args) {
     }
 
     walk_proc_snapshot(output_process, my_args_process.if_output_to_file, &my_args_process, "DCEnd");
-    if (output_process != NULL) fclose(output_process);
+    if (output_process != NULL) close_output_sink(output_process);
 
     cleanup:
     ring_buffer__free(rb);

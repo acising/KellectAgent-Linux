@@ -10,6 +10,7 @@
 #include "../../include/arg_parser.h"
 #include "../../include/filter.h"
 #include "../../include/basic.h"
+#include "../../include/output_sink.h"
 #include <string.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
@@ -1388,7 +1389,7 @@ int test_network(Args args) {
     my_args_network = args;
 
     if (my_args_network.if_output_to_file) {
-        output_network = fopen(my_args_network.output_file.c_str(), "w");
+        output_network = create_output_sink(&my_args_network);
         if (output_network == NULL) {
             fprintf(stderr, "please enter a valid file name/path\n");
             return 1;
@@ -1448,12 +1449,12 @@ int test_network(Args args) {
         err = ring_buffer__poll(rb, 10);
         if (err == -EINTR) {
             err = 0;
-            if (output_network != NULL) fclose(output_network);
+            if (output_network != NULL) close_output_sink(output_network);
             break;
         }
         if (err < 0) {
             printf("Error polling perf buffer: %d\n", err);
-            if (output_network != NULL) fclose(output_network);
+            if (output_network != NULL) close_output_sink(output_network);
             break;
         }
     }

@@ -10,6 +10,7 @@
 #include "../../include/arg_parser.h"
 #include "../../include/filter.h"
 #include "../../include/basic.h"
+#include "../../include/output_sink.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ostream>
@@ -773,7 +774,7 @@ printf("Error polling perf buffer: %d\n", args.if_output_as_json);
     std::cerr << "=============test=============" << std::endl << std::endl;
     printf("=========================test=========================\n");
     if (my_args_user.if_output_to_file) {
-        output_user = fopen(my_args_user.output_file.c_str(), "w");
+        output_user = create_output_sink(&my_args_user);
         if (output_user == NULL) {
             fprintf(stderr, "please enter a valid file name/path\n");
             return 1;
@@ -851,7 +852,7 @@ printf("Error polling perf buffer: %d\n", args.if_output_as_json);
         }
     }
 
-    if (output_user != NULL) fclose(output_user);
+    if (output_user != NULL) close_output_sink(output_user);
 
     cleanup:
     ring_buffer__free(rb);

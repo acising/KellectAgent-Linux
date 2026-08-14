@@ -128,8 +128,13 @@ static inline void walk_proc_snapshot(FILE *out, bool to_file,
         int ppid = 0;
         unsigned long utime = 0, stime = 0;
         unsigned long long starttime = 0;
+        /* Suppressed conversions carry NO length modifier (%*u, not %*lu):
+         * GCC -Wformat flags "assignment suppression and length modifier
+         * together" — the l is meaningless on a conversion that discards its
+         * input, and %*u/%*lu parse identically. Stored conversions (%lu %lu
+         * %llu) keep their modifiers. */
         int matched = sscanf(rp + 1,
-            " %*c %d %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %*ld %*ld %llu",
+            " %*c %d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu %lu %*d %*d %*d %*d %*d %*d %llu",
             &ppid, &utime, &stime, &starttime);
         if (matched < 4) continue;
 

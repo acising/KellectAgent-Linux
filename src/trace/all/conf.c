@@ -14,6 +14,7 @@
 #include "../../include/filter.h"
 #include "../../include/snapshot.h"
 #include "../../include/basic.h"
+#include "../../include/output_sink.h"
 #include "all.skel.h"
 #include <string.h>
 #include <stdlib.h>
@@ -7973,7 +7974,7 @@ int test_conf(Args args)
 {
     my_args_conf = args;
     if(my_args_conf.if_output_to_file){
-        output_conf = fopen(my_args_conf.output_file.c_str(),"w");
+        output_conf = create_output_sink(&my_args_conf);
         if(output_conf == NULL){
             fprintf(stderr, "please enter a valid file name/path\n");
             return 1;
@@ -8147,7 +8148,7 @@ if(conf == NULL){printf("Failed to open file\n");goto cleanup;}
     }
 
     walk_proc_snapshot(output_conf, my_args_conf.if_output_to_file, &my_args_conf, "DCEnd");
-    if (output_conf != NULL) fclose(output_conf);
+    if (output_conf != NULL) close_output_sink(output_conf);
 
 cleanup:
     ring_buffer__free(rb);

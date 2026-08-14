@@ -24,6 +24,10 @@ struct Args {
     bool if_output_as_custom = false;
     std::string output_file;
     bool if_debug_mode = false;
+    /* #9 output backend: TCP socket forwarding (-o tcp://host:port) */
+    bool if_output_to_tcp = false;
+    std::string tcp_host;
+    int tcp_port = 0;
 };
 
 Args parse_args(int argc, char* argv[]);

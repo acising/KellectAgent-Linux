@@ -88,7 +88,7 @@ $(OUTPUT)/%.o: %.c $(wildcard %.h) | $(OUTPUT)
 
 kellect: $(LIBBPF_OBJ) $(BPFTOOL) modules $(OUTPUT)/main.o | $(OUTPUT)
 	$(call msg,FINAL,$@)
-	$(Q)$(CXX) $(CFLAGS) $(filter-out %.bpf.o,$(wildcard $(OUTPUT)/*.o)) $(LIBBPF_OBJ)  $(ALL_LDFLAGS) -lelf -lz -o $(OUTPUT)/$@
+	$(Q)$(CXX) $(CFLAGS) $(filter-out %.bpf.o,$(wildcard $(OUTPUT)/*.o)) $(LIBBPF_OBJ)  $(ALL_LDFLAGS) -lelf -lz -lpthread -o $(OUTPUT)/$@
 
 $(OUTPUT)/main.o: main.cpp | $(OUTPUT)
 	$(call msg,MAIN,$@)

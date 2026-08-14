@@ -79,15 +79,36 @@ Args parse_args(int argc, char* argv[])
                 usage();
                 exit(0);
             case 'o':{
-                std::ofstream ofstream;
-                ofstream.open(optarg, std::ios::out);
-                if(!ofstream){
-                    std::cerr << "please enter a valid file name/path" << std::endl;
-                    exit(1);
+                const std::string opt(optarg);
+                const std::string tcp_prefix = "tcp://";
+                if (opt.rfind(tcp_prefix, 0) == 0) {
+                    /* #9: TCP backend. Parse tcp://host:port */
+                    const std::string rest = opt.substr(tcp_prefix.size());
+                    const size_t colon = rest.rfind(':');
+                    if (colon == std::string::npos) {
+                        std::cerr << "tcp:// requires host:port (e.g. tcp://192.168.1.100:9999)" << std::endl;
+                        exit(1);
+                    }
+                    args.tcp_host = rest.substr(0, colon);
+                    args.tcp_port = std::atoi(rest.substr(colon + 1).c_str());
+                    if (args.tcp_port <= 0 || args.tcp_port > 65535) {
+                        std::cerr << "tcp:// invalid port number" << std::endl;
+                        exit(1);
+                    }
+                    args.if_output_to_tcp = true;
+                    args.if_output_to_file = true;  /* so snapshot.h to_file branches fire */
+                } else {
+                    /* Existing: file path validation */
+                    std::ofstream ofstream;
+                    ofstream.open(optarg, std::ios::out);
+                    if(!ofstream){
+                        std::cerr << "please enter a valid file name/path" << std::endl;
+                        exit(1);
+                    }
+                    ofstream.close();
+                    args.output_file = optarg;
+                    args.if_output_to_file = true;
                 }
-                ofstream.close();
-                args.output_file = optarg;
-                args.if_output_to_file = true;
                 break;
             }
             case 'f':

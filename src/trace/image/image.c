@@ -8,7 +8,12 @@
 // loader case where the fd is closed before we consume the event, and prints
 // the 4-branch output (file/console × json/text).
 
+/* g++ predefines _GNU_SOURCE as 1 -- a bare #define here is a distinct
+ * token sequence and triggers -Wbuiltin-macro-redefined style warnings on
+ * gcc 11+. Guard it like output_sink.h does. */
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <argp.h>
 #include <signal.h>
 #include <stdio.h>
@@ -24,6 +29,7 @@
 #include "../../include/filter.h"
 #include "../../include/snapshot.h"
 #include "../../include/basic.h"
+#include "../../include/output_sink.h"
 
 struct Args my_args_image;
 
@@ -564,7 +570,7 @@ int test_image(Args args) {
     my_args_image = args;
 
     if (my_args_image.if_output_to_file) {
-        output_image = fopen(my_args_image.output_file.c_str(), "w");
+        output_image = create_output_sink(&my_args_image);
         if (output_image == NULL) {
             fprintf(stderr, "please enter a valid file name/path\n");
             return 1;
@@ -635,7 +641,7 @@ int test_image(Args args) {
     }
 
     walk_proc_snapshot(output_image, my_args_image.if_output_to_file, &my_args_image, "DCEnd");
-    if (output_image != NULL) fclose(output_image);
+    if (output_image != NULL) close_output_sink(output_image);
 
     cleanup:
     ring_buffer__free(rb);

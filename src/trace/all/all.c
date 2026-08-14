@@ -14,6 +14,7 @@
 #include "../../include/filter.h"
 #include "../../include/snapshot.h"
 #include "../../include/basic.h"
+#include "../../include/output_sink.h"
 #include "all.skel.h"
 #include <string.h>
 #include <stdlib.h>
@@ -7974,7 +7975,7 @@ int test_all(Args args)
     my_args = args;
 
     if(my_args.if_output_to_file){
-        output_all = fopen(my_args.output_file.c_str(),"w");
+        output_all = create_output_sink(&my_args);
         if(output_all == NULL){
             fprintf(stderr, "please enter a valid file name/path\n");
             return 1;
@@ -8045,7 +8046,7 @@ int test_all(Args args)
     }
 
     walk_proc_snapshot(output_all, my_args.if_output_to_file, &my_args, "DCEnd");
-    if (output_all != NULL) fclose(output_all);
+    if (output_all != NULL) close_output_sink(output_all);
 
 cleanup:
     ring_buffer__free(rb);

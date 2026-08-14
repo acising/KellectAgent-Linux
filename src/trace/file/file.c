@@ -10,6 +10,7 @@
 #include "../../include/arg_parser.h"
 #include "../../include/filter.h"
 #include "../../include/basic.h"
+#include "../../include/output_sink.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -1963,7 +1964,7 @@ int test_file(Args args) {
     my_args_file = args;
 
     if (my_args_file.if_output_to_file) {
-        output_file = fopen(my_args_file.output_file.c_str(), "w");
+        output_file = create_output_sink(&my_args_file);
         if (output_file == NULL) {
             fprintf(stderr, "please enter a valid file name/path\n");
             return 1;
@@ -2042,7 +2043,7 @@ int test_file(Args args) {
         }
     }
 
-    if (output_file != NULL) fclose(output_file);
+    if (output_file != NULL) close_output_sink(output_file);
 
     cleanup:
     ring_buffer__free(rb);
