@@ -10,6 +10,8 @@ LLVM_STRIP ?= llvm-strip
 LIBBPF_SRC := $(abspath libbpf/src)
 BPFTOOL_SRC := $(abspath bpftool/src)
 LIBBPF_OBJ := $(abspath $(OUTPUT)/libbpf.a)
+# Phase 2 #4 Step 2b: blazesym static link (prebuilt .a in include/; adds -lrt -ldl -lm)
+LIBBLAZESYM_OBJ := $(abspath $(HEADER)/libblazesym_c.a)
 BPFTOOL_OUTPUT ?= $(abspath $(OUTPUT)/bpftool)
 BPFTOOL ?= $(BPFTOOL_OUTPUT)/bootstrap/bpftool
 ARCH := $(shell uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/')
@@ -88,7 +90,7 @@ $(OUTPUT)/%.o: %.c $(wildcard %.h) | $(OUTPUT)
 
 kellect: $(LIBBPF_OBJ) $(BPFTOOL) modules $(OUTPUT)/main.o | $(OUTPUT)
 	$(call msg,FINAL,$@)
-	$(Q)$(CXX) $(CFLAGS) $(filter-out %.bpf.o,$(wildcard $(OUTPUT)/*.o)) $(LIBBPF_OBJ)  $(ALL_LDFLAGS) -lelf -lz -lpthread -o $(OUTPUT)/$@
+	$(Q)$(CXX) $(CFLAGS) $(filter-out %.bpf.o,$(wildcard $(OUTPUT)/*.o)) $(LIBBPF_OBJ) $(LIBBLAZESYM_OBJ) $(ALL_LDFLAGS) -lelf -lz -lpthread -lrt -ldl -lm -o $(OUTPUT)/$@
 
 $(OUTPUT)/main.o: main.cpp | $(OUTPUT)
 	$(call msg,MAIN,$@)

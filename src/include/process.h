@@ -86,6 +86,14 @@ struct Event {
 
     char filename[MAX_FILENAME_LEN];
 
+    /* 差距 #4 (2026-08-23): real parent identity for every process event.
+     * event-time BPF capture (no /proc race). real_parent_tgid==0 and
+     * pcomm=="" mean no parent resolved (early task). NOTE: the legacy
+     * pid/ppid pair above is task->pid (thread id) / task->tgid (self) --
+     * upstream naming mismatch, see skill §16. */
+    int real_parent_tgid;
+    char pcomm[16];
+
 };
 
 struct CloneArguments {
@@ -132,6 +140,9 @@ struct ExecArguments {
     u32 __data_loc_filename;
     pid_t pid;
     pid_t old_pid;
+    /* Phase 2 #4 Step 1: bpf_get_stackid results, negative = stack capture failed */
+    int user_stack_id;
+    int kern_stack_id;
     char __data[0];
 };
 
@@ -314,6 +325,10 @@ struct ExecveArguments {
     int common_pid;
     int __syscall_nr;
     char filename[MAX_FILENAME_LEN];
+    /* Phase 2 #4 Step 1: bpf_get_stackid results, negative = stack capture failed */
+    int user_stack_id;
+    int kern_stack_id;
+    /* real_parent_tgid moved to the common Event header (差距 #4: all events) */
 };
 
 struct ExecveEvent {
@@ -329,6 +344,9 @@ struct ExecveatArguments {
     char filename[MAX_FILENAME_LEN];
     int fd;
     int flags;
+    /* Phase 2 #4 Step 1: bpf_get_stackid results, negative = stack capture failed */
+    int user_stack_id;
+    int kern_stack_id;
 };
 
 struct ExecveatEvent {

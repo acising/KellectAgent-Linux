@@ -7,6 +7,45 @@
 
 #define BPF_MAX_STACK_DEPTH 128
 
+/* 差距 #4: real parent identity for every process event (event-time capture,
+ * no /proc race). parent==NULL (early/odd task) -> zeroed fields. */
+static __always_inline void fill_parent_info(struct Event *ev, struct task_struct *task)
+{
+    struct task_struct *parent = BPF_CORE_READ(task, real_parent);
+    if (parent) {
+        ev->real_parent_tgid = BPF_CORE_READ(parent, tgid);
+        bpf_core_read(&ev->pcomm, sizeof(ev->pcomm), &parent->comm);
+    } else {
+        ev->real_parent_tgid = 0;
+        ev->pcomm[0] = '\0';
+    }
+}
+
+/* UAPI flag macros are not in vmlinux.h (BTF carries no #define);
+ * hand-written like image.h PROT_EXEC (kellect-ebpf skill §10). */
+#ifndef BPF_F_USER_STACK
+#define BPF_F_USER_STACK (1ULL << 8)
+#endif
+
+/* Phase 2 #4 Step 1 call stacks: bpf_get_stackid stores an id only (no
+ * division -> sdiv-safe, kellect-ebpf skill §2; never revive the commented
+ * bpf_get_stack + depth/8 block below in handle_exec). */
+#define MAX_STACK_FRAMES 127 /* = PERF_MAX_STACK_DEPTH, 8B per frame */
+
+struct stack_trace_t {
+    __u64 ips[MAX_STACK_FRAMES];
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_STACK_TRACE);
+    /* 16384 entries * 1016B ≈ 16MB preallocated at load; identical stacks
+     * dedupe to one id; when full the oldest stack is evicted (id reuse),
+     * events are never dropped. */
+    __uint(max_entries, 16384);
+    __type(key, u32);
+    __type(value, struct stack_trace_t);
+} stack_map SEC(".maps");
+
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
 static __always_inline __u16 my_ntohs(__u16 netshort) {
 return ((netshort>>8)&0xff) | ((netshort<<8)&0xff00);
@@ -73,6 +112,7 @@ int handle_fork(struct ForkArguments *ctx)
 	bpf_probe_read_str(&e->forkArguments.child_comm, sizeof(e->forkArguments.child_comm), &ctx->child_comm);
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -112,6 +152,7 @@ int handle_exec(struct trace_event_raw_sched_process_exec *ctx)
     bpf_core_read(&e->execArguments.old_pid, sizeof(e->execArguments.old_pid), &ctx->old_pid);
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 //    __u64 stack[BPF_MAX_STACK_DEPTH/4] = {};
 //    int stack_depth = bpf_get_stack(ctx, &stack, BPF_MAX_STACK_DEPTH, 0);
 //    bpf_printk("stack[%d]: \n", stack_depth/8);
@@ -137,6 +178,9 @@ int handle_exec(struct trace_event_raw_sched_process_exec *ctx)
 //} else {
 //    bpf_trace_printk(fmt, sizeof(fmt), "Failed to read function name\n"); // 如果读取失败，打印错误信息
 //}
+    e->execArguments.user_stack_id = (int)bpf_get_stackid(ctx, &stack_map, BPF_F_USER_STACK);
+    e->execArguments.kern_stack_id = (int)bpf_get_stackid(ctx, &stack_map, 0);
+
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
     return 0;
@@ -173,6 +217,7 @@ int handle_clone(struct trace_event_raw_sys_enter *ctx)
     bpf_core_read(&e->cloneArguments.tls, sizeof(e->cloneArguments.tls), &ctx->args[4]);
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -213,6 +258,7 @@ int handle_sys_exit(struct trace_event_raw_sched_process_template *ctx)
     e->exitArguments.exit_code = (BPF_CORE_READ(task, exit_code) >> 8) & 0xff;
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -249,6 +295,7 @@ int handle_pipe(struct trace_event_raw_sys_enter *ctx)
 
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     u32 pid_tgid = bpf_get_current_pid_tgid();
     struct pipe_args args = {};
@@ -322,6 +369,7 @@ int handle_pipe2(struct trace_event_raw_sys_enter *ctx)
 
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     u32 pid_tgid = bpf_get_current_pid_tgid();
     struct pipe2_args args = {};
@@ -391,6 +439,7 @@ int handle_kill(struct trace_event_raw_sys_enter *ctx)
 
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -429,6 +478,7 @@ int handle_clone3(struct trace_event_raw_sys_enter *ctx)
     bpf_core_read(&e->clone3Arguments.size, sizeof(e->clone3Arguments.size), &ctx->args[1]);
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -463,6 +513,12 @@ int handle_execve(struct trace_event_raw_sys_enter *ctx)
 
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
+
+    e->execveArguments.user_stack_id = (int)bpf_get_stackid(ctx, &stack_map, BPF_F_USER_STACK);
+    /* syscall tp pt_regs are user-mode entry regs: kernel-stack unwinding is
+     * always -EFAULT here (§12 / skill §15) -- keep the field as a -1 sentinel. */
+    e->execveArguments.kern_stack_id = -1;
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -498,6 +554,12 @@ int handle_execveat(struct trace_event_raw_sys_enter *ctx)
     bpf_core_read(&e->execveatArguments.flags, sizeof(e->execveatArguments.flags), &ctx->args[4]);
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
+
+    e->execveatArguments.user_stack_id = (int)bpf_get_stackid(ctx, &stack_map, BPF_F_USER_STACK);
+    /* Same syscall-tp semantics as handle_execve: kernel stack is unreachable
+     * here, -1 sentinel instead of a guaranteed-failing helper call. */
+    e->execveatArguments.kern_stack_id = -1;
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -531,6 +593,7 @@ int handle_exit_group(struct trace_event_raw_sys_enter *ctx)
     bpf_core_read(&e->exitgroupArguments.exit_code, sizeof(e->exitgroupArguments.exit_code), &ctx->args[0]);
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -567,6 +630,7 @@ int handle_ptrace(struct trace_event_raw_sys_enter *ctx)
     bpf_core_read(&e->ptraceArguments.data, sizeof(e->ptraceArguments.data), &ctx->args[3]);
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -602,6 +666,7 @@ int handle_tgkill(struct trace_event_raw_sys_enter *ctx)
 
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -636,6 +701,7 @@ int handle_tkill(struct trace_event_raw_sys_enter *ctx)
 
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -668,6 +734,7 @@ int handle_vfork(struct trace_event_raw_sys_enter *ctx)
 
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -706,6 +773,7 @@ int handle_mmap(struct trace_event_raw_sys_enter *ctx)
     bpf_core_read(&e->mmapArguments.off, sizeof(e->mmapArguments.off), &ctx->args[5]);
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -742,6 +810,7 @@ int handle_mprotect(struct trace_event_raw_sys_enter *ctx)
 
 
     bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+    fill_parent_info(&e->event, task);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
