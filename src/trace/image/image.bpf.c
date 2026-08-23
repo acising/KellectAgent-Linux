@@ -164,10 +164,14 @@ int handle_image_mprotect(struct trace_event_raw_sys_enter *ctx)
     bpf_core_read(&e->imageMprotectArguments.len,  sizeof(e->imageMprotectArguments.len),  &ctx->args[1]);
     e->imageMprotectArguments.prot = prot;
 
-    /* 差距 #3: mprotect addr is the live mapping address — register directly */
+    /* 差距 #3: mprotect addr is the live mapping address — register directly.
+     * Value must go through a stack variable: &e->...len points into the
+     * ringbuf record (PTR_TO_MEM) which the verifier rejects as a map-update
+     * argument (host-verified fix, 2026-08-23). */
+    unsigned long mlen = e->imageMprotectArguments.len;
     __u64 tgid = bpf_get_current_pid_tgid() >> 32;
     struct exec_map_key rk = {.tgid = tgid, .addr = e->imageMprotectArguments.addr};
-    bpf_map_update_elem(&exec_maps, &rk, &e->imageMprotectArguments.len, BPF_ANY);
+    bpf_map_update_elem(&exec_maps, &rk, &mlen, BPF_ANY);
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);

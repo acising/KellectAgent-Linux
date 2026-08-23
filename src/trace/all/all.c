@@ -1889,9 +1889,9 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                 sip6[0] = dip6[0] = '\0';
             }
 
-            if (my_args_all.if_output_to_file)
+            if (my_args.if_output_to_file)
             {
-                if (my_args_all.if_output_as_json)
+                if (my_args.if_output_as_json)
                 {
                     /**
                      * output the record as json
@@ -1945,7 +1945,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                  */
             else
             {
-                if (my_args_all.if_output_as_json)
+                if (my_args.if_output_as_json)
                 {
                     printf("{"
                            "\"Timestamp\":%ld,"
@@ -2017,9 +2017,9 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                 sip6[0] = dip6[0] = '\0';
             }
 
-            if (my_args_all.if_output_to_file)
+            if (my_args.if_output_to_file)
             {
-                if (my_args_all.if_output_as_json)
+                if (my_args.if_output_as_json)
                 {
                     /**
                      * output the record as json
@@ -2070,7 +2070,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                  */
             else
             {
-                if (my_args_all.if_output_as_json)
+                if (my_args.if_output_as_json)
                 {
                     printf("{"
                            "\"Timestamp\":%ld,"

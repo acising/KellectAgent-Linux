@@ -51,10 +51,13 @@
 #include <arpa/inet.h>
 
 #include "arg_parser.h"  /* struct Args (needed by create_output_sink) */
+#include "host_uuid.h"   /* host identity injected into every JSON line */
 
 /* ES.45: named constants, not magic numbers */
 #define OUTPUT_QUEUE_CAPACITY  4096   /* events buffered during collector outage */
-#define OUTPUT_EVENT_MAX_LEN   512    /* max formatted event size (matches kellect JSON rows) */
+#define OUTPUT_EVENT_MAX_LEN   640    /* max formatted event size; was 512, raised for
+                                       * Host-UUID prefix (+48B) and long UserStack
+                                       * JSON rows (功能对齐 #1, 2026-08-23) */
 #define OUTPUT_RECONNECT_DELAY 1      /* seconds between reconnect attempts */
 #define OUTPUT_IDLE_POLL_US    1000   /* 1ms idle wait when queue empty */
 
@@ -245,6 +248,31 @@ static inline void *output_thread_fn(void *arg)
  * line-oriented protocol.
  * ============================================================ */
 
+/* Shared line-finalize: inject Host-UUID as the first field of JSON lines
+ * (leading '{'). One helper serves both the TCP hook (queue path) and the
+ * file hook (direct write path). Text lines pass through unchanged; lines
+ * that would overflow the slot are left as-is (line integrity beats the
+ * label). Returns the (possibly extended) line length. */
+static inline int output_inject_host_uuid(char *line_buf, int line_len)
+{
+    if (line_len > 0 && line_buf[0] == '{') {
+        const char *hu = get_host_uuid();
+        if (hu[0] != '\0') {
+            char inject[56];
+            int il = snprintf(inject, sizeof(inject), "{\"Host-UUID\":\"%s\",", hu);
+            if (il > 0 && (size_t)line_len - 1 + (size_t)il <= OUTPUT_EVENT_MAX_LEN - 1) {
+                /* strip the leading '{', shift the body right, splice the
+                 * prefix -- memmove handles the overlap */
+                memmove(line_buf + il, line_buf + 1, (size_t)line_len - 1);
+                memcpy(line_buf, inject, (size_t)il);
+                line_len = (int)((size_t)line_len - 1 + (size_t)il);
+                line_buf[line_len] = '\0';
+            }
+        }
+    }
+    return line_len;
+}
+
 static inline ssize_t output_cookie_write(void *cookie, const char *buf, size_t size)
 {
     output_cookie_t *oc = (output_cookie_t *)cookie;
@@ -259,6 +287,7 @@ static inline ssize_t output_cookie_write(void *cookie, const char *buf, size_t 
             if (oc->line_len < OUTPUT_EVENT_MAX_LEN) {
                 oc->line_buf[oc->line_len] = '\0';
             }
+            oc->line_len = output_inject_host_uuid(oc->line_buf, oc->line_len);
             if (output_queue_push(&oc->queue, oc->line_buf, oc->line_len)) {
                 std::atomic_fetch_add(&oc->produced, (uint64_t)1);
             }
@@ -301,9 +330,46 @@ static inline int output_cookie_close(void *cookie)
 /* ============================================================
  * Public API: create_output_sink / close_output_sink
  *
- * Factory: TCP mode -> fopencookie FILE* + output thread.
- *          File mode -> plain fopen (existing behavior unchanged).
+ * Factory: TCP mode -> fopencookie FILE* + output thread (queue path).
+ *          File mode -> fopencookie wrapper over the plain fopen'd file
+ *          (direct-write path, no queue/thread) so Host-UUID injection
+ *          covers BOTH output paths (host-verified gap fix, 2026-08-23).
  * ============================================================ */
+
+/* Lightweight file cookie: inject, then write straight to the underlying
+ * FILE* (its own stdio buffering applies). No queue, no thread, no stats. */
+typedef struct {
+    FILE *fp;                                  /* underlying file */
+    char  line_buf[OUTPUT_EVENT_MAX_LEN];
+    int   line_len;
+} file_cookie_t;
+
+static inline ssize_t file_cookie_write(void *cookie, const char *buf, size_t size)
+{
+    file_cookie_t *fc = (file_cookie_t *)cookie;
+
+    for (size_t i = 0; i < size; i++) {
+        if (fc->line_len < OUTPUT_EVENT_MAX_LEN - 1) {
+            fc->line_buf[fc->line_len++] = buf[i];
+        }
+        if (buf[i] == '\n' || fc->line_len >= OUTPUT_EVENT_MAX_LEN - 1) {
+            fc->line_len = output_inject_host_uuid(fc->line_buf, fc->line_len);
+            fwrite(fc->line_buf, 1, (size_t)fc->line_len, fc->fp);
+            fc->line_len = 0;
+        }
+    }
+
+    return (ssize_t)size;
+}
+
+static inline int file_cookie_close(void *cookie)
+{
+    file_cookie_t *fc = (file_cookie_t *)cookie;
+    fflush(fc->fp);
+    fclose(fc->fp);   /* the underlying file */
+    free(fc);
+    return 0;
+}
 
 static inline FILE *create_output_sink(const struct Args *args)
 {
@@ -349,15 +415,40 @@ static inline FILE *create_output_sink(const struct Args *args)
         return fp;
     }
 
-    /* File mode: existing behavior, unchanged */
+    /* File mode: wrap the plain fopen'd file in a fopencookie layer so the
+     * shared Host-UUID injection applies (same behavior as the TCP path). */
     if (args->output_file.empty()) {
         return NULL;
     }
-    return fopen(args->output_file.c_str(), "w");
+    FILE *underlying = fopen(args->output_file.c_str(), "w");
+    if (!underlying) {
+        return NULL;
+    }
+    file_cookie_t *fc = (file_cookie_t *)calloc(1, sizeof(file_cookie_t));
+    if (!fc) {
+        fclose(underlying);
+        return NULL;
+    }
+    fc->fp = underlying;
+    fc->line_len = 0;
+
+    cookie_io_functions_t file_io;
+    memset(&file_io, 0, sizeof(file_io));
+    file_io.write = file_cookie_write;
+    file_io.close = file_cookie_close;
+    FILE *wfp = fopencookie(fc, "w", file_io);
+    if (!wfp) {
+        fclose(underlying);
+        free(fc);
+        return NULL;
+    }
+    setvbuf(wfp, NULL, _IOLBF, 0);   /* line-buffered, same as TCP path */
+    return wfp;
 }
 
-/* close_output_sink: works for both TCP (fopencookie close hook joins thread)
- * and file (plain fclose) modes. */
+/* close_output_sink: works for both TCP and file modes -- both return a
+ * fopencookie FILE*, so plain fclose triggers the matching close hook
+ * (TCP: drain-then-join; file: fflush + fclose underlying). */
 static inline void close_output_sink(FILE *fp)
 {
     if (fp != NULL) {
