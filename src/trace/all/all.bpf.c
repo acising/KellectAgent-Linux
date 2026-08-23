@@ -933,6 +933,116 @@ int BPF_KRETPROBE(tcp_v6_connect_ret, int ret)
     return 0;
 }
 
+/* #6-B: TCP disconnect. sock/inet_sock_set_state fires on every TCP state
+ * transition; we report only newstate==TCP_CLOSE, excluding SYN_SENT and
+ * SYN_RECV sources (connect failures are already covered by Connect_Failed --
+ * avoids double reporting). Note: this tracepoint's sport/dport are already
+ * host order and its addr byte arrays are dotted-order (see all.h). A normal
+ * active close reaches TCP_CLOSE from TIME_WAIT, i.e. ~2MSL (60s) after the
+ * close() call; RST aborts and passive closes report immediately. */
+SEC("tp/sock/inet_sock_set_state")
+int handle_tcp_disconnect(struct trace_event_raw_inet_sock_set_state *ctx)
+{
+    int oldstate, newstate;
+    __u16 protocol;
+
+    bpf_core_read(&oldstate, sizeof(oldstate), &ctx->oldstate);
+    bpf_core_read(&newstate, sizeof(newstate), &ctx->newstate);
+    bpf_core_read(&protocol, sizeof(protocol), &ctx->protocol);
+
+    if (newstate != TCP_CLOSE)
+        return 0;
+    if (protocol != 6)               /* IPPROTO_TCP only */
+        return 0;
+    if (oldstate == TCP_SYN_SENT || oldstate == TCP_SYN_RECV)
+        return 0;
+
+    struct TcpDisconnectEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if (!e)
+    {
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    /* 10-field standard header */
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_NETWORK_TCP_DISCONNECT;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    e->tcpDisconnectArguments.oldstate = oldstate;
+    e->tcpDisconnectArguments.newstate = newstate;
+    bpf_core_read(&e->tcpDisconnectArguments.family, sizeof(e->tcpDisconnectArguments.family), &ctx->family);
+    bpf_core_read(&e->tcpDisconnectArguments.sport, sizeof(e->tcpDisconnectArguments.sport), &ctx->sport);
+    bpf_core_read(&e->tcpDisconnectArguments.dport, sizeof(e->tcpDisconnectArguments.dport), &ctx->dport);
+    bpf_core_read(&e->tcpDisconnectArguments.saddr, sizeof(e->tcpDisconnectArguments.saddr), &ctx->saddr);
+    bpf_core_read(&e->tcpDisconnectArguments.daddr, sizeof(e->tcpDisconnectArguments.daddr), &ctx->daddr);
+    bpf_core_read(&e->tcpDisconnectArguments.saddr_v6, sizeof(e->tcpDisconnectArguments.saddr_v6), &ctx->saddr_v6);
+    bpf_core_read(&e->tcpDisconnectArguments.daddr_v6, sizeof(e->tcpDisconnectArguments.daddr_v6), &ctx->daddr_v6);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
+/* #6-B: TCP retransmit -- no filter, every retransmission is a signal
+ * (SYN retransmits during connect timeouts report state==TCP_SYN_SENT). */
+SEC("tp/tcp/tcp_retransmit_skb")
+int handle_tcp_retransmit(struct trace_event_raw_tcp_event_sk_skb *ctx)
+{
+    struct TcpRetransmitEvent *e;
+    struct task_struct *task;
+
+    e = bpf_ringbuf_reserve(&rb, sizeof(*e), 0);
+    if (!e)
+    {
+        bpf_printk("buffer is overflowed, event is losing\n");
+        return 0;
+    }
+
+    task = (struct task_struct *)bpf_get_current_task();
+
+    /* 10-field standard header */
+    e->event.pid = BPF_CORE_READ(task, pid);
+    e->event.ppid = BPF_CORE_READ(task, tgid);
+    e->event.event_type = EVENT_NETWORK_TCP_RETRANSMIT;
+    e->event.is_process = e->event.pid == e->event.ppid;
+
+    e->event.user_mode_time = BPF_CORE_READ(task, utime);
+    e->event.kernel_mode_time = BPF_CORE_READ(task, stime);
+    e->event.voluntary_context_switch_count = BPF_CORE_READ(task, nvcsw);
+    e->event.involuntary_context_switch_count = BPF_CORE_READ(task, nivcsw);
+    e->event.start_time = BPF_CORE_READ(task, start_time);
+
+    bpf_get_current_comm(&e->event.comm, sizeof(e->event.comm));
+
+    bpf_core_read(&e->tcpRetransmitArguments.state, sizeof(e->tcpRetransmitArguments.state), &ctx->state);
+    bpf_core_read(&e->tcpRetransmitArguments.family, sizeof(e->tcpRetransmitArguments.family), &ctx->family);
+    bpf_core_read(&e->tcpRetransmitArguments.sport, sizeof(e->tcpRetransmitArguments.sport), &ctx->sport);
+    bpf_core_read(&e->tcpRetransmitArguments.dport, sizeof(e->tcpRetransmitArguments.dport), &ctx->dport);
+    bpf_core_read(&e->tcpRetransmitArguments.saddr, sizeof(e->tcpRetransmitArguments.saddr), &ctx->saddr);
+    bpf_core_read(&e->tcpRetransmitArguments.daddr, sizeof(e->tcpRetransmitArguments.daddr), &ctx->daddr);
+    bpf_core_read(&e->tcpRetransmitArguments.saddr_v6, sizeof(e->tcpRetransmitArguments.saddr_v6), &ctx->saddr_v6);
+    bpf_core_read(&e->tcpRetransmitArguments.daddr_v6, sizeof(e->tcpRetransmitArguments.daddr_v6), &ctx->daddr_v6);
+
+    /* send data to user-space for post-processing */
+    bpf_ringbuf_submit(e, 0);
+    return 0;
+}
+
 SEC("tp/syscalls/sys_enter_sendto")
 int handle_sendto(struct trace_event_raw_sys_enter *ctx)
 {

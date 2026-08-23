@@ -1864,6 +1864,257 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
             }
             break;
         }
+        case EVENT_NETWORK_TCP_DISCONNECT: {
+            event_type = (char *) "TCP_Disconnect";
+            struct TcpDisconnectEvent *e = (struct TcpDisconnectEvent *) data;
+
+            /* #6-B: tracepoint fields are HOST order / dotted-order bytes --
+             * no ntohs here, the opposite of the skc_* based events above. */
+            unsigned short fam = e->tcpDisconnectArguments.family;
+            char sa4[20], da4[20], sip6[INET6_ADDRSTRLEN], dip6[INET6_ADDRSTRLEN];
+            if (fam == 2) {
+                snprintf(sa4, sizeof(sa4), "%u.%u.%u.%u",
+                         e->tcpDisconnectArguments.saddr[0], e->tcpDisconnectArguments.saddr[1],
+                         e->tcpDisconnectArguments.saddr[2], e->tcpDisconnectArguments.saddr[3]);
+                snprintf(da4, sizeof(da4), "%u.%u.%u.%u",
+                         e->tcpDisconnectArguments.daddr[0], e->tcpDisconnectArguments.daddr[1],
+                         e->tcpDisconnectArguments.daddr[2], e->tcpDisconnectArguments.daddr[3]);
+            } else {
+                sa4[0] = da4[0] = '\0';
+            }
+            if (fam == 10) {
+                inet_ntop(AF_INET6, &(e->tcpDisconnectArguments.saddr_v6), sip6, INET6_ADDRSTRLEN);
+                inet_ntop(AF_INET6, &(e->tcpDisconnectArguments.daddr_v6), dip6, INET6_ADDRSTRLEN);
+            } else {
+                sip6[0] = dip6[0] = '\0';
+            }
+
+            if (my_args_conf.if_output_to_file)
+            {
+                if (my_args_conf.if_output_as_json)
+                {
+                    /**
+                     * output the record as json
+                     */
+                    fprintf(output_conf, "{"
+                                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"OldState\":%d, "
+                                            "\"NewState\":%d, "
+                                            "\"Family\":%hu, "
+                                            "\"Sport\":%hu, "
+                                            "\"Dport\":%hu, "
+                                            "\"Saddr\":\"%s\", "
+                                            "\"Daddr\":\"%s\", "
+                                            "\"Sin6Addr\":\"%s\", "
+                                            "\"Din6Addr\":\"%s\"} "
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->tcpDisconnectArguments.oldstate,
+                            e->tcpDisconnectArguments.newstate,
+                            fam,
+                            e->tcpDisconnectArguments.sport,
+                            e->tcpDisconnectArguments.dport,
+                            (fam == 2) ? sa4 : "N/A",
+                            (fam == 2) ? da4 : "N/A",
+                            (fam == 10) ? sip6 : "N/A",
+                            (fam == 10) ? dip6 : "N/A");
+                }
+                else
+                {
+                    fprintf(output_conf, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-7hu %-7hu %-7hu %-15s %-15s %-20s %-20s\n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->tcpDisconnectArguments.oldstate,
+                            e->tcpDisconnectArguments.newstate,
+                            fam,
+                            e->tcpDisconnectArguments.sport,
+                            e->tcpDisconnectArguments.dport,
+                            (fam == 2) ? sa4 : "N/A",
+                            (fam == 2) ? da4 : "N/A",
+                            (fam == 10) ? sip6 : "N/A",
+                            (fam == 10) ? dip6 : "N/A");
+                }
+            }
+            /**
+                 * output to console/shell
+                 */
+            else
+            {
+                if (my_args_conf.if_output_as_json)
+                {
+                    printf("{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\", "
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, "
+                           "\"ProcessType\":\"%s\", "
+                           "\"Arguments\":{"
+                           "\"OldState\":%d, "
+                           "\"NewState\":%d, "
+                           "\"Family\":%hu, "
+                           "\"Sport\":%hu, "
+                           "\"Dport\":%hu, "
+                           "\"Saddr\":\"%s\", "
+                           "\"Daddr\":\"%s\", "
+                           "\"Sin6Addr\":\"%s\", "
+                           "\"Din6Addr\":\"%s\"} "
+                           "} \n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->tcpDisconnectArguments.oldstate,
+                           e->tcpDisconnectArguments.newstate,
+                           fam,
+                           e->tcpDisconnectArguments.sport,
+                           e->tcpDisconnectArguments.dport,
+                           (fam == 2) ? sa4 : "N/A",
+                           (fam == 2) ? da4 : "N/A",
+                           (fam == 10) ? sip6 : "N/A",
+                           (fam == 10) ? dip6 : "N/A");
+                }
+                else
+                {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7d %-7hu %-7hu %-7hu %-15s %-15s %-20s %-20s\n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->tcpDisconnectArguments.oldstate,
+                           e->tcpDisconnectArguments.newstate,
+                           fam,
+                           e->tcpDisconnectArguments.sport,
+                           e->tcpDisconnectArguments.dport,
+                           (fam == 2) ? sa4 : "N/A",
+                           (fam == 2) ? da4 : "N/A",
+                           (fam == 10) ? sip6 : "N/A",
+                           (fam == 10) ? dip6 : "N/A");
+                }
+            }
+            break;
+        }
+        case EVENT_NETWORK_TCP_RETRANSMIT: {
+            event_type = (char *) "TCP_Retransmit";
+            struct TcpRetransmitEvent *e = (struct TcpRetransmitEvent *) data;
+
+            /* #6-B: same byte-order note as TCP_Disconnect (host order). */
+            unsigned short fam = e->tcpRetransmitArguments.family;
+            char sa4[20], da4[20], sip6[INET6_ADDRSTRLEN], dip6[INET6_ADDRSTRLEN];
+            if (fam == 2) {
+                snprintf(sa4, sizeof(sa4), "%u.%u.%u.%u",
+                         e->tcpRetransmitArguments.saddr[0], e->tcpRetransmitArguments.saddr[1],
+                         e->tcpRetransmitArguments.saddr[2], e->tcpRetransmitArguments.saddr[3]);
+                snprintf(da4, sizeof(da4), "%u.%u.%u.%u",
+                         e->tcpRetransmitArguments.daddr[0], e->tcpRetransmitArguments.daddr[1],
+                         e->tcpRetransmitArguments.daddr[2], e->tcpRetransmitArguments.daddr[3]);
+            } else {
+                sa4[0] = da4[0] = '\0';
+            }
+            if (fam == 10) {
+                inet_ntop(AF_INET6, &(e->tcpRetransmitArguments.saddr_v6), sip6, INET6_ADDRSTRLEN);
+                inet_ntop(AF_INET6, &(e->tcpRetransmitArguments.daddr_v6), dip6, INET6_ADDRSTRLEN);
+            } else {
+                sip6[0] = dip6[0] = '\0';
+            }
+
+            if (my_args_conf.if_output_to_file)
+            {
+                if (my_args_conf.if_output_as_json)
+                {
+                    /**
+                     * output the record as json
+                     */
+                    fprintf(output_conf, "{"
+                                            "\"Timestamp\":%ld,"
+                                            "\"EventName\":\"%s\", "
+                                            "\"ProcessName\":\"%s\", "
+                                            "\"ProcessID\":%d, "
+                                            "\"ThreadID\":%d, "
+                                            "\"ProcessType\":\"%s\", "
+                                            "\"Arguments\":{"
+                                            "\"State\":%d, "
+                                            "\"Family\":%hu, "
+                                            "\"Sport\":%hu, "
+                                            "\"Dport\":%hu, "
+                                            "\"Saddr\":\"%s\", "
+                                            "\"Daddr\":\"%s\", "
+                                            "\"Sin6Addr\":\"%s\", "
+                                            "\"Din6Addr\":\"%s\"} "
+                                            "} \n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->tcpRetransmitArguments.state,
+                            fam,
+                            e->tcpRetransmitArguments.sport,
+                            e->tcpRetransmitArguments.dport,
+                            (fam == 2) ? sa4 : "N/A",
+                            (fam == 2) ? da4 : "N/A",
+                            (fam == 10) ? sip6 : "N/A",
+                            (fam == 10) ? dip6 : "N/A");
+                }
+                else
+                {
+                    fprintf(output_conf, "%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7hu %-7hu %-7hu %-15s %-15s %-20s %-20s\n",
+                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                            e->tcpRetransmitArguments.state,
+                            fam,
+                            e->tcpRetransmitArguments.sport,
+                            e->tcpRetransmitArguments.dport,
+                            (fam == 2) ? sa4 : "N/A",
+                            (fam == 2) ? da4 : "N/A",
+                            (fam == 10) ? sip6 : "N/A",
+                            (fam == 10) ? dip6 : "N/A");
+                }
+            }
+            /**
+                 * output to console/shell
+                 */
+            else
+            {
+                if (my_args_conf.if_output_as_json)
+                {
+                    printf("{"
+                           "\"Timestamp\":%ld,"
+                           "\"EventName\":\"%s\", "
+                           "\"ProcessName\":\"%s\", "
+                           "\"ProcessID\":%d, "
+                           "\"ThreadID\":%d, "
+                           "\"ProcessType\":\"%s\", "
+                           "\"Arguments\":{"
+                           "\"State\":%d, "
+                           "\"Family\":%hu, "
+                           "\"Sport\":%hu, "
+                           "\"Dport\":%hu, "
+                           "\"Saddr\":\"%s\", "
+                           "\"Daddr\":\"%s\", "
+                           "\"Sin6Addr\":\"%s\", "
+                           "\"Din6Addr\":\"%s\"} "
+                           "} \n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->tcpRetransmitArguments.state,
+                           fam,
+                           e->tcpRetransmitArguments.sport,
+                           e->tcpRetransmitArguments.dport,
+                           (fam == 2) ? sa4 : "N/A",
+                           (fam == 2) ? da4 : "N/A",
+                           (fam == 10) ? sip6 : "N/A",
+                           (fam == 10) ? dip6 : "N/A");
+                }
+                else
+                {
+                    printf("%-20ld %-10s %-32s %-7d %-7d %-10s %-7d %-7hu %-7hu %-7hu %-15s %-15s %-20s %-20s\n",
+                           getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
+                           e->tcpRetransmitArguments.state,
+                           fam,
+                           e->tcpRetransmitArguments.sport,
+                           e->tcpRetransmitArguments.dport,
+                           (fam == 2) ? sa4 : "N/A",
+                           (fam == 2) ? da4 : "N/A",
+                           (fam == 10) ? sip6 : "N/A",
+                           (fam == 10) ? dip6 : "N/A");
+                }
+            }
+            break;
+        }
         case EVENT_NETWORK_SENDTO: {
             event_type = (char *) "DS_SENDTO";
             struct SendEvent *e = (struct SendEvent *) data;

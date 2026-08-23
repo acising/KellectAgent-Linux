@@ -76,6 +76,9 @@ enum EventType {
     EVENT_NETWORK_TCP_IPV6=216,
     EVENT_NETWORK_UDP_SENDMSG=217,
     EVENT_NETWORK_CONNECT_FAILED=218,
+    /// #6-B: TCP lifecycle completeness (disconnect + retransmit)
+    EVENT_NETWORK_TCP_DISCONNECT=219,
+    EVENT_NETWORK_TCP_RETRANSMIT=220,
 
 
     ///zhengyulin 20230718
@@ -397,6 +400,50 @@ struct ConnectFailedEvent
 {
     struct Event event;
     struct ConnectFailedArguments connectFailedArguments;
+};
+
+/* #6-B: TCP disconnect via sock/inet_sock_set_state (newstate==TCP_CLOSE,
+ * SYN_SENT/SYN_RECV transitions excluded -- connect failures are already
+ * reported by Connect_Failed). NOTE byte order: this tracepoint pre-converts
+ * with ntohs, so ports are HOST order and addr bytes are dotted-order --
+ * the OPPOSITE of the skc_* paths above (network order + userspace ntohs). */
+struct TcpDisconnectArguments
+{
+    int oldstate;                      // TCP_* uapi value (1 established, 7 close)
+    int newstate;                      // == TCP_CLOSE
+    unsigned short family;             // sk_family: 2=AF_INET 10=AF_INET6
+    unsigned short sport;              // source port, HOST order (tracepoint pre-ntohs)
+    unsigned short dport;              // dest port, HOST order
+    unsigned char saddr[4];            // IPv4 source, dotted-order bytes (print as %u.%u.%u.%u)
+    unsigned char daddr[4];            // IPv4 dest, dotted-order bytes
+    struct in6_addr saddr_v6;          // IPv6 source (inet_ntop directly)
+    struct in6_addr daddr_v6;          // IPv6 dest
+};
+
+struct TcpDisconnectEvent
+{
+    struct Event event;
+    struct TcpDisconnectArguments tcpDisconnectArguments;
+};
+
+/* #6-B: TCP retransmit via tcp/tcp_retransmit_skb (no filter -- every
+ * retransmission is a signal). Same byte-order note as disconnect. */
+struct TcpRetransmitArguments
+{
+    int state;                         // TCP state at retransmit time (e.g. 2 SYN_SENT, 1 established)
+    unsigned short family;
+    unsigned short sport;              // HOST order (tracepoint pre-ntohs)
+    unsigned short dport;
+    unsigned char saddr[4];
+    unsigned char daddr[4];
+    struct in6_addr saddr_v6;
+    struct in6_addr daddr_v6;
+};
+
+struct TcpRetransmitEvent
+{
+    struct Event event;
+    struct TcpRetransmitArguments tcpRetransmitArguments;
 };
 
 struct SendArguments
