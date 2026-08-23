@@ -65,6 +65,11 @@ int handle_syscalls_openat(struct trace_event_raw_sys_enter *ctx)
     return 0;
 }
 
+/* OPEN_FILE 三重上报收敛（2026-08-18）：保留上方 sys_enter_openat tracepoint
+ * （字段完整 + 稳定 ABI）。下方两探针冗余：do_sys_openat2 与 tracepoint 同调用链
+ * 重复；vfs_open 为上游未完成实验代码（filename 恒空 + flags/dfd 未初始化内存，
+ * 见块内 FAILED TO FETCH 自注）。恢复：删除本 #if 0/#endif 对。 */
+#if 0
 SEC("kprobe/do_sys_openat2")
 int BPF_KPROBE(do_sys_openat2_entry, int dfd, const char *filename, struct open_how *how)
 {
@@ -140,6 +145,7 @@ int BPF_KPROBE(vfs_open_entry, struct file *file, struct path *path)
     bpf_ringbuf_submit(e, 0);
     return 0;
 }
+#endif /* OPEN_FILE 三重上报收敛：冗余探针禁用区结束 */
 
 SEC("tp/syscalls/sys_enter_unlinkat")
 int handle_syscalls_unlinkat(struct trace_event_raw_sys_enter *ctx)
