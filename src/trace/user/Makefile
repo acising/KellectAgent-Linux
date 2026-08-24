@@ -10,13 +10,6 @@ BPFTOOL_SRC := $(abspath $(BASE_SRC)/bpftool/src)
 LIBBPF_OBJ := $(abspath $(OUTPUT)/libbpf.a)
 BPFTOOL_OUTPUT ?= $(abspath $(OUTPUT)/bpftool)
 BPFTOOL ?= $(BPFTOOL_OUTPUT)/bootstrap/bpftool
-LIBBLAZESYM_SRC := $(abspath blazesym/)
-LIBBLAZESYM_OBJ := $(abspath $(OUTPUT)/libblazesym.a)
-LIBBLAZESYM_HEADER := $(abspath $(OUTPUT)/blazesym.h)
-# 添加库路径和链接信息
-LIBBLAZESYM_LIB_DIR := ../../include
-CFLAGS += -I$(LIBBLAZESYM_LIB_DIR)
-LDFLAGS += -L$(LIBBLAZESYM_LIB_DIR) -lblazesym_c
 ARCH := $(shell uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/')
 VMLINUX := $(BASE_SRC)/vmlinux.h
 # Use our own libbpf API headers and Linux UAPI headers distributed with
