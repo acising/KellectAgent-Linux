@@ -11,8 +11,8 @@ test/
 src/vmlinux.h
 
 # 个人本地配置
-.claude/settings.local.json
-
+.claude
+.zcode
 # 信创适配/开发笔记文档（本地参考，不进版本库；README 引用的模块文档在 doc/ 仍跟踪）
 notes/
 

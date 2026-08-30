@@ -635,7 +635,7 @@ int test_image(Args args) {
             break;
         }
         if (err < 0) {
-            printf("Error polling perf buffer: %d\n", err);
+            fprintf(stderr, "Error polling perf buffer: %d\n", err);
             break;
         }
     }

@@ -613,7 +613,8 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                                          "\"FileUser\":%d, "
                                          "\"FileMode\":%d, "
                                          "\"ReadBytes\":%lld, "
-                                         "\"FileName\":\"%s\","
+                                         "\"FileName\":\"%s\""
+
                                          "} "
                                          "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -649,7 +650,8 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                             "\"FileUser\":%d, "
                             "\"FileMode\":%d, "
                             "\"ReadBytes\":%lld, "
-                            "\"FileName\":\"%s\","
+                            "\"FileName\":\"%s\""
+
                             "} "
                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -690,7 +692,8 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                                          "\"FileUser\":%d, "
                                          "\"FileMode\":%d, "
                                          "\"ReadBytes\":%lld, "
-                                         "\"FileName\":\"%s\","
+                                         "\"FileName\":\"%s\""
+
                                          "} "
                                          "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -726,7 +729,8 @@ static int handle_file_event(void *ctx, void *data, size_t data_sz) {
                            "\"FileUser\":%d, "
                            "\"FileMode\":%d, "
                            "\"ReadBytes\":%lld, "
-                           "\"FileName\":\"%s\","
+                           "\"FileName\":\"%s\""
+
                            "} "
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -1985,7 +1989,7 @@ int test_file(Args args) {
         return 1;
     }
 
-    printf("=========================Open=========================");
+    fprintf(stderr, "=========================Open=========================\n");
 
     /* Load & verify BPF programs */
     err = file_bpf__load(skel);
@@ -1994,7 +1998,7 @@ int test_file(Args args) {
         goto cleanup;
     }
 
-    printf("=========================Load=========================");
+    fprintf(stderr, "=========================Load=========================\n");
 
     /* Attach tracepoints */
     err = file_bpf__attach(skel);
@@ -2003,7 +2007,7 @@ int test_file(Args args) {
         goto cleanup;
     }
 
-    printf("=========================Attach=========================");
+    fprintf(stderr, "=========================Attach=========================\n");
 
     /* Set up ring buffer polling */
     rb = ring_buffer__new(bpf_map__fd(skel->maps.rb), handle_file_event, NULL, NULL);
@@ -2013,7 +2017,7 @@ int test_file(Args args) {
         goto cleanup;
     }
 
-    printf("=========================Ring Buffer=========================");
+    fprintf(stderr, "=========================Ring Buffer=========================\n");
 
     /**
      * if the output format is json, do not print the title.
@@ -2038,7 +2042,7 @@ int test_file(Args args) {
             break;
         }
         if (err < 0) {
-            printf("Error polling perf buffer: %d\n", err);
+            fprintf(stderr, "Error polling perf buffer: %d\n", err);
             break;
         }
     }

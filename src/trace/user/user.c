@@ -173,7 +173,8 @@ printf(" %d\n",
                                         "\"ThreadID\":%d, "
                                         "\"ProcessType\":\"%s\", "
                                         "\"Arguments\":{"
-                                        "\"uid\":%d"
+                                        "\"uid\":%d, "
+
                                         "\"count\":%d}"
                                         "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -218,7 +219,8 @@ printf(" %d\n",
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"uid\":%d"
+                           "\"uid\":%d, "
+
                                                                    "\"count\":%d}"
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -269,7 +271,8 @@ printf(" %d\n",
                                         "\"ThreadID\":%d, "
                                         "\"ProcessType\":\"%s\", "
                                         "\"Arguments\":{"
-                                        "\"rgid\":%d "
+                                        "\"rgid\":%d, "
+
                                         "\"egid\":%d} "
                                         "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -290,7 +293,8 @@ printf(" %d\n",
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                           "\"rgid\":%d "
+                           "\"rgid\":%d, "
+
                            "\"egid\":%d}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -316,7 +320,8 @@ printf(" %d\n",
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"rgid\":%d "
+                           "\"rgid\":%d, "
+
                            "\"egid\":%d} "
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -337,7 +342,8 @@ printf(" %d\n",
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                           "\"rgid\":%d "
+                           "\"rgid\":%d, "
+
                            "\"egid\":%d}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -368,8 +374,10 @@ printf(" %d\n",
                                         "\"ThreadID\":%d, "
                                         "\"ProcessType\":\"%s\", "
                                         "\"Arguments\":{"
-                                        "\"rgid\":%d "
-                                        "\"egid\":%d "
+                                        "\"rgid\":%d, "
+
+                                        "\"egid\":%d, "
+
                                         "\"sgid\":%d} "
                                         "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -391,8 +399,10 @@ printf(" %d\n",
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                           "\"rgid\":%d "
-                           "\"egid\":%d "
+                           "\"rgid\":%d, "
+
+                           "\"egid\":%d, "
+
                            "\"sgid\":%d}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -420,8 +430,10 @@ printf(" %d\n",
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"rgid\":%d "
-                           "\"egid\":%d "
+                           "\"rgid\":%d, "
+
+                           "\"egid\":%d, "
+
                            "\"sgid\":%d} "
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -443,8 +455,10 @@ printf(" %d\n",
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                           "\"rgid\":%d "
-                           "\"egid\":%d "
+                           "\"rgid\":%d, "
+
+                           "\"egid\":%d, "
+
                            "\"sgid\":%d}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -477,8 +491,10 @@ printf(" %d\n",
                                         "\"ThreadID\":%d, "
                                         "\"ProcessType\":\"%s\", "
                                         "\"Arguments\":{"
-                                        "\"ruid\":%d "
-                                        "\"euid\":%d "
+                                        "\"ruid\":%d, "
+
+                                        "\"euid\":%d, "
+
                                         "\"suid\":%d} "
                                         "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -500,8 +516,10 @@ printf(" %d\n",
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                           "\"ruid\":%d "
-                           "\"euid\":%d "
+                           "\"ruid\":%d, "
+
+                           "\"euid\":%d, "
+
                            "\"suid\":%d} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -529,8 +547,10 @@ printf(" %d\n",
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"ruid\":%d "
-                           "\"euid\":%d "
+                           "\"ruid\":%d, "
+
+                           "\"euid\":%d, "
+
                            "\"suid\":%d} "
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -552,8 +572,10 @@ printf(" %d\n",
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                           "\"ruid\":%d "
-                           "\"euid\":%d "
+                           "\"ruid\":%d, "
+
+                           "\"euid\":%d, "
+
                            "\"suid\":%d}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -586,7 +608,8 @@ printf(" %d\n",
                                         "\"ThreadID\":%d, "
                                         "\"ProcessType\":\"%s\", "
                                         "\"Arguments\":{"
-                                        "\"ruid\":%d "
+                                        "\"ruid\":%d, "
+
                                         "\"euid\":%d} "
                                         "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -607,7 +630,8 @@ printf(" %d\n",
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                           "\"ruid\":%d "
+                           "\"ruid\":%d, "
+
                            "\"euid\":%d}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -633,7 +657,8 @@ printf(" %d\n",
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"ruid\":%d "
+                           "\"ruid\":%d, "
+
                            "\"euid\":%d} "
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -654,7 +679,8 @@ printf(" %d\n",
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                           "\"ruid\":%d "
+                           "\"ruid\":%d, "
+
                            "\"euid\":%d}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -768,11 +794,11 @@ printf(" %d\n",
 
 //communicate with main.c
 int test_user(Args args) {
-printf("Error polling perf buffer: %d\n", args.if_output_as_origin);
-printf("Error polling perf buffer: %d\n", args.if_output_as_json);
+fprintf(stderr, "Error polling perf buffer: %d\n", args.if_output_as_origin);
+fprintf(stderr, "Error polling perf buffer: %d\n", args.if_output_as_json);
     my_args_user = args;
     std::cerr << "=============test=============" << std::endl << std::endl;
-    printf("=========================test=========================\n");
+    fprintf(stderr, "=========================test=========================\n");
     if (my_args_user.if_output_to_file) {
         output_user = create_output_sink(&my_args_user);
         if (output_user == NULL) {
@@ -794,7 +820,7 @@ printf("Error polling perf buffer: %d\n", args.if_output_as_json);
         return 1;
     }
 
-    printf("=========================Open=========================\n");
+    fprintf(stderr, "=========================Open=========================\n");
 
     /* Load & verify BPF programs */
     err = user_bpf__load(skel);
@@ -803,7 +829,7 @@ printf("Error polling perf buffer: %d\n", args.if_output_as_json);
         goto cleanup;
     }
 
-    printf("=========================Load=========================\n");
+    fprintf(stderr, "=========================Load=========================\n");
 
     /* Attach tracepoints */
     err = user_bpf__attach(skel);
@@ -812,7 +838,7 @@ printf("Error polling perf buffer: %d\n", args.if_output_as_json);
         goto cleanup;
     }
 
-    printf("=========================Attach=========================\n");
+    fprintf(stderr, "=========================Attach=========================\n");
 
     /* Set up ring buffer polling */
     rb = ring_buffer__new(bpf_map__fd(skel->maps.rb), handle_user_event, NULL, NULL);//handle_file_event处理数据
@@ -822,7 +848,7 @@ printf("Error polling perf buffer: %d\n", args.if_output_as_json);
         goto cleanup;
     }
 
-    printf("=========================Ring Buffer=========================\n");
+    fprintf(stderr, "=========================Ring Buffer=========================\n");
 
     /**
      * if the output format is json, do not print the title.
@@ -847,7 +873,7 @@ printf("Error polling perf buffer: %d\n", args.if_output_as_json);
             break;
         }
         if (err < 0) {
-            printf("Error polling perf buffer: %d\n", err);
+            fprintf(stderr, "Error polling perf buffer: %d\n", err);
             break;
         }
     }

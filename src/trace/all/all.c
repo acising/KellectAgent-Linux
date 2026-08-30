@@ -984,7 +984,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                          "\"FileUser\":%d, "
                                          "\"FileMode\":%d, "
                                          "\"ReadBytes\":%lld, "
-                                         "\"FileName\":\"%s\","
+                                         "\"FileName\":\"%s\""
+
                                          "} "
                                          "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -1047,7 +1048,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             "\"FileUser\":%d, "
                             "\"FileMode\":%d, "
                             "\"ReadBytes\":%lld, "
-                            "\"FileName\":\"%s\","
+                            "\"FileName\":\"%s\""
+
                             "} "
                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -1115,7 +1117,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                          "\"FileUser\":%d, "
                                          "\"FileMode\":%d, "
                                          "\"ReadBytes\":%lld, "
-                                         "\"FileName\":\"%s\","
+                                         "\"FileName\":\"%s\""
+
                                          "} "
                                          "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -1178,7 +1181,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"FileUser\":%d, "
                            "\"FileMode\":%d, "
                            "\"ReadBytes\":%lld, "
-                           "\"FileName\":\"%s\","
+                           "\"FileName\":\"%s\""
+
                            "} "
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -1274,7 +1278,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s} "
+                                            "\"Address\":\"%s\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->connectArguments.fd,
@@ -1300,7 +1304,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s}} "
+                                            "\"Address\":\"%s\"}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->connectArguments.fd,
@@ -1339,7 +1343,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Addrlen\":%d,"
                            "\"SaFamily\":%d,"
                            "\"Port\":%d,"
-                           "\"Address\":%s} "
+                           "\"Address\":\"%s\"} "
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->connectArguments.fd,
@@ -1365,7 +1369,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s}} "
+                                            "\"Address\":\"%s\"}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->connectArguments.fd,
@@ -1532,7 +1536,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"SinFamily\":%hu,"
                                             "\"SinPort\":%hu,"
                                             "\"SAddr\":%u,"
-                                            "\"IPv4Addr\":%u.%u.%u.%u} "
+                                            "\"IPv4Addr\":\"%u.%u.%u.%u\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->tcpIpv4ConnectArguments.addr_len,
@@ -1571,7 +1575,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"SinFamily\":%hu,"
                            "\"SinPort\":%hu,"
                            "\"SAddr\":%u,"
-                           "\"IPv4Addr\":%u.%u.%u.%u} "
+                           "\"IPv4Addr\":\"%u.%u.%u.%u\"} "
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->tcpIpv4ConnectArguments.addr_len,
@@ -1616,7 +1620,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"AddrLen\":%d, "
                                             "\"Sin6Family\":%hu,"
                                             "\"Sin6Port\":%d,"
-                                            "\"Sin6Addr\":%s} "
+                                            "\"Sin6Addr\":\"%s\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->tcpIpv6ConnectArguments.addr_len,
@@ -1652,7 +1656,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"AddrLen\":%d, "
                            "\"Sin6Family\":%hu,"
                            "\"Sin6Port\":%d,"
-                           "\"Sin6Addr\":%s} "
+                           "\"Sin6Addr\":\"%s\"} "
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->tcpIpv6ConnectArguments.addr_len,
@@ -1700,7 +1704,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"SaFamily\":%hu,"
                                             "\"SAddr\":%u,"
                                             "\"Port\":%d,"
-                                            "\"IPv4Addr\":%u.%u.%u.%u} "
+                                            "\"IPv4Addr\":\"%u.%u.%u.%u\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->udpSendMsgArguments.len,
@@ -1739,7 +1743,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"SaFamily\":%hu,"
                            "\"SAddr\":%u,"
                            "\"Port\":%d,"
-                           "\"IPv4Addr\":%u.%u.%u.%u} "
+                           "\"IPv4Addr\":\"%u.%u.%u.%u\"} "
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->udpSendMsgArguments.len,
@@ -1797,7 +1801,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"SaFamily\":%hu, "
                                             "\"SPort\":%d, "
                                             "\"SAddr\":%u, "
-                                            "\"IPv4Addr\":%u.%u.%u.%u, "
+                                            "\"IPv4Addr\":\"%u.%u.%u.%u\", "
                                             "\"Sin6Addr\":\"%s\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -1839,7 +1843,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"SaFamily\":%hu, "
                            "\"SPort\":%d, "
                            "\"SAddr\":%u, "
-                           "\"IPv4Addr\":%u.%u.%u.%u, "
+                           "\"IPv4Addr\":\"%u.%u.%u.%u\", "
                            "\"Sin6Addr\":\"%s\"} "
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -2164,7 +2168,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s} "
+                                            "\"Address\":\"%s\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->sendArguments.fd,
@@ -2194,7 +2198,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s}} "
+                                            "\"Address\":\"%s\"}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->sendArguments.fd,
@@ -2239,7 +2243,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Addrlen\":%d,"
                            "\"SaFamily\":%d,"
                            "\"Port\":%d,"
-                           "\"Address\":%s} "
+                           "\"Address\":\"%s\"} "
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->sendArguments.fd,
@@ -2269,7 +2273,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s}} "
+                                            "\"Address\":\"%s\"}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->sendArguments.fd,
@@ -2344,7 +2348,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s} "
+                                            "\"Address\":\"%s\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->recvArguments.fd,
@@ -2374,7 +2378,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s}} "
+                                            "\"Address\":\"%s\"}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->recvArguments.fd,
@@ -2419,7 +2423,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Addrlen\":%d,"
                            "\"SaFamily\":%d,"
                            "\"Port\":%d,"
-                           "\"Address\":%s} "
+                           "\"Address\":\"%s\"} "
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->recvArguments.fd,
@@ -2449,7 +2453,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s}} "
+                                            "\"Address\":\"%s\"}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->recvArguments.fd,
@@ -2524,7 +2528,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s} "
+                                            "\"Address\":\"%s\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->sendRecvMsgArguments.fd,
@@ -2554,7 +2558,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s}} "
+                                            "\"Address\":\"%s\"}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->sendRecvMsgArguments.fd,
@@ -2599,7 +2603,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Addrlen\":%d,"
                            "\"SaFamily\":%d,"
                            "\"Port\":%d,"
-                           "\"Address\":%s} "
+                           "\"Address\":\"%s\"} "
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->sendRecvMsgArguments.fd,
@@ -2629,7 +2633,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s}} "
+                                            "\"Address\":\"%s\"}} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->sendRecvMsgArguments.fd,
@@ -2704,7 +2708,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s} "
+                                            "\"Address\":\"%s\"} "
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->sendRecvMsgArguments.fd,
@@ -2734,7 +2738,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s} "
+                                            "\"Address\":\"%s\"} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->sendRecvMsgArguments.fd,
@@ -2779,7 +2783,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Addrlen\":%d,"
                            "\"SaFamily\":%d,"
                            "\"Port\":%d,"
-                           "\"Address\":%s} "
+                           "\"Address\":\"%s\"} "
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->sendRecvMsgArguments.fd,
@@ -2809,7 +2813,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Addrlen\":%d,"
                                             "\"SaFamily\":%d,"
                                             "\"Port\":%d,"
-                                            "\"Address\":%s} "
+                                            "\"Address\":\"%s\"} "
                            "}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->sendRecvMsgArguments.fd,
@@ -3089,8 +3093,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"CloneFlags\":%ld, "
                                             "\"NewSP\":%ld,"
                                             "\"TLS\":%ld,"
-                                            "\"ParentTidPtr\":%p,"
-                                            "\"ChildTidPtr\":%p"
+                                            "\"ParentTidPtr\":\"%p\","
+                                            "\"ChildTidPtr\":\"%p\""
                                             "}} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->cloneArguments.clone_flags,
@@ -3116,8 +3120,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"CloneFlags\":%ld, "
                                             "\"NewSP\":%ld,"
                                             "\"TLS\":%ld,"
-                                            "\"ParentTidPtr\":%p,"
-                                            "\"ChildTidPtr\":%p"
+                                            "\"ParentTidPtr\":\"%p\","
+                                            "\"ChildTidPtr\":\"%p\""
                            "}}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->cloneArguments.clone_flags,
@@ -3153,8 +3157,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"CloneFlags\":%ld, "
                            "\"NewSP\":%ld,"
                            "\"TLS\":%ld,"
-                           "\"ParentTidPtr\":%p,"
-                           "\"ChildTidPtr\":%p"
+                           "\"ParentTidPtr\":\"%p\","
+                           "\"ChildTidPtr\":\"%p\""
                            "}} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->cloneArguments.clone_flags,
@@ -3179,8 +3183,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"CloneFlags\":%ld, "
                                             "\"NewSP\":%ld,"
                                             "\"TLS\":%ld,"
-                                            "\"ParentTidPtr\":%p,"
-                                            "\"ChildTidPtr\":%p"
+                                            "\"ParentTidPtr\":\"%p\","
+                                            "\"ChildTidPtr\":\"%p\""
                            "}}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->cloneArguments.clone_flags,
@@ -3221,7 +3225,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Arguments\":{"
                                             "\"Exit_code\":%d, "
                                             "\"PID\":%d, "
-                                            "\"ExitPName\":%s,"
+                                            "\"ExitPName\":\"%s\","
                                             "\"Priority\":%d}"
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -3245,7 +3249,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"Exit_code\":%d, "
                                             "\"PID\":%d, "
-                                            "\"ExitPName\":%s,"
+                                            "\"ExitPName\":\"%s\","
                                             "\"Priority\":%d}"
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -3278,7 +3282,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                            "\"Exit_code\":%d, "
                            "\"PID\":%d, "
-                           "\"ExitPName\":%s,"
+                           "\"ExitPName\":\"%s\","
                            "\"Priority\":%d}"
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -3302,7 +3306,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"Exit_code\":%d, "
                                             "\"PID\":%d, "
-                                            "\"ExitPName\":%s,"
+                                            "\"ExitPName\":\"%s\","
                                             "\"Priority\":%d}"
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -5599,7 +5603,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                          "\"ThreadID\":%d, "
                                          "\"ProcessType\":\"%s\", "
                                          "\"Arguments\":{"
-                                         "\"rgid\":%d "
+                                         "\"rgid\":%d,"
                                          "\"egid\":%d} "
                                          "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -5620,7 +5624,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                         "\"rgid\":%d "
+                                         "\"rgid\":%d,"
                                          "\"egid\":%d} "
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -5646,7 +5650,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"rgid\":%d "
+                           "\"rgid\":%d,"
                            "\"egid\":%d} "
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -5667,7 +5671,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                         "\"rgid\":%d "
+                                         "\"rgid\":%d,"
                                          "\"egid\":%d} "
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -5698,8 +5702,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                          "\"ThreadID\":%d, "
                                          "\"ProcessType\":\"%s\", "
                                          "\"Arguments\":{"
-                                         "\"rgid\":%d "
-                                         "\"egid\":%d "
+                                         "\"rgid\":%d,"
+                                         "\"egid\":%d,"
                                          "\"sgid\":%d} "
                                          "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -5721,8 +5725,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                         "\"rgid\":%d "
-                                         "\"egid\":%d "
+                                         "\"rgid\":%d,"
+                                         "\"egid\":%d,"
                                          "\"sgid\":%d} "
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -5750,8 +5754,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"rgid\":%d "
-                           "\"egid\":%d "
+                           "\"rgid\":%d,"
+                           "\"egid\":%d,"
                            "\"sgid\":%d} "
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -5773,8 +5777,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                         "\"rgid\":%d "
-                                         "\"egid\":%d "
+                                         "\"rgid\":%d,"
+                                         "\"egid\":%d,"
                                          "\"sgid\":%d} "
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -5807,8 +5811,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                          "\"ThreadID\":%d, "
                                          "\"ProcessType\":\"%s\", "
                                          "\"Arguments\":{"
-                                         "\"ruid\":%d "
-                                         "\"euid\":%d "
+                                         "\"ruid\":%d,"
+                                         "\"euid\":%d,"
                                          "\"suid\":%d} "
                                          "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -5830,8 +5834,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                         "\"ruid\":%d "
-                                         "\"euid\":%d "
+                                         "\"ruid\":%d,"
+                                         "\"euid\":%d,"
                                          "\"suid\":%d} "
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -5859,8 +5863,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"ruid\":%d "
-                           "\"euid\":%d "
+                           "\"ruid\":%d,"
+                           "\"euid\":%d,"
                            "\"suid\":%d} "
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -5882,8 +5886,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                         "\"ruid\":%d "
-                                         "\"euid\":%d "
+                                         "\"ruid\":%d,"
+                                         "\"euid\":%d,"
                                          "\"suid\":%d} "
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -5916,7 +5920,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                          "\"ThreadID\":%d, "
                                          "\"ProcessType\":\"%s\", "
                                          "\"Arguments\":{"
-                                         "\"ruid\":%d "
+                                         "\"ruid\":%d,"
                                          "\"euid\":%d} "
                                          "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -5937,7 +5941,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                         "\"ruid\":%d "
+                                         "\"ruid\":%d,"
                                          "\"euid\":%d} "
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -5963,7 +5967,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"ruid\":%d "
+                           "\"ruid\":%d,"
                            "\"euid\":%d} "
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
@@ -5984,7 +5988,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                         "\"ruid\":%d "
+                                         "\"ruid\":%d,"
                                          "\"euid\":%d} "
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
@@ -6018,7 +6022,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"ProcessType\":\"%s\", "
                                             "\"Arguments\":{"
                                             "\"F1\":%d, "
-                                            "\"F2\":%d, "
+                                            "\"F2\":%d}"
+
                                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->pipeArguments.f1,
@@ -6038,7 +6043,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Object\":{"
                            "\"Arguments\":{"
                                             "\"F1\":%d, "
-                                            "\"F2\":%d, "
+                                            "\"F2\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->pipeArguments.f1,
@@ -6066,7 +6072,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
                             "\"F1\":%d, "
-                            "\"F2\":%d, "
+                            "\"F2\":%d}"
+
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
@@ -6087,7 +6094,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Object\":{"
                            "\"Arguments\":{"
                                             "\"F1\":%d, "
-                                            "\"F2\":%d, "
+                                            "\"F2\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->pipeArguments.f1,
@@ -6121,7 +6129,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Arguments\":{"
                                            "\"Flags\":%d, "
                                             "\"F1\":%d, "
-                                            "\"F2\":%d, "
+                                            "\"F2\":%d}"
+
                                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->pipe2Arguments.flags,e->pipe2Arguments.f1,
@@ -6142,7 +6151,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                            "\"Flags\":%d, "
                                             "\"F1\":%d, "
-                                            "\"F2\":%d, "
+                                            "\"F2\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->pipe2Arguments.flags,e->pipe2Arguments.f1,
@@ -6171,7 +6181,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                             "\"Flags\":%d, "
                              "\"F1\":%d, "
-                            "\"F2\":%d, "
+                            "\"F2\":%d}"
+
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->pipe2Arguments.flags,e->pipe2Arguments.f1,
@@ -6192,7 +6203,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                            "\"Flags\":%d, "
                                             "\"F1\":%d, "
-                                            "\"F2\":%d, "
+                                            "\"F2\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->pipe2Arguments.flags,e->pipe2Arguments.f1,
@@ -6225,7 +6237,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"ProcessType\":\"%s\", "
                                             "\"Arguments\":{"
                                            "\"pid\":%d, "
-                                           "\"sig\":%d, "
+                                           "\"sig\":%d}"
+
                                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->killArguments.pid,
@@ -6245,7 +6258,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Object\":{"
                            "\"Arguments\":{"
                                            "\"pid\":%d, "
-                                           "\"sig\":%d, "
+                                           "\"sig\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->killArguments.pid,
@@ -6273,7 +6287,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
                             "\"pid\":%d, "
-                            "\"sig\":%d, "
+                            "\"sig\":%d}"
+
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                              e->killArguments.pid,
@@ -6293,7 +6308,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Object\":{"
                            "\"Arguments\":{"
                                            "\"pid\":%d, "
-                                           "\"sig\":%d, "
+                                           "\"sig\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->killArguments.pid,
@@ -6325,7 +6341,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"ThreadID\":%d, "
                                             "\"ProcessType\":\"%s\", "
                                             "\"Arguments\":{"
-                                            "\"size\":%d,"
+                                            "\"size\":%d"
+
                                             "}} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->clone3Arguments.size
@@ -6344,7 +6361,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                            "\"size\":%d,"
+                                            "\"size\":%d"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->clone3Arguments.size
@@ -6370,7 +6388,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"size\":%d,"
+                           "\"size\":%d"
+
                            "}} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->clone3Arguments.size
@@ -6389,7 +6408,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                            "\"size\":%d,"
+                                            "\"size\":%d"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->clone3Arguments.size
@@ -6421,8 +6441,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"ThreadID\":%d, "
                                             "\"ProcessType\":\"%s\", "
                                             "\"Arguments\":{"
-                                            "\"Filename\":\"%s\","
-                                            "}\n",
+                                            "\"Filename\":\"%s\"}"
+                                            "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->execveArguments.filename);
                 } 
@@ -6439,7 +6459,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                            "\"Filename\":\"%s\","
+                                            "\"Filename\":\"%s\""
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->execveArguments.filename);
@@ -6464,8 +6485,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"Filename\":\"%s\","
-                           "}\n",
+                           "\"Filename\":\"%s\"}"
+                           "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
                            e->execveArguments.filename);
@@ -6483,7 +6504,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                            "\"Filename\":\"%s\","
+                                            "\"Filename\":\"%s\""
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->execveArguments.filename);
@@ -6515,7 +6537,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Arguments\":{"
                                             "\"FD\":%d, "
                                             "\"Filename\":\"%s\","
-                                            "\"flags\":%d, "
+                                            "\"flags\":%d "
+
                                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->execveatArguments.fd,
@@ -6537,7 +6560,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"FD\":%d, "
                                             "\"Filename\":\"%s\","
-                                            "\"flags\":%d, "
+                                            "\"flags\":%d "
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->execveatArguments.fd,
@@ -6568,7 +6592,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                            "\"FD\":%d, "
                            "\"Filename\":\"%s\","
-                           "\"flags\":%d, "
+                           "\"flags\":%d "
+
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
@@ -6591,7 +6616,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"FD\":%d, "
                                             "\"Filename\":\"%s\","
-                                            "\"flags\":%d, "
+                                            "\"flags\":%d "
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->execveatArguments.fd,
@@ -6625,7 +6651,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"ThreadID\":%d, "
                                             "\"ProcessType\":\"%s\", "
                                             "\"Arguments\":{"
-                                            "\"Code\":%d, "
+                                            "\"Code\":%d}"
+
                                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->exitgroupArguments.exit_code);
@@ -6643,7 +6670,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                            "\"Code\":%d, "
+                                            "\"Code\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->exitgroupArguments.exit_code);
@@ -6668,7 +6696,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"ThreadID\":%d, "
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
-                           "\"Code\":%d, "
+                           "\"Code\":%d}"
+
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
@@ -6687,7 +6716,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"EventName\":\"%s\"}"
                            "\"Object\":{"
                            "\"Arguments\":{"
-                                            "\"Code\":%d, "
+                                            "\"Code\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->exitgroupArguments.exit_code);
@@ -6720,7 +6750,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Request\":%ld, "
                                             "\"Pid\":%ld, "
                                             "\"Addr\":%ld, "
-                                            "\"Data\":%ld, "
+                                            "\"Data\":%ld "
+
                                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->ptraceArguments.request,
@@ -6744,7 +6775,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Request\":%ld, "
                                             "\"Pid\":%ld, "
                                             "\"Addr\":%ld, "
-                                            "\"Data\":%ld, "
+                                            "\"Data\":%ld "
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                            e->ptraceArguments.request,
@@ -6778,7 +6810,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                             "\"Request\":%ld, "
                             "\"Pid\":%ld, "
                             "\"Addr\":%ld, "
-                            "\"Data\":%ld, "
+                            "\"Data\":%ld "
+
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
@@ -6803,7 +6836,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Request\":%ld, "
                                             "\"Pid\":%ld, "
                                             "\"Addr\":%ld, "
-                                            "\"Data\":%ld, "
+                                            "\"Data\":%ld "
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                            e->ptraceArguments.request,
@@ -6841,7 +6875,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Arguments\":{"
                                              "\"tgid\":%d, "
                                            "\"pid\":%d, "
-                                           "\"sig\":%d, "
+                                           "\"sig\":%d}"
+
                                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->tgkillArguments.tgid,
@@ -6863,7 +6898,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                              "\"tgid\":%d, "
                                            "\"pid\":%d, "
-                                           "\"sig\":%d, "
+                                           "\"sig\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->tgkillArguments.tgid,
@@ -6894,7 +6930,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                             "\"tgid\":%d, "
                             "\"pid\":%d, "
-                            "\"sig\":%d, "
+                            "\"sig\":%d}"
+
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->tgkillArguments.tgid,
@@ -6916,7 +6953,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                              "\"tgid\":%d, "
                                            "\"pid\":%d, "
-                                           "\"sig\":%d, "
+                                           "\"sig\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->tgkillArguments.tgid,
@@ -6951,7 +6989,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"ProcessType\":\"%s\", "
                                             "\"Arguments\":{"
                                            "\"pid\":%d, "
-                                           "\"sig\":%d, "
+                                           "\"sig\":%d}"
+
                                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->tkillArguments.pid,
@@ -6971,7 +7010,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Object\":{"
                            "\"Arguments\":{"
                                            "\"pid\":%d, "
-                                           "\"sig\":%d, "
+                                           "\"sig\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->tkillArguments.pid,
@@ -6999,7 +7039,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"ProcessType\":\"%s\", "
                            "\"Arguments\":{"
                             "\"pid\":%d, "
-                            "\"sig\":%d, "
+                            "\"sig\":%d}"
+
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->tkillArguments.pid,
@@ -7019,7 +7060,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Object\":{"
                            "\"Arguments\":{"
                                            "\"pid\":%d, "
-                                           "\"sig\":%d, "
+                                           "\"sig\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->tkillArguments.pid,
@@ -7138,7 +7180,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Prot\":%ld, "
                                             "\"Flags\":%ld, "
                                             "\"Fd\":%ld, "
-                                            "\"Off\":%ld, "
+                                            "\"Off\":%ld}"
+
                                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->mmapArguments.addr,
@@ -7166,7 +7209,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Prot\":%ld, "
                                             "\"Flags\":%ld, "
                                             "\"Fd\":%ld, "
-                                            "\"Off\":%ld, "
+                                            "\"Off\":%ld}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                            e->mmapArguments.addr,
@@ -7206,7 +7250,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                              "\"Prot\":%ld, "
                             "\"Flags\":%ld, "
                             "\"Fd\":%ld, "
-                             "\"Off\":%ld, "
+                             "\"Off\":%ld}"
+
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
@@ -7235,7 +7280,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Prot\":%ld, "
                                             "\"Flags\":%ld, "
                                             "\"Fd\":%ld, "
-                                            "\"Off\":%ld, "
+                                            "\"Off\":%ld}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                            e->mmapArguments.addr,
@@ -7277,7 +7323,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Arguments\":{"
                                             "\"Addr\":%ld, "
                                             "\"Len\":%zu, "
-                                            "\"Prot\":%ld, "
+                                            "\"Prot\":%ld}"
+
                                             "}\n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->mprotectArguments.start,
@@ -7299,7 +7346,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"Addr\":%ld, "
                                             "\"Len\":%zu, "
-                                            "\"Prot\":%ld, "
+                                            "\"Prot\":%ld}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                            e->mprotectArguments.start,
@@ -7330,7 +7378,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                             "\"Addr\":%ld, "
                             "\"Len\":%zu, "
-                             "\"Prot\":%ld, "
+                             "\"Prot\":%ld}"
+
                            "}\n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid,
                            e->event.ppid, process_type,
@@ -7353,7 +7402,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"Addr\":%ld, "
                                             "\"Len\":%zu, "
-                                            "\"Prot\":%ld, "
+                                            "\"Prot\":%ld}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                            e->mprotectArguments.start,
@@ -7391,7 +7441,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                         "\"Arguments\":{"
                                         "\"fd\":%d, "
                                         "\"Addrlen\":%d,"
-                                        "\"SaFamily\":%d,"
+                                        "\"SaFamily\":%d}"
+
                                         "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->acceptArguments.fd,
@@ -7413,7 +7464,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                         "\"fd\":%d, "
                                         "\"Addrlen\":%d,"
-                                        "\"SaFamily\":%d,"
+                                        "\"SaFamily\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->acceptArguments.fd,
@@ -7446,7 +7498,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                            "\"fd\":%d, "
                            "\"Addrlen\":%d,"
-                           "\"SaFamily\":%d,"
+                           "\"SaFamily\":%d}"
+
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->acceptArguments.fd,
@@ -7468,7 +7521,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                         "\"fd\":%d, "
                                         "\"Addrlen\":%d,"
-                                        "\"SaFamily\":%d,"
+                                        "\"SaFamily\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->acceptArguments.fd,
@@ -7507,7 +7561,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                         "\"fd\":%d, "
                                         "\"Addrlen\":%d,"
                                         "\"SaFamily\":%d,"
-                                        "\"Flags\":%d,"
+                                        "\"Flags\":%d"
+
                                         "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->accept4Arguments.fd,
@@ -7531,7 +7586,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                         "\"fd\":%d, "
                                         "\"Addrlen\":%d,"
                                         "\"SaFamily\":%d,"
-                                        "\"Flags\":%d,"
+                                        "\"Flags\":%d"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->accept4Arguments.fd,
@@ -7567,7 +7623,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"fd\":%d, "
                            "\"Addrlen\":%d,"
                            "\"SaFamily\":%d,"
-                            "\"Flags\":%d,"
+                            "\"Flags\":%d"
+
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->accept4Arguments.fd,
@@ -7591,7 +7648,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                         "\"fd\":%d, "
                                         "\"Addrlen\":%d,"
                                         "\"SaFamily\":%d,"
-                                        "\"Flags\":%d,"
+                                        "\"Flags\":%d"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->accept4Arguments.fd,
@@ -7631,7 +7689,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Addrlen\":%d,"
-                                            "\"SaFamily\":%d,"
+                                            "\"SaFamily\":%d}"
+
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->bindArguments.fd,
@@ -7653,7 +7712,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Addrlen\":%d,"
-                                            "\"SaFamily\":%d,"
+                                            "\"SaFamily\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->bindArguments.fd,
@@ -7686,7 +7746,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                            "\"fd\":%d, "
                            "\"Addrlen\":%d,"
-                           "\"SaFamily\":%d,"
+                           "\"SaFamily\":%d}"
+
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->bindArguments.fd,
@@ -7708,7 +7769,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Addrlen\":%d,"
-                                            "\"SaFamily\":%d,"
+                                            "\"SaFamily\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->bindArguments.fd,
@@ -7746,7 +7808,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Addr_len\":%d,"
-                                            "\"SaFamily\":%d,"
+                                            "\"SaFamily\":%d}"
+
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->getpeernameArguments.fd,
@@ -7768,7 +7831,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Addr_len\":%d,"
-                                            "\"SaFamily\":%d,"
+                                            "\"SaFamily\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->getpeernameArguments.fd,
@@ -7801,7 +7865,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                            "\"fd\":%d, "
                            "\"Addr_len\":%d,"
-                           "\"SaFamily\":%d,"
+                           "\"SaFamily\":%d}"
+
                            "} \n",
                            getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                            e->getpeernameArguments.fd,
@@ -7823,7 +7888,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Addr_len\":%d,"
-                                            "\"SaFamily\":%d,"
+                                            "\"SaFamily\":%d}"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->getpeernameArguments.fd,
@@ -7861,7 +7927,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Flags\":%d, "
-                                            "\"Addrlen\":%d,"
+                                            "\"Addrlen\":%d"
+
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->recvmmsgArguments.fd,
@@ -7883,7 +7950,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Flags\":%d, "
-                                            "\"Addrlen\":%d,"
+                                            "\"Addrlen\":%d"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->recvmmsgArguments.fd,
@@ -7917,7 +7985,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Flags\":%d, "
-                                            "\"Addrlen\":%d,"
+                                            "\"Addrlen\":%d"
+
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->recvmmsgArguments.fd,
@@ -7939,7 +8008,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Flags\":%d, "
-                                            "\"Addrlen\":%d,"
+                                            "\"Addrlen\":%d"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->recvmmsgArguments.fd,
@@ -7978,7 +8048,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Flags\":%d, "
-                                            "\"Addrlen\":%d,"
+                                            "\"Addrlen\":%d"
+
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->sendmmsgArguments.fd,
@@ -8000,7 +8071,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Flags\":%d, "
-                                            "\"Addrlen\":%d,"
+                                            "\"Addrlen\":%d"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->sendmmsgArguments.fd,
@@ -8034,7 +8106,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Flags\":%d, "
-                                            "\"Addrlen\":%d,"
+                                            "\"Addrlen\":%d"
+
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->sendmmsgArguments.fd,
@@ -8056,7 +8129,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                            "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Flags\":%d, "
-                                            "\"Addrlen\":%d,"
+                                            "\"Addrlen\":%d"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->sendmmsgArguments.fd,
@@ -8098,7 +8172,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"type\":%d,"
                                             "\"protocol\":%d,"
                                              "\"Sv1\":%d,"
-                                              "\"Sv2\":%d,"
+                                              "\"Sv2\":%d"
+
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->socketpairArguments.family,
@@ -8125,7 +8200,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"type\":%d,"
                                             "\"protocol\":%d,"
                                              "\"Sv1\":%d,"
-                                              "\"Sv2\":%d,"
+                                              "\"Sv2\":%d"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->socketpairArguments.family,
@@ -8165,7 +8241,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"type\":%d,"
                                             "\"protocol\":%d,"
                                             "\"Sv1\":%d,"
-                                              "\"Sv2\":%d,"
+                                              "\"Sv2\":%d"
+
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
                             e->socketpairArguments.family,
@@ -8192,7 +8269,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
                                             "\"type\":%d,"
                                             "\"protocol\":%d,"
                                              "\"Sv1\":%d,"
-                                              "\"Sv2\":%d,"
+                                              "\"Sv2\":%d"
+
                            "}}\n",
                            e->event.comm,e->event.pid,e->event.ppid,process_type,getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type,  
                             e->socketpairArguments.family,
@@ -8291,7 +8369,7 @@ int test_all(Args args)
             break;
         }
         if (err < 0) {
-            printf("Error polling perf buffer: %d\n", err);
+            fprintf(stderr, "Error polling perf buffer: %d\n", err);
             break;
         }
     }
