@@ -4,11 +4,8 @@
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
 #include "../../include/user.h"
-#define BPF_MAX_STACK_DEPTH 128
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
 
-static __always_inline __u16 my_ntohs(__u16 netshort) {
-return ((netshort>>8)&0xff) | ((netshort<<8)&0xff00);
 }
 
 

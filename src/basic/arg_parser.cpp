@@ -118,9 +118,8 @@ Args parse_args(int argc, char* argv[])
                 }else if(strcmp(optarg, "json") == 0){
                     args.if_output_as_json = true;
                 }else if(strcmp(optarg,"origin") == 0){
-		    args.if_output_as_origin = true;
-		    std::cerr<<args.if_output_as_origin;
-		}
+                    args.if_output_as_origin = true;
+                }
                 break;
             case 'e':
                 if (strcmp(optarg, "all") != 0

@@ -8340,8 +8340,7 @@ const char *default_attach_points[]={{"tp/syscalls/sys_enter_accept"},{"tp/sysca
         goto cleanup;
     }
 const char *attach_points[80];
- fprintf(stderr, "Error polling perf buffer: %d\n", my_args_conf.if_output_as_custom);
-if(my_args_conf.if_output_as_custom==1){
+ if(my_args_conf.if_output_as_custom==1){
 const char* syscalls[] = {
     "tp/syscalls/sys_enter_execve","tp/syscalls/sys_enter_setgid","tp/syscalls/sys_enter_openat","kprobe/do_sys_openat2",
     "tp/syscalls/sys_enter_unlinkat","tp/syscalls/sys_enter_renameat2","tp/syscalls/sys_enter_fchmodat","tp/syscalls/sys_enter_socket",

@@ -1,23 +1,13 @@
-release/
-.vscode/
-
-# 上游原始副本（嵌套 git 子仓库，不可提交）
-upstream-original/
-
-# 测试资产（开发期测试用，不提交；打包镜像可由 src/ 随时重建）
+# 测试
 test/
-
-# per-host 生成（每台 BTF 不同，主机本地 bpftool 生成，不可拷贝/提交）
-src/vmlinux.h
-
-# 个人本地配置
 .claude
 .zcode
-# 信创适配/开发笔记文档（本地参考，不进版本库；README 引用的模块文档在 doc/ 仍跟踪）
+
+# 开发文档
 notes/
 
 # 构建产物
 *.o
 *.a
 *.so
-*.skel.h
+!src/include/libblazesym_c.a

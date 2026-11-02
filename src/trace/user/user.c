@@ -794,8 +794,6 @@ printf(" %d\n",
 
 //communicate with main.c
 int test_user(Args args) {
-fprintf(stderr, "Error polling perf buffer: %d\n", args.if_output_as_origin);
-fprintf(stderr, "Error polling perf buffer: %d\n", args.if_output_as_json);
     my_args_user = args;
     std::cerr << "=============test=============" << std::endl << std::endl;
     fprintf(stderr, "=========================test=========================\n");

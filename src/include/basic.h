@@ -53,7 +53,6 @@ void info();
  */
 long int getCurrentTimestamp(int type);
 
-std::string getFormatTime();
 
 
 

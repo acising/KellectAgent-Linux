@@ -1102,28 +1102,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
             struct RecvMmsgEvent *e = (struct RecvMmsgEvent *) data;
 
             /* monitor IPv4, IPv6 sockets only */
-            //if (e->recvmmsgArguments.sa_family != AF_INET && e->recvmmsgArguments.sa_family != AF_INET6) {
-                //break;
-            //}
 
-            /* declare ip and port for display */
-            //char ip[INET6_ADDRSTRLEN];
-            //int port = ntohs(e->recvmmsgArguments.s_port);
-
-            /* process IPv4 and IPv6 address */
-            //switch (e->recvmmsgArguments.sa_family) {
-                //case AF_INET: {
-                    //inet_ntop(AF_INET, &(e->recvmmsgArguments.s_addr), ip, INET_ADDRSTRLEN);
-                    //break;
-                //}
-                //case AF_INET6: {
-                    //inet_ntop(AF_INET6, &(e->recvmmsgArguments.s_addr_v6), ip, INET6_ADDRSTRLEN);
-                    //break;
-                //}
-                //default: {
-                    //break;
-                //}
-            //}
 
             if (my_args_network.if_output_to_file)
             {
@@ -1202,28 +1181,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
             struct SendMmsgEvent *e = (struct SendMmsgEvent *) data;
 
             /* monitor IPv4, IPv6 sockets only */
-            //if (e->sendmmsgArguments.sa_family != AF_INET && e->sendmmsgArguments.sa_family != AF_INET6) {
-                //break;
-            //}
 
-            /* declare ip and port for display */
-            //char ip[INET6_ADDRSTRLEN];
-            //int port = ntohs(e->sendmmsgArguments.s_port);
-
-            /* process IPv4 and IPv6 address */
-            //switch (e->sendmmsgArguments.sa_family) {
-                //case AF_INET: {
-                    //inet_ntop(AF_INET, &(e->sendmmsgArguments.s_addr), ip, INET_ADDRSTRLEN);
-                    //break;
-                //}
-                //case AF_INET6: {
-                    //inet_ntop(AF_INET6, &(e->sendmmsgArguments.s_addr_v6), ip, INET6_ADDRSTRLEN);
-                    //break;
-                //}
-                //default: {
-                    //break;
-                //}
-            //}
 
             if (my_args_network.if_output_to_file)
             {

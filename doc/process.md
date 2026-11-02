@@ -1,83 +1,22 @@
-# Details of Process&Thread Event
+# KellectAgent-Linux — Process & Thread Events
 
-## 1. Process Forking
+> Part of the [KellectAgent-Linux documentation](../README.md).
 
-|   Parameter   |                           Description                            | Comments |
-|:-------------:|:----------------------------------------------------------------:|:--------:|
-| `parent_pid`  |                 The `pid` of the current process                 |    -     |
-| `parent_comm` | The name of the executable that’s running in the current process |    -     |
-|  `child_pid`  |              The `pid` of the forked child process               |    -     |
-| `child_comm`  |        The executable's name of the forked child process         |    -     | 
+### Process & thread (18 event types)
 
-## 2. Process Executing
+| Id |      Event       |        Key Parameters         |
+|:--:|:----------------:|:-----------------------------:|
+| 1  |      FORK        |     child_pid, child_comm     |
+| 2  |  EXEC / EXECVE / EXECVEAT | filename, old_pid, fd, call stack |
+| 3  | CLONE / CLONE3 / VFORK |  flags, stack, tls  |
+| 4  | EXIT / EXIT_GROUP |      exit_code, prio         |
+| 5  |   PIPE / PIPE2   |     read_fd, write_fd        |
+| 6  | KILL / TGKILL / TKILL | pid, signal (sender + target) |
+| 7  |     PTRACE       |     request, pid, addr       |
+| 8  |      MMAP        | addr, len, prot, flags, fd   |
+| 9  |    MPROTECT      |       addr, len, prot        |
 
-| Parameter  |                           Description                            | Comments |
-|:----------:|:----------------------------------------------------------------:|:--------:|
-|   `pid`    |                 The `pid` of the current process                 |    -     |
-| `old_pid`  |         The `pid` of the process before calling `exec()`         |    -     |
-| `filename` | The name of the executable that’s running in the current process |    -     |
-|   `fd`(execveat)    |                 A file descriptor that refers to an open directory                  |    -     |
-| `flags`(execveat)  |         Additional behavior for executing process         |    -     |
-| `filename` | The name of the executable that’s running in the current process |    -     |  
+## Call Stack Symbolization
 
-## 3. Process Cloning
+Exec events (`EXECVE` / `EXECVEAT`) capture the user-space call stack via `bpf_get_stackid` and resolve it to human-readable symbols with blazesym (including C++ demangling). The stack belongs to the parent's address space (fork inheritance), so symbolization uses the **real parent** captured at event time — short-lived one-liner processes get correctly symbolized stacks too.
 
-|    Parameter    |                                           Description                                           |                                  Comments                                   |
-|:---------------:|:-----------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------:|
-|  `clone_flags`  |                 Specifies various flags that control the behavior of `clone()`                  |                                      -                                      |
-|     `newsp`     |                                 The location of the child stack                                 |                                  A pointer                                  |
-|      `tls`      |                  A new TLS (Thread Local Storage) block for the child process                   | This is a pointer. When not using TLS, this parameter will be set to `NULL` |
-| `parent_tidptr` |            The location of a variable that will be set to the PID of the new process            |                                  A pointer                                  |
-| `child_tidptr`  | The location of a variable that will be set to the PID of the new process’s thread group leader |                                  A pointer                                  | 
-
-## 4. Process Exiting 
-
-|  Parameter   |                          Description                           |     Comments      |
-|:------------:|:--------------------------------------------------------------:|:-----------------:|
-| `exit_code`  |                    Exit code of the process                    |         -         | 
-|    `prio`    |       The priority of the process at the time it exited        |     -             |
-|    `pid`    |       The `pid` of the current process        |     -             |
-|    `comm`    |       The commond of the process at the time it exited        |     -             |
-
-## 5. Process Creating Pipe
-
-|  Parameter   |                          Description                           |     Comments      |
-|:------------:|:--------------------------------------------------------------:|:-----------------:|
-| `fildes`  |                  File descriptors for both read and write ends                  |         -         |
-| `flags`  |                    Additional behavior for creating pipe                   |         -         | 
-
-## 6. Process Killing
-
-|  Parameter   |                          Description                           |     Comments      |
-|:------------:|:--------------------------------------------------------------:|:-----------------:|
-| `pid`  |                    The `pid` of the  process which will be killed                   |         -         | 
-| `sig`  |                    a number of signal which will be sent to process               |         -         |
-| `tgid`(tgkill)  |                   Thread ID of the main thread in the thread group               |         -         | 
-
-## 7. Process Tracing
-
-|  Parameter   |                          Description                           |     Comments      |
-|:------------:|:--------------------------------------------------------------:|:-----------------:|
-| `request`  |              a  number indicates which command should be executed                    |         -         | 
-| `pid`  |                    The `pid` of the  process which will be traced               |         -         | 
-| `addr`  |                    the memory address to be monitored                   |         -         | 
-| `data`  |                    data that is read, retrieved, or to be written               |         -         | 
-
-## 8. Process Creating memory-mapped
-
-|  Parameter   |                          Description                           |     Comments      |
-|:------------:|:--------------------------------------------------------------:|:-----------------:|
-| `addr`  |                    The starting address of the mapping area                   |         -         | 
-| `len`  |                    The size of the mapping area               |         -         |
-| `prot`  |                   Access permissions for shared memory               |         -         | 
-| `flags`  |                    Additional behavior for creating memory-mapped                   |         -         | 
-| `fd`  |                    A file descriptor that refers to an open directory               |         -         |
-| `off`  |                   The offset of the file pointer during mapping               |         -         | 
-
-## 9. Changing access permissions for process virtual memory areas
-
-|  Parameter   |                          Description                           |     Comments      |
-|:------------:|:--------------------------------------------------------------:|:-----------------:|
-| `start`  |                     the starting address of the protection  area                   |         -         | 
-| `len`  |                   The size of the modified protection attribute area               |         -         |
-| `prot`  |                   the memory protection properties               |         -         | 

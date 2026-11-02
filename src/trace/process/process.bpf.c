@@ -47,8 +47,6 @@ struct {
 } stack_map SEC(".maps");
 
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
-static __always_inline __u16 my_ntohs(__u16 netshort) {
-return ((netshort>>8)&0xff) | ((netshort<<8)&0xff00);
 }
 struct pipe_args {
     struct PipeEvent event;

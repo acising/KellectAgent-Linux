@@ -11,8 +11,6 @@
 #define AF_INET     2       /* Internet IP Protocol */
 #define AF_INET6    10      /* IP version 6 */
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
-static __always_inline __u16 my_ntohs(__u16 netshort) {
-return ((netshort>>8)&0xff) | ((netshort<<8)&0xff00);
 }
 struct pipe_args {
     struct PipeEvent event;
@@ -3318,19 +3316,7 @@ int handle_recvmmsg(struct trace_event_raw_sys_enter *ctx)
     //e->recvmmsgArguments.sa_family = s_family;
 
     /* IPv4 */
-    //if (s_family == 2)
-    //{
-        //struct sockaddr_in *sock = (struct sockaddr_in *)BPF_CORE_READ_USER(msg, msg_name);
-        //bpf_core_read_user(&e->recvmmsgArguments.s_addr, sizeof(e->recvmmsgArguments.s_addr), &sock->sin_addr.s_addr);
-        //bpf_core_read_user(&e->recvmmsgArguments.s_port, sizeof(e->recvmmsgArguments.s_port), &sock->sin_port);
-    //}
     /* IPv6 */
-    //else if (s_family == 10)
-    //{
-        //struct sockaddr_in6 *sock = (struct sockaddr_in6 *)BPF_CORE_READ_USER(msg, msg_name);
-        //bpf_core_read_user(&e->recvmmsgArguments.s_addr_v6, sizeof(e->recvmmsgArguments.s_addr_v6), &sock->sin6_addr);
-        //bpf_core_read_user(&e->recvmmsgArguments.s_port, sizeof(e->recvmmsgArguments.s_port), &sock->sin6_port);
-    //}
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
@@ -3379,19 +3365,7 @@ int handle_sendmmsg(struct trace_event_raw_sys_enter *ctx)
     //e->sendmmsgArguments.sa_family = s_family;
 
     /* IPv4 */
-    //if (s_family == 2)
-    //{
-        //struct sockaddr_in *sock = (struct sockaddr_in *)BPF_CORE_READ_USER(msg, msg_name);
-        //bpf_core_read_user(&e->sendmmsgArguments.s_addr, sizeof(e->sendmmsgArguments.s_addr), &sock->sin_addr.s_addr);
-        //bpf_core_read_user(&e->sendmmsgArguments.s_port, sizeof(e->sendmmsgArguments.s_port), &sock->sin_port);
-    //}
     /* IPv6 */
-    //else if (s_family == 10)
-    //{
-        //struct sockaddr_in6 *sock = (struct sockaddr_in6 *)BPF_CORE_READ_USER(msg, msg_name);
-        //bpf_core_read_user(&e->sendmmsgArguments.s_addr_v6, sizeof(e->sendmmsgArguments.s_addr_v6), &sock->sin6_addr);
-        //bpf_core_read_user(&e->sendmmsgArguments.s_port, sizeof(e->sendmmsgArguments.s_port), &sock->sin6_port);
-    //}
 
     /* send data to user-space for post-processing */
     bpf_ringbuf_submit(e, 0);
