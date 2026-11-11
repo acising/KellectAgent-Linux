@@ -47,7 +47,6 @@ struct {
 } stack_map SEC(".maps");
 
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
-}
 struct pipe_args {
     struct PipeEvent event;
     u64 sv_value_ptr;

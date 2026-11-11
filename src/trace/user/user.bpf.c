@@ -6,8 +6,6 @@
 #include "../../include/user.h"
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
 
-}
-
 
 struct {
     __uint(type, BPF_MAP_TYPE_RINGBUF);

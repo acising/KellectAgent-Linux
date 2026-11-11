@@ -1121,7 +1121,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                                             "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Flags\":%d, "
-                                            "\"Addrlen\":%d}
+                                            "\"Addrlen\":%d}"
 
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -1156,7 +1156,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                                             "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Flags\":%d, "
-                                            "\"Addrlen\":%d}
+                                            "\"Addrlen\":%d}"
 
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -1200,7 +1200,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                                             "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Flags\":%d, "
-                                            "\"Addrlen\":%d}
+                                            "\"Addrlen\":%d}"
 
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,
@@ -1235,7 +1235,7 @@ static int handle_network_event(void *ctx, void *data, size_t data_sz) {
                                             "\"Arguments\":{"
                                             "\"fd\":%d, "
                                             "\"Flags\":%d, "
-                                            "\"Addrlen\":%d}
+                                            "\"Addrlen\":%d}"
 
                                             "} \n",
                             getCurrentTimestamp(TIMESTAMP_MICROSECOND), event_type, e->event.comm, e->event.pid, e->event.ppid, process_type,

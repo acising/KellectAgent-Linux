@@ -11,7 +11,6 @@
 #define AF_INET     2       /* Internet IP Protocol */
 #define AF_INET6    10      /* IP version 6 */
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
-}
 struct pipe_args {
     struct PipeEvent event;
     u64 sv_value_ptr;
